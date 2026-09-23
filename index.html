@@ -75,7 +75,7 @@
 <body>
   <main>
     <section id="setup" class="panel setup">
-      <div class="eyebrow">Regolamento V4.3 · Mazzo V4.1</div>
+      <div class="eyebrow">Regolamento V4.3 · Mazzo V4.3</div>
       <h2>Apri il tuo banco</h2>
       <p>Drafta i clienti, gareggia nelle aste e completa i contratti per costruire la tua pescheria. Giochi tu; gli altri mercanti sono gestiti dal computer.</p>
       <div class="form">
@@ -121,25 +121,24 @@ const BANCO_BASE=6,CESTA_CAP=3,START_COINS=12,HAND=5;
 const UPG={
   'Banco Ampliato':{cat:'A',img:'banco-migliorato',fx:'+1 spazio al Banco per ogni copia.'},
   'Fiuto per il Pescato':{cat:'A',img:'fiuto-pescato',fx:'Ogni mattina ricevi dal Sacchetto il pesce raffigurato.'},
-  'Esperienza':{cat:'E',img:'capitano-aste',fx:'+1 Ducato Influenza al giorno per copia: +1 al Valore d’Asta, perso se non speso.'},
-  'Nuovi Clienti':{cat:'E',img:'amico-pescatori',fx:'Se partecipi e perdi un’asta: 1 copia pesca 1 carta; 2 copie pesca 2 e tieni 1; 3+ copie pesca 3 e tieni 1.'},
+  'Esperienza':{cat:'E',img:'eco-capitano',fx:'+1 Ducato Influenza al giorno per copia: +1 al Valore d’Asta, perso se non speso.'},
+  'Nuovi Clienti':{cat:'E',img:'patto-scarto',fx:'Se partecipi e perdi un’asta: 1 copia pesca 1 carta; 2 copie pesca 2 e tieni 1; 3+ copie pesca 3 e tieni 1.'},
   'Contrattazione Sottobanco':{cat:'C',img:'contrattazione',fx:'Sostituisci 1 pesce di un contratto con 2 pesci uguali di altro tipo. Una sostituzione al giorno per copia.'},
   'Favorito della Gilda':{cat:'C',img:'favorito-gilda',fx:'Contratti col pesce favorito: +2 Ducati (1ª copia), +1 per ogni copia successiva.'},
-  "Maestro dell'Approvvigionamento":{cat:'B',img:'maestro-bilancia',fx:'≥3 carte ⚓ installate: +2 Ducati a Fine Giornata per copia.'},
-  "Maestro dell'Esperienza":{cat:'B',img:'eco-capitano',fx:'≥3 carte 🔨 installate: +2 Ducati a Fine Giornata per copia.'},
-  'Maestro del Commercio':{cat:'B',img:'arte-venditore',fx:'≥3 carte 💰 installate: +2 Ducati a Fine Giornata per copia.'},
-  'Banco Equilibrato':{cat:'B',img:'rendita-banco',fx:'≥2 carte in ⚓, 🔨 e 💰: +3 Ducati a Fine Giornata per copia.'},
-  'Diversificazione':{cat:'B',img:'mercante-astuto',fx:'+1 Ducato a Fine Giornata per ogni tipo distinto di miglioria non-Bilancia (max 6), per copia.'}
+  'Maestro della Pescaria':{cat:'B',img:'amico-pescatori',fx:'A Fine Giornata: +2 Ducati per ogni carta ⚓ installata.'},
+  'Maestro delle Aste':{cat:'B',img:'capitano-aste',fx:'A Fine Giornata: +2 Ducati per ogni carta 🔨 installata.'},
+  'Maestro del Mercato':{cat:'B',img:'arte-venditore',fx:'A Fine Giornata: +2 Ducati per ogni carta 💰 installata.'},
+  'Maestro della Bilancia':{cat:'B',img:'maestro-bilancia',fx:'A Fine Giornata: +2 Ducati per ogni altra carta ⚖ installata.'}
 };
 const ASSET={
   phase:{rete:'assets/phase/ingrosso.png',asta:'assets/phase/aste.png',pubblico:'assets/phase/pescheria.png',bilancia:'assets/phase/bilancia.png'},
   fish:{Polpi:'assets/fish/polpo.png',Gamberi:'assets/fish/gambero.png',Molluschi:'assets/fish/mollusco.png',Branzini:'assets/fish/branzino.png',Sardine:'assets/fish/sardina.png'},
   upgrade:Object.fromEntries(Object.entries(UPG).map(([k,v])=>[k,`assets/upgrades/${v.img}.png`]))
 };
-// Mazzo V4.1 — id|nome|asta|guadagno|pesce|categoria|miglioria|pesce Fiuto
+// Mazzo V4.3 (CSV Dextrous) — id|nome|asta|guadagno|pesce|categoria|miglioria|pesce Fiuto
 const RAW=`1|Bacaro Risorto|3|4|2 Sardine|A|Banco Ampliato|
 2|Bacaro della Laguna|2|3|1 Branzino|E|Esperienza|
-3|La Perla Nera|3|4|1 Mollusco|B|Banco Equilibrato|
+3|La Perla Nera|3|4|1 Mollusco|B|Maestro del Mercato|
 4|Osteria ai Pugni|4|4|1 Gambero|C|Contrattazione Sottobanco|
 5|Le Tre Marie|3|6|2 Branzini|A|Banco Ampliato|
 6|Osteria Pescheria|2|6|1 Sardina, 1 Branzino|E|Nuovi Clienti|
@@ -149,26 +148,26 @@ const RAW=`1|Bacaro Risorto|3|4|2 Sardine|A|Banco Ampliato|
 10|Cantina do Mori|2|7|1 Mollusco, 1 Sardina|E|Nuovi Clienti|
 11|Bacaro da Lele|3|8|1 Gambero, 1 Branzino|A|Banco Ampliato|
 12|Osteria Luna Piena|4|8|1 Polpo, 1 Sardina|C|Favorito della Gilda|
-13|Al Sole Splendente|4|12|2 Branzini, 1 Mollusco|B|Diversificazione|
+13|Al Sole Splendente|4|12|2 Branzini, 1 Mollusco|B|Maestro del Mercato|
 14|Osteria da Tiziano|5|17|1 Branzino, 1 Mollusco, 1 Gambero|C|Favorito della Gilda|
 15|Famiglia Tiepolo|5|13|2 Molluschi, 1 Branzino|E|Esperienza|
 16|Cantina del Mistero|4|10|2 Sardine, 1 Gambero|A|Fiuto per il Pescato|Gambero
 17|Osteria dell'Angelo|3|10|1 Gambero, 2 Sardine|A|Fiuto per il Pescato|Gambero
-18|Bacaro della Riva|2|2|1 Sardina|B|Maestro dell'Approvvigionamento|
-19|Bacaro Al Volo|3|10|2 Polpi|B|Maestro dell'Esperienza|
+18|Bacaro della Riva|2|2|1 Sardina|B|Maestro della Pescaria|
+19|Bacaro Al Volo|3|10|2 Polpi|B|Maestro della Bilancia|
 20|Vecia Murano|4|10|1 Gambero, 1 Mollusco|E|Nuovi Clienti|
-21|Il Nono di Giudecca|2|6|2 Branzini|B|Maestro del Commercio|
-22|Laguna Segreta|4|11|1 Polpo, 1 Gambero|B|Banco Equilibrato|
+21|Il Nono dea Gnecca|2|6|2 Branzini|B|Maestro delle Aste|
+22|Laguna Segreta|4|11|1 Polpo, 1 Gambero|B|Maestro della Bilancia|
 23|Ristorante la Fenice|3|8|2 Molluschi|C|Contrattazione Sottobanco|
 24|Alla Tecia|4|11|1 Branzino, 1 Mollusco, 1 Sardina|C|Favorito della Gilda|
 25|Osteria Da Marisa|2|2|1 Sardina|A|Fiuto per il Pescato|Sardina
-26|Osteria del Sestiere|5|10|2 Branzini, 1 Sardina|B|Maestro dell'Approvvigionamento|
-27|Bacaro del Pirata|5|5|1 Polpo|B|Maestro dell'Esperienza|
-28|Campiello Segreto|7|7|1 Sardina, 1 Gambero|B|Maestro del Commercio|
-29|Lo Sbarco dei Mori|5|9|3 Branzini|B|Diversificazione|
-30|Osteria del Ballo|6|11|1 Gambero, 1 Branzino, 1 Sardina|B|Banco Equilibrato|
-31|Bacaro La Bottega Oscura|7|14|2 Molluschi, 1 Gambero|B|Diversificazione|
-32|Bacaro della Stella Cadente|4|3|1 Branzino|E|Nuovi Clienti|
+26|Osteria del Sestiere|5|10|2 Branzini, 1 Sardina|B|Maestro delle Aste|
+27|Bacaro del Pirata|5|5|1 Polpo|B|Maestro delle Aste|
+28|Campiello Segreto|7|7|1 Sardina, 1 Gambero|B|Maestro della Pescaria|
+29|Lo Sbarco dei Mori|5|9|3 Branzini|B|Maestro della Pescaria|
+30|Osteria del Ballo|6|11|1 Gambero, 1 Branzino, 1 Sardina|B|Maestro della Pescaria|
+31|La Bottega Oscura|7|14|2 Molluschi, 1 Gambero|B|Maestro delle Aste|
+32|La Stella Cadente|4|3|1 Branzino|E|Nuovi Clienti|
 33|Famiglia Dolfin|5|4|1 Gambero|A|Banco Ampliato|
 34|Osteria del Sapore|6|7|1 Sardina, 1 Mollusco|E|Esperienza|
 35|Trattoria Al Vecio Calice|5|5|1 Polpo|E|Esperienza|
@@ -176,44 +175,44 @@ const RAW=`1|Bacaro Risorto|3|4|2 Sardine|A|Banco Ampliato|
 37|Al Ponte del Diavolo|7|11|1 Gambero, 2 Branzini|C|Contrattazione Sottobanco|
 38|Al Ponte di Rialto|5|10|1 Polpo, 1 Branzino|A|Fiuto per il Pescato|Polpo
 39|Trattoria alla Pansa|6|11|2 Gamberi, 1 Sardina|E|Esperienza|
-40|Ai Gondolieri|6|8|1 Branzino, 1 Mollusco|B|Banco Equilibrato|
-41|Il Pescatore Allegro|5|12|2 Sardine, 2 Branzini|C|Contrattazione Sottobanco|
+40|Ai Gondolieri|6|8|1 Branzino, 1 Mollusco|B|Maestro delle Aste|
+41|Il Pescatore Allegro|5|12|2 Sardine, 1 Branzino|C|Contrattazione Sottobanco|
 42|Ristorante Da Fiore|6|14|1 Polpo, 1 Mollusco, 1 Sardina|C|Contrattazione Sottobanco|
 43|Al Magna e Bevi|5|3|1 Branzino|C|Favorito della Gilda|
 44|Bacaro Nascosto|5|8|2 Molluschi|C|Favorito della Gilda|
 45|Osteria della Bilancia|6|7|1 Gambero, 1 Sardina|A|Banco Ampliato|
-46|Il Bacaro delle Zattere|6|5|1 Polpo|B|Diversificazione|
+46|Il Bacaro delle Zattere|6|5|1 Polpo|B|Maestro della Bilancia|
 47|Osteria del Pesce Fritto|5|11|1 Gambero, 1 Branzino, 1 Sardina|A|Banco Ampliato|
 48|Osteria alla Vedova Nera|6|14|2 Molluschi, 1 Gambero|C|Contrattazione Sottobanco|
-49|Locanda del Leone|6|6|1 Branzino, 1 Sardina|B|Maestro dell'Approvvigionamento|
-50|Osteria alla Gondola d'Argento|5|11|2 Gamberi, 1 Branzino|A|Banco Ampliato|
+49|Locanda del Leone|6|6|1 Branzino, 1 Sardina|B|Maestro del Mercato|
+50|La Gondola d'Argento|5|11|2 Gamberi, 1 Branzino|A|Banco Ampliato|
 51|All'Arco Sconto|6|8|1 Polpo, 1 Sardina|C|Favorito della Gilda|
 52|Osteria del Ponte Misterioso|6|4|1 Gambero|E|Esperienza|
-53|Bacaro all'Antica Sonada|5|12|2 Branzini, 1 Mollusco|B|Diversificazione|
+53|All'Antica Sonada|5|12|2 Branzini, 1 Mollusco|B|Maestro della Bilancia|
 54|Osteria del Cicheto|6|17|1 Branzino, 1 Mollusco, 1 Gambero|A|Fiuto per il Pescato|Branzino
 55|Al Bucaniere|8|18|1 Polpo, 1 Mollusco, 1 Gambero|E|Esperienza|
-56|Al Rigattier|5|11|1 Sardina, 1 Gambero, 1 Branzino|B|Maestro dell'Esperienza|
+56|Al Rigattier|5|11|1 Sardina, 1 Gambero, 1 Branzino|B|Maestro del Mercato|
 57|Osteria del Porto Antico|5|4|2 Sardine|A|Fiuto per il Pescato|Sardina
 58|Alla Calle Sconta|7|10|1 Polpo, 1 Branzino|C|Contrattazione Sottobanco|
 59|Bacaro della Serenata|5|9|3 Branzini|C|Contrattazione Sottobanco|
 60|Al Vecio Vaporetto|6|10|1 Gambero, 1 Mollusco|A|Fiuto per il Pescato|Mollusco
-61|Bacaro al Balo|7|17|1 Branzino, 1 Mollusco, 1 Gambero|B|Maestro del Commercio|
+61|Bacaro al Balo|7|17|1 Branzino, 1 Mollusco, 1 Gambero|B|Maestro del Mercato|
 62|Osteria alla Perla|5|13|2 Molluschi, 1 Branzino|C|Favorito della Gilda|
-63|Osteria al Turista Perduto|6|12|1 Polpo, 1 Sardina, 1 Branzino|C|Favorito della Gilda|
-64|Osteria Al Nono Scantabauchi|7|10|1 Gambero, 2 Sardine|C|Contrattazione Sottobanco|
+63|Al Turista Perduto|6|12|1 Polpo, 1 Sardina, 1 Branzino|C|Favorito della Gilda|
+64|Al Nono Scantabauchi|7|10|1 Gambero, 2 Sardine|C|Contrattazione Sottobanco|
 65|Osteria alla Bolla|4|3|1 Branzino|E|Nuovi Clienti|
 66|Osteria alla Briscola|6|14|1 Gambero, 1 Mollusco, 1 Sardina|A|Fiuto per il Pescato|Mollusco
-67|Bacaro Ai Botti|5|5|1 Polpo|B|Maestro del Commercio|
+67|Bacaro Ai Botti|5|5|1 Polpo|B|Maestro della Pescaria|
 68|Alla Rete|5|8|2 Gamberi|E|Esperienza|
 69|Bacaro Al Vapore|5|4|1 Mollusco|A|Banco Ampliato|
 70|Bacaro Al Gatto Nero|7|12|1 Sardina, 1 Branzino, 1 Gambero|E|Esperienza|
 71|Ristorante alla Frasca|8|11|1 Polpo, 1 Mollusco|E|Nuovi Clienti|
-72|Il Nobile Granchio|9|11|1 Gambero, 1 Branzino, 1 Sardina|B|Maestro dell'Approvvigionamento|
+72|Il Nobile Granchio|9|11|1 Gambero, 1 Branzino, 1 Sardina|B|Maestro delle Aste|
 73|Trattoria Pastasutta|9|18|1 Polpo, 1 Branzino, 1 Mollusco|E|Esperienza|
 74|Trattoria del Capitano|8|10|2 Polpi|C|Contrattazione Sottobanco|
-75|Ristorante Al Gondoliere|9|14|1 Gambero, 1 Mollusco, 1 Sardina|B|Maestro del Commercio|
+75|Ristorante Al Gondoliere|9|14|1 Gambero, 1 Mollusco, 1 Sardina|B|Maestro della Pescaria|
 76|Osteria dello Squero|7|3|1 Branzino|E|Nuovi Clienti|
-77|Locanda Alle Vele|8|11|2 Gamberi, 1 Sardina|B|Banco Equilibrato|
+77|Locanda Alle Vele|8|11|2 Gamberi, 1 Sardina|B|Maestro della Bilancia|
 78|Locanda La Risata|9|10|1 Polpo, 1 Branzino|A|Banco Ampliato|
 79|Ristorante Do Forni|10|17|1 Gambero, 1 Mollusco, 1 Branzino|A|Fiuto per il Pescato|Branzino
 80|Osteria Ninfea|6|4|1 Mollusco|A|Banco Ampliato|
@@ -222,18 +221,18 @@ const RAW=`1|Bacaro Risorto|3|4|2 Sardine|A|Banco Ampliato|
 83|Ristorante Ca' Foscari|8|12|2 Branzini, 1 Mollusco|C|Favorito della Gilda|
 84|Trattoria del Rio|7|6|1 Branzino, 1 Sardina|A|Banco Ampliato|
 85|Osteria Vecio Bacan|10|14|2 Molluschi, 1 Gambero|A|Banco Ampliato|
-86|Trattoria Ai Pie del Ponte|9|18|1 Polpo, 1 Mollusco, 1 Gambero|E|Esperienza|
-87|Ristorante La Corte dei Morosini|9|12|2 Sardine, 2 Branzini|E|Esperienza|
-88|Trattoria Ala Botte Bona|8|5|1 Polpo|E|Nuovi Clienti|
+86|Ai Pie del Ponte|9|18|1 Polpo, 1 Mollusco, 1 Gambero|E|Esperienza|
+87|Ristorante dei Morosini|9|12|2 Sardine, 1 Branzino|E|Esperienza|
+88|La Botte Bona|8|5|1 Polpo|E|Nuovi Clienti|
 89|Ristorante Al Tramonto|8|7|1 Mollusco, 1 Sardina|C|Favorito della Gilda|
 90|Trattoria Il Gatto Rosso|7|6|2 Branzini|C|Contrattazione Sottobanco|
 91|Famiglia Contarini|10|11|1 Polpo, 1 Mollusco|A|Fiuto per il Pescato|Polpo
-92|Famiglia Dandolo|8|11|1 Gambero, 1 Branzino, 1 Sardina|B|Maestro dell'Approvvigionamento|
-93|Famiglia Corner|9|10|1 Polpo, 1 Branzino|B|Maestro dell'Esperienza|
+92|Famiglia Dandolo|8|11|1 Gambero, 1 Branzino, 1 Sardina|B|Maestro della Bilancia|
+93|Famiglia Corner|9|10|1 Polpo, 1 Branzino|B|Maestro del Mercato|
 94|Famiglia Zeno|10|8|1 Gambero, 1 Branzino|E|Esperienza|
 95|Famiglia Querini|6|4|1 Mollusco|A|Banco Ampliato|
 96|Famiglia Barbarigo|9|14|1 Sardina, 1 Gambero, 1 Mollusco|E|Nuovi Clienti|
-97|Famiglia Grimani|10|12|1 Polpo, 1 Branzino, 1 Gambero|B|Maestro dell'Esperienza|
+97|Famiglia Grimani|10|12|1 Polpo, 1 Branzino, 1 Gambero|B|Maestro della Pescaria|
 98|Famiglia Barbaro|8|12|2 Branzini, 1 Mollusco|A|Fiuto per il Pescato|Branzino
 99|Famiglia Loredan|7|6|1 Branzino, 1 Sardina|C|Contrattazione Sottobanco|
 100|Famiglia Mocenigo|10|14|2 Molluschi, 1 Gambero|C|Favorito della Gilda|`;
@@ -420,17 +419,10 @@ function finishMarket(){
 }
 
 // ---------------- Fase 4 · Fine Giornata ----------------
+const MAESTRO={'Maestro della Pescaria':'A','Maestro delle Aste':'E','Maestro del Mercato':'C','Maestro della Bilancia':'B'},MAESTRO_X=2;
 function bilanciaIncome(p){
-  const out=[],nonB=['A','E','C'];
-  for(const c of p.installed.filter(c=>c.cat==='B')){
-    let v=0;
-    if(c.up==="Maestro dell'Approvvigionamento")v=catCount(p,'A')>=3?2:0;
-    else if(c.up==="Maestro dell'Esperienza")v=catCount(p,'E')>=3?2:0;
-    else if(c.up==='Maestro del Commercio')v=catCount(p,'C')>=3?2:0;
-    else if(c.up==='Banco Equilibrato')v=nonB.every(k=>catCount(p,k)>=2)?3:0;
-    else if(c.up==='Diversificazione')v=Math.min(6,new Set(p.installed.filter(x=>x.cat!=='B').map(x=>x.up)).size);
-    out.push({card:c,v})}
-  return out;
+  // Ogni Maestro: +2 per ogni carta installata della sua categoria, nessuna soglia. Il Maestro della Bilancia non conta sé stesso.
+  return p.installed.filter(c=>c.cat==='B').map(c=>{const k=MAESTRO[c.up];return{card:c,v:MAESTRO_X*(catCount(p,k)-(k==='B'?1:0))}});
 }
 function startEndOfDay(){
   G.phase='bilancia';
@@ -469,10 +461,7 @@ function botUpgradeValue(p,c){
   if(c.up==='Nuovi Clienti')v+=copies(p,'Nuovi Clienti')<3?daysLeft*.9:0;
   if(c.up==='Contrattazione Sottobanco')v+=daysLeft*1;
   if(c.up==='Favorito della Gilda')v+=daysLeft*2;
-  if(cat==='B'){const need={"Maestro dell'Approvvigionamento":['A',3],"Maestro dell'Esperienza":['E',3],'Maestro del Commercio':['C',3]}[c.up];
-    if(need){const have=catCount(p,need[0])+p.pending.filter(x=>x.cat===need[0]).length;v+=have>=need[1]?daysLeft*2:have>=1?daysLeft*.8:0}
-    else if(c.up==='Banco Equilibrato')v+=['A','E','C'].every(k=>catCount(p,k)>=1)?daysLeft*1.5:daysLeft*.4;
-    else v+=daysLeft*Math.min(6,new Set(p.installed.filter(x=>x.cat!=='B').map(x=>x.up)).size+1)*.8}
+  if(cat==='B'){const k=MAESTRO[c.up],have=catCount(p,k)+p.pending.filter(x=>x.cat===k).length+(k==='B'?0:1)*0;v+=daysLeft*MAESTRO_X*Math.max(.5,have)}
   return v;
 }
 function availability(p,c){const stock=mix(mix(p.banco,p.cesta),G.market);let miss=0,need=0;for(const [f,n] of Object.entries(c.recipe)){need+=n;miss+=Math.max(0,n-(stock[f]||0))}return need?1-miss/need:1}
@@ -620,7 +609,7 @@ $('rules').innerHTML=`<div class="rule"><b>🏴 Bonus Stendardo</b>Ogni contratt
 
 // Autocontrollo del mazzo V4.1: 100 carte, 25 per categoria, Fiuto 2-3-2-3-2 e sempre un pesce del contratto.
 const fiuto=CARDS.filter(c=>c.up==='Fiuto per il Pescato');
-console.assert(CARDS.length===100&&['A','E','C','B'].every(k=>CARDS.filter(c=>c.cat===k).length===25)&&CARDS.every(c=>UPG[c.up]&&UPG[c.up].cat===c.cat&&Object.keys(c.recipe).every(f=>FISH.includes(f)))&&fiuto.length===12&&fiuto.every(c=>c.recipe[c.fiuto])&&FISH.map(f=>fiuto.filter(c=>c.fiuto===f).length).join('')==='23232','Mazzo Pescaria V4.1 non valido');
+console.assert(CARDS.length===100&&['A','E','C','B'].every(k=>CARDS.filter(c=>c.cat===k).length===25)&&CARDS.every(c=>UPG[c.up]&&UPG[c.up].cat===c.cat&&Object.keys(c.recipe).every(f=>FISH.includes(f)))&&fiuto.length===12&&fiuto.every(c=>c.recipe[c.fiuto])&&FISH.map(f=>fiuto.filter(c=>c.fiuto===f).length).join('')==='23232'&&CARDS.filter(c=>c.cat==='B').every(c=>MAESTRO[c.up]),'Mazzo Pescaria V4.3 non valido');
 
 // Hook per le simulazioni automatiche (solo test headless).
 if(HEADLESS)window.__pescaria={simulate(opts){startGame({humanBot:true,name:'Bot0',...opts});return{G,ranking:ranking()}},CARDS};
