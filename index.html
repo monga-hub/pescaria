@@ -75,7 +75,7 @@
 <body>
   <main>
     <section id="setup" class="panel setup">
-      <div class="eyebrow">Regolamento V4.3 · Mazzo V4.3</div>
+      <div class="eyebrow">Regolamento V4.3 · Mazzo V4.5</div>
       <h2>Apri il tuo banco</h2>
       <p>Drafta i clienti, gareggia nelle aste e completa i contratti per costruire la tua pescheria. Giochi tu; gli altri mercanti sono gestiti dal computer.</p>
       <div class="form">
@@ -117,10 +117,12 @@ const BOTNAMES=['Lucia','Dario','Bianca','Enrico'];
 const PHASES=[['rete','1 · Pesca del Mattino'],['asta','2 · Aste'],['pubblico','3 · Mercato'],['bilancia','4 · Fine Giornata']];
 const PHASE_SHORT=['Pesca','Aste','Mercato','Fine Giornata'];
 const CATS={A:{icon:'⚓',name:'Approvvigionamento',phase:'rete',suit:'anchor'},E:{icon:'🔨',name:'Esperienza',phase:'asta',suit:'hammer'},C:{icon:'💰',name:'Commercio',phase:'pubblico',suit:'coin'},B:{icon:'⚖',name:'Bilancia',phase:'bilancia',suit:'scale'}};
+// Sacchetto V4.5: la rarità segue il valore del pesce.
+const BAG={Polpi:10,Gamberi:18,Molluschi:17,Branzini:27,Sardine:28};
 const BANCO_BASE=6,CESTA_CAP=3,START_COINS=12,HAND=5;
 const UPG={
   'Banco Ampliato':{cat:'A',img:'banco-migliorato',fx:'+1 spazio al Banco per ogni copia.'},
-  'Fiuto per il Pescato':{cat:'A',img:'fiuto-pescato',fx:'Ogni mattina ricevi dal Sacchetto il pesce raffigurato.'},
+  'Fiuto per il Pescato':{cat:'A',img:'fiuto-pescato',fx:'Ogni mattina peschi 1 pesce a caso dal Sacchetto.'},
   'Esperienza':{cat:'E',img:'eco-capitano',fx:'+1 Ducato Influenza al giorno per copia: +1 al Valore d’Asta, perso se non speso.'},
   'Nuovi Clienti':{cat:'E',img:'patto-scarto',fx:'Se partecipi e perdi un’asta: 1 copia pesca 1 carta; 2 copie pesca 2 e tieni 1; 3+ copie pesca 3 e tieni 1.'},
   'Contrattazione Sottobanco':{cat:'C',img:'contrattazione',fx:'Sostituisci 1 pesce di un contratto con 2 pesci uguali di altro tipo. Una sostituzione al giorno per copia.'},
@@ -135,21 +137,21 @@ const ASSET={
   fish:{Polpi:'assets/fish/polpo.png',Gamberi:'assets/fish/gambero.png',Molluschi:'assets/fish/mollusco.png',Branzini:'assets/fish/branzino.png',Sardine:'assets/fish/sardina.png'},
   upgrade:Object.fromEntries(Object.entries(UPG).map(([k,v])=>[k,`assets/upgrades/${v.img}.png`]))
 };
-// Mazzo V4.3 (CSV Dextrous) — id|nome|asta|guadagno|pesce|categoria|miglioria|pesce Fiuto
+// Mazzo V4.5 (CSV Dextrous, guadagni ricalibrati) — id|nome|asta|guadagno|pesce|categoria|miglioria|pesce Fiuto
 const RAW=`1|Bacaro Risorto|3|4|2 Sardine|A|Banco Ampliato|
 2|Bacaro della Laguna|2|3|1 Branzino|E|Esperienza|
 3|La Perla Nera|3|4|1 Mollusco|B|Maestro del Mercato|
 4|Osteria ai Pugni|4|4|1 Gambero|C|Contrattazione Sottobanco|
 5|Le Tre Marie|3|6|2 Branzini|A|Banco Ampliato|
-6|Osteria Pescheria|2|6|1 Sardina, 1 Branzino|E|Nuovi Clienti|
+6|Osteria Pescheria|2|7|1 Sardina, 1 Branzino|E|Nuovi Clienti|
 7|Famiglia Badoer|3|5|1 Polpo|E|Esperienza|
 8|Osteria Ai Forni|4|8|2 Gamberi|A|Fiuto per il Pescato|Gambero
 9|Al Traghetto|2|6|3 Sardine|E|Nuovi Clienti|
-10|Cantina do Mori|2|7|1 Mollusco, 1 Sardina|E|Nuovi Clienti|
-11|Bacaro da Lele|3|8|1 Gambero, 1 Branzino|A|Banco Ampliato|
-12|Osteria Luna Piena|4|8|1 Polpo, 1 Sardina|C|Favorito della Gilda|
+10|Cantina do Mori|2|8|1 Mollusco, 1 Sardina|E|Nuovi Clienti|
+11|Bacaro da Lele|3|9|1 Gambero, 1 Branzino|A|Banco Ampliato|
+12|Osteria Luna Piena|4|9|1 Polpo, 1 Sardina|C|Favorito della Gilda|
 13|Al Sole Splendente|4|12|2 Branzini, 1 Mollusco|B|Maestro del Mercato|
-14|Osteria da Tiziano|5|17|1 Branzino, 1 Mollusco, 1 Gambero|C|Favorito della Gilda|
+14|Osteria da Tiziano|5|15|1 Branzino, 1 Mollusco, 1 Gambero|C|Favorito della Gilda|
 15|Famiglia Tiepolo|5|13|2 Molluschi, 1 Branzino|E|Esperienza|
 16|Cantina del Mistero|4|10|2 Sardine, 1 Gambero|A|Fiuto per il Pescato|Gambero
 17|Osteria dell'Angelo|3|10|1 Gambero, 2 Sardine|A|Fiuto per il Pescato|Gambero
@@ -159,82 +161,82 @@ const RAW=`1|Bacaro Risorto|3|4|2 Sardine|A|Banco Ampliato|
 21|Il Nono dea Gnecca|2|6|2 Branzini|B|Maestro delle Aste|
 22|Laguna Segreta|4|11|1 Polpo, 1 Gambero|B|Maestro della Bilancia|
 23|Ristorante la Fenice|3|8|2 Molluschi|C|Contrattazione Sottobanco|
-24|Alla Tecia|4|11|1 Branzino, 1 Mollusco, 1 Sardina|C|Favorito della Gilda|
+24|Alla Tecia|4|13|1 Branzino, 1 Mollusco, 1 Sardina|C|Favorito della Gilda|
 25|Osteria Da Marisa|2|2|1 Sardina|A|Fiuto per il Pescato|Sardina
 26|Osteria del Sestiere|5|10|2 Branzini, 1 Sardina|B|Maestro delle Aste|
 27|Bacaro del Pirata|5|5|1 Polpo|B|Maestro delle Aste|
-28|Campiello Segreto|7|7|1 Sardina, 1 Gambero|B|Maestro della Pescaria|
+28|Campiello Segreto|7|8|1 Sardina, 1 Gambero|B|Maestro della Pescaria|
 29|Lo Sbarco dei Mori|5|9|3 Branzini|B|Maestro della Pescaria|
-30|Osteria del Ballo|6|11|1 Gambero, 1 Branzino, 1 Sardina|B|Maestro della Pescaria|
+30|Osteria del Ballo|6|13|1 Gambero, 1 Branzino, 1 Sardina|B|Maestro della Pescaria|
 31|La Bottega Oscura|7|14|2 Molluschi, 1 Gambero|B|Maestro delle Aste|
 32|La Stella Cadente|4|3|1 Branzino|E|Nuovi Clienti|
 33|Famiglia Dolfin|5|4|1 Gambero|A|Banco Ampliato|
-34|Osteria del Sapore|6|7|1 Sardina, 1 Mollusco|E|Esperienza|
+34|Osteria del Sapore|6|8|1 Sardina, 1 Mollusco|E|Esperienza|
 35|Trattoria Al Vecio Calice|5|5|1 Polpo|E|Esperienza|
-36|Ristorante della Regina|6|10|2 Sardine, 1 Branzino|E|Esperienza|
-37|Al Ponte del Diavolo|7|11|1 Gambero, 2 Branzini|C|Contrattazione Sottobanco|
+36|Ristorante della Regina|6|9|2 Sardine, 1 Branzino|E|Esperienza|
+37|Al Ponte del Diavolo|7|12|1 Gambero, 2 Branzini|C|Contrattazione Sottobanco|
 38|Al Ponte di Rialto|5|10|1 Polpo, 1 Branzino|A|Fiuto per il Pescato|Polpo
-39|Trattoria alla Pansa|6|11|2 Gamberi, 1 Sardina|E|Esperienza|
-40|Ai Gondolieri|6|8|1 Branzino, 1 Mollusco|B|Maestro delle Aste|
-41|Il Pescatore Allegro|5|12|2 Sardine, 1 Branzino|C|Contrattazione Sottobanco|
-42|Ristorante Da Fiore|6|14|1 Polpo, 1 Mollusco, 1 Sardina|C|Contrattazione Sottobanco|
+39|Trattoria alla Pansa|6|12|2 Gamberi, 1 Sardina|E|Esperienza|
+40|Ai Gondolieri|6|9|1 Branzino, 1 Mollusco|B|Maestro delle Aste|
+41|Il Pescatore Allegro|5|9|2 Sardine, 1 Branzino|C|Contrattazione Sottobanco|
+42|Ristorante Da Fiore|6|15|1 Polpo, 1 Mollusco, 1 Sardina|C|Contrattazione Sottobanco|
 43|Al Magna e Bevi|5|3|1 Branzino|C|Favorito della Gilda|
 44|Bacaro Nascosto|5|8|2 Molluschi|C|Favorito della Gilda|
-45|Osteria della Bilancia|6|7|1 Gambero, 1 Sardina|A|Banco Ampliato|
+45|Osteria della Bilancia|6|8|1 Gambero, 1 Sardina|A|Banco Ampliato|
 46|Il Bacaro delle Zattere|6|5|1 Polpo|B|Maestro della Bilancia|
-47|Osteria del Pesce Fritto|5|11|1 Gambero, 1 Branzino, 1 Sardina|A|Banco Ampliato|
+47|Osteria del Pesce Fritto|5|13|1 Gambero, 1 Branzino, 1 Sardina|A|Banco Ampliato|
 48|Osteria alla Vedova Nera|6|14|2 Molluschi, 1 Gambero|C|Contrattazione Sottobanco|
-49|Locanda del Leone|6|6|1 Branzino, 1 Sardina|B|Maestro del Mercato|
-50|La Gondola d'Argento|5|11|2 Gamberi, 1 Branzino|A|Banco Ampliato|
-51|All'Arco Sconto|6|8|1 Polpo, 1 Sardina|C|Favorito della Gilda|
+49|Locanda del Leone|6|7|1 Branzino, 1 Sardina|B|Maestro del Mercato|
+50|La Gondola d'Argento|5|13|2 Gamberi, 1 Branzino|A|Banco Ampliato|
+51|All'Arco Sconto|6|9|1 Polpo, 1 Sardina|C|Favorito della Gilda|
 52|Osteria del Ponte Misterioso|6|4|1 Gambero|E|Esperienza|
 53|All'Antica Sonada|5|12|2 Branzini, 1 Mollusco|B|Maestro della Bilancia|
-54|Osteria del Cicheto|6|17|1 Branzino, 1 Mollusco, 1 Gambero|A|Fiuto per il Pescato|Branzino
-55|Al Bucaniere|8|18|1 Polpo, 1 Mollusco, 1 Gambero|E|Esperienza|
-56|Al Rigattier|5|11|1 Sardina, 1 Gambero, 1 Branzino|B|Maestro del Mercato|
+54|Osteria del Cicheto|6|15|1 Branzino, 1 Mollusco, 1 Gambero|A|Fiuto per il Pescato|Branzino
+55|Al Bucaniere|8|17|1 Polpo, 1 Mollusco, 1 Gambero|E|Esperienza|
+56|Al Rigattier|5|13|1 Sardina, 1 Gambero, 1 Branzino|B|Maestro del Mercato|
 57|Osteria del Porto Antico|5|4|2 Sardine|A|Fiuto per il Pescato|Sardina
 58|Alla Calle Sconta|7|10|1 Polpo, 1 Branzino|C|Contrattazione Sottobanco|
 59|Bacaro della Serenata|5|9|3 Branzini|C|Contrattazione Sottobanco|
 60|Al Vecio Vaporetto|6|10|1 Gambero, 1 Mollusco|A|Fiuto per il Pescato|Mollusco
-61|Bacaro al Balo|7|17|1 Branzino, 1 Mollusco, 1 Gambero|B|Maestro del Mercato|
+61|Bacaro al Balo|7|15|1 Branzino, 1 Mollusco, 1 Gambero|B|Maestro del Mercato|
 62|Osteria alla Perla|5|13|2 Molluschi, 1 Branzino|C|Favorito della Gilda|
-63|Al Turista Perduto|6|12|1 Polpo, 1 Sardina, 1 Branzino|C|Favorito della Gilda|
+63|Al Turista Perduto|6|14|1 Polpo, 1 Sardina, 1 Branzino|C|Favorito della Gilda|
 64|Al Nono Scantabauchi|7|10|1 Gambero, 2 Sardine|C|Contrattazione Sottobanco|
 65|Osteria alla Bolla|4|3|1 Branzino|E|Nuovi Clienti|
 66|Osteria alla Briscola|6|14|1 Gambero, 1 Mollusco, 1 Sardina|A|Fiuto per il Pescato|Mollusco
 67|Bacaro Ai Botti|5|5|1 Polpo|B|Maestro della Pescaria|
 68|Alla Rete|5|8|2 Gamberi|E|Esperienza|
 69|Bacaro Al Vapore|5|4|1 Mollusco|A|Banco Ampliato|
-70|Bacaro Al Gatto Nero|7|12|1 Sardina, 1 Branzino, 1 Gambero|E|Esperienza|
+70|Bacaro Al Gatto Nero|7|13|1 Sardina, 1 Branzino, 1 Gambero|E|Esperienza|
 71|Ristorante alla Frasca|8|11|1 Polpo, 1 Mollusco|E|Nuovi Clienti|
-72|Il Nobile Granchio|9|11|1 Gambero, 1 Branzino, 1 Sardina|B|Maestro delle Aste|
-73|Trattoria Pastasutta|9|18|1 Polpo, 1 Branzino, 1 Mollusco|E|Esperienza|
+72|Il Nobile Granchio|9|13|1 Gambero, 1 Branzino, 1 Sardina|B|Maestro delle Aste|
+73|Trattoria Pastasutta|9|16|1 Polpo, 1 Branzino, 1 Mollusco|E|Esperienza|
 74|Trattoria del Capitano|8|10|2 Polpi|C|Contrattazione Sottobanco|
 75|Ristorante Al Gondoliere|9|14|1 Gambero, 1 Mollusco, 1 Sardina|B|Maestro della Pescaria|
 76|Osteria dello Squero|7|3|1 Branzino|E|Nuovi Clienti|
-77|Locanda Alle Vele|8|11|2 Gamberi, 1 Sardina|B|Maestro della Bilancia|
+77|Locanda Alle Vele|8|12|2 Gamberi, 1 Sardina|B|Maestro della Bilancia|
 78|Locanda La Risata|9|10|1 Polpo, 1 Branzino|A|Banco Ampliato|
-79|Ristorante Do Forni|10|17|1 Gambero, 1 Mollusco, 1 Branzino|A|Fiuto per il Pescato|Branzino
+79|Ristorante Do Forni|10|15|1 Gambero, 1 Mollusco, 1 Branzino|A|Fiuto per il Pescato|Branzino
 80|Osteria Ninfea|6|4|1 Mollusco|A|Banco Ampliato|
 81|Trattoria Al Tesoro|9|14|1 Sardina, 1 Gambero, 1 Mollusco|C|Favorito della Gilda|
-82|Trattoria Al Vin Bon|10|12|1 Polpo, 1 Branzino, 1 Gambero|C|Contrattazione Sottobanco|
+82|Trattoria Al Vin Bon|10|16|1 Polpo, 1 Branzino, 1 Gambero|C|Contrattazione Sottobanco|
 83|Ristorante Ca' Foscari|8|12|2 Branzini, 1 Mollusco|C|Favorito della Gilda|
-84|Trattoria del Rio|7|6|1 Branzino, 1 Sardina|A|Banco Ampliato|
+84|Trattoria del Rio|7|7|1 Branzino, 1 Sardina|A|Banco Ampliato|
 85|Osteria Vecio Bacan|10|14|2 Molluschi, 1 Gambero|A|Banco Ampliato|
-86|Ai Pie del Ponte|9|18|1 Polpo, 1 Mollusco, 1 Gambero|E|Esperienza|
-87|Ristorante dei Morosini|9|12|2 Sardine, 1 Branzino|E|Esperienza|
+86|Ai Pie del Ponte|9|17|1 Polpo, 1 Mollusco, 1 Gambero|E|Esperienza|
+87|Ristorante dei Morosini|9|9|2 Sardine, 1 Branzino|E|Esperienza|
 88|La Botte Bona|8|5|1 Polpo|E|Nuovi Clienti|
-89|Ristorante Al Tramonto|8|7|1 Mollusco, 1 Sardina|C|Favorito della Gilda|
+89|Ristorante Al Tramonto|8|8|1 Mollusco, 1 Sardina|C|Favorito della Gilda|
 90|Trattoria Il Gatto Rosso|7|6|2 Branzini|C|Contrattazione Sottobanco|
 91|Famiglia Contarini|10|11|1 Polpo, 1 Mollusco|A|Fiuto per il Pescato|Polpo
-92|Famiglia Dandolo|8|11|1 Gambero, 1 Branzino, 1 Sardina|B|Maestro della Bilancia|
+92|Famiglia Dandolo|8|13|1 Gambero, 1 Branzino, 1 Sardina|B|Maestro della Bilancia|
 93|Famiglia Corner|9|10|1 Polpo, 1 Branzino|B|Maestro del Mercato|
-94|Famiglia Zeno|10|8|1 Gambero, 1 Branzino|E|Esperienza|
+94|Famiglia Zeno|10|9|1 Gambero, 1 Branzino|E|Esperienza|
 95|Famiglia Querini|6|4|1 Mollusco|A|Banco Ampliato|
 96|Famiglia Barbarigo|9|14|1 Sardina, 1 Gambero, 1 Mollusco|E|Nuovi Clienti|
-97|Famiglia Grimani|10|12|1 Polpo, 1 Branzino, 1 Gambero|B|Maestro della Pescaria|
+97|Famiglia Grimani|10|16|1 Polpo, 1 Branzino, 1 Gambero|B|Maestro della Pescaria|
 98|Famiglia Barbaro|8|12|2 Branzini, 1 Mollusco|A|Fiuto per il Pescato|Branzino
-99|Famiglia Loredan|7|6|1 Branzino, 1 Sardina|C|Contrattazione Sottobanco|
+99|Famiglia Loredan|7|7|1 Branzino, 1 Sardina|C|Contrattazione Sottobanco|
 100|Famiglia Mocenigo|10|14|2 Molluschi, 1 Gambero|C|Favorito della Gilda|`;
 
 const $=id=>document.getElementById(id), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -255,7 +257,7 @@ const favBonus=p=>{const n=copies(p,'Favorito della Gilda');return n&&p.favorite
 const clientsDraw=p=>Math.min(3,copies(p,'Nuovi Clienti'));
 const fishText=r=>Object.entries(r).map(([f,n])=>`<span class="recipe-item"><b>${n}</b><img class="recipe-fish" src="${ASSET.fish[f]}" alt="${f}"></span>`).join('');
 const SING={Polpi:'Polpo',Gamberi:'Gambero',Molluschi:'Mollusco',Branzini:'Branzino',Sardine:'Sardina'};
-const upName=c=>c.up==='Fiuto per il Pescato'?`Fiuto · ${SING[c.fiuto]}`:c.up;
+const upName=c=>c.up;
 
 function log(phase,text){G.log.push({day:G.day,phase,text});if(G.log.length>120)G.log.shift()}
 function drawFish(){return G.bag.length?G.bag.pop():null}
@@ -295,7 +297,7 @@ window.newGame=function(){
   document.body.classList.add('playing');$('setup').classList.add('hidden');$('end').classList.add('hidden');$('game').classList.remove('hidden');render();
 };
 function startGame({n,name,seed,difficulty,humanBot}){
-  const rng=new RNG(seed),bag=[];for(const f of FISH)for(let i=0;i<20;i++)bag.push(f);
+  const rng=new RNG(seed),bag=[];for(const f of FISH)for(let i=0;i<BAG[f];i++)bag.push(f);
   G={rng,day:1,phase:'rete',difficulty,humanBot,players:Array.from({length:n},(_,id)=>({id,name:id?BOTNAMES[id-1]:name,human:id===0&&!humanBot,coins:START_COINS,banco:inv(),cesta:inv(),hand:[],installed:[],pending:[],favorite:null,influence:0,subsLeft:0,orders:0,wasted:0,bilanciaTot:0,passedAll:false,today:{contracts:[],income:0,bilancia:[]}})),bag:rng.shuffle(bag),deck:rng.shuffle(CARDS.map(c=>({...c}))),discard:[],captain:rng.int(n),market:inv(),log:[],selectedBid:null,bidCash:0,bidInfl:0,overlay:null};
   log('Partita',`${G.players[G.captain].name} ha mangiato pesce più di recente: è il primo Capitano.`);
   startDay();
@@ -310,11 +312,11 @@ function startDay(){
   for(let i=0;i<n;i++){const f=drawFish();if(!f)break;G.market[f]++;drawn++}
   log('Pesca',`Giorno ${G.day}: ${G.players[G.captain].name} (Capitano) estrae ${drawn} pesci per il mercato.`);
   G.fiutoLog=[];
+  // Fiuto per il Pescato: ogni copia pesca 1 pesce a caso dal Sacchetto.
   for(const p of turnOrder().map(i=>G.players[i]))for(const c of p.installed.filter(c=>c.up==='Fiuto per il Pescato')){
-    const i=G.bag.lastIndexOf(c.fiuto);
-    if(i<0){log('Fiuto',`${p.name}: nel Sacchetto non ci sono più ${c.fiuto}.`);continue}
-    if(!roomBanco(p)){log('Fiuto',`${p.name}: Banco pieno, il ${c.fiuto} di “${c.name}” resta nel Sacchetto.`);continue}
-    G.bag.splice(i,1);p.banco[c.fiuto]++;G.fiutoLog.push({pid:p.id,f:c.fiuto});log('Fiuto',`${p.name} riceve ${ICON[c.fiuto]} ${c.fiuto} da “${c.name}”.`)}
+    if(!roomBanco(p)){log('Fiuto',`${p.name}: Banco pieno, “${c.name}” non pesca.`);continue}
+    const f=drawFish();if(!f){log('Fiuto',`${p.name}: il Sacchetto è vuoto.`);continue}
+    p.banco[f]++;G.fiutoLog.push({pid:p.id,f});log('Fiuto',`${p.name} pesca dal Sacchetto ${ICON[f]} ${f} grazie a “${c.name}”.`)}
   G.overlay=G.players.some(p=>p.human)?'morning':null;
   if(!G.overlay)startDraft();
 }
@@ -558,7 +560,7 @@ function renderPhysicalBoard(){
 function inventoryHtml(stock,muted=false){const x=FISH.flatMap(f=>Array.from({length:stock[f]},()=>`<span class="token ${muted?'muted-token':''}" title="${f}"><img src="${ASSET.fish[f]}" alt="${f}"></span>`)).join('');return x||'<span class="empty">vuoto</span>'}
 function cardHtml(c,mode='plain',enabled=true,style=''){
   const me=G.players[0],selected=mode==='bid'&&G.selectedBid===c.id,locked=mode==='draft'&&!enabled,selectable=enabled&&['bid','draft','market','client'].includes(mode),fn={bid:'chooseBid',draft:'pickDraft',market:'serveContract',client:'pickClient'}[mode],cat=CATS[c.cat],phase=cat.phase,select=selectable?`role="button" tabindex="0" onclick="${fn}(${c.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}(${c.id})}"`:'';
-  const pay=mode==='market'&&enabled?payout(me,c):c.value,fx=c.up==='Fiuto per il Pescato'?`Ogni mattina ricevi 1 ${SING[c.fiuto]} dal Sacchetto.`:UPG[c.up].fx;
+  const pay=mode==='market'&&enabled?payout(me,c):c.value,fx=UPG[c.up].fx;
   return`<article class="card suit-${cat.suit} ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" ${style?`style="${style}"`:''} ${select}>${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}<div class="card-top"><span class="bid" title="Valore d’asta"><strong>${c.bid}</strong></span><div><span class="card-id">CLIENTE #${c.id}</span><h4>${esc(c.name)}</h4></div></div><div class="recipe">${fishText(c.recipe)}</div><div class="payout">${pay} Ducati${pay!==c.value?` <small>(${c.value}+${pay-c.value})</small>`:''}</div><div class="upgrade"><img src="${ASSET.upgrade[c.up]}" alt="" aria-hidden="true"><div><b><img class="upgrade-phase" src="${ASSET.phase[phase]}" alt="${cat.name}">${cat.icon} ${esc(upName(c))}</b><small>${esc(fx)}</small></div></div></article>`}
 function phaseTitle(k){if(k==='draft')return'1 · Draft';return PHASES.find(x=>x[0]===k)?.[1]||''}
 function upgradeTags(p){
