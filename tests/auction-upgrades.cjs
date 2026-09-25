@@ -172,18 +172,13 @@ assert.equal(activePlayer().id,1);assert.equal(G.handoff,true);G.handoff=false;p
 assert.equal(G.players[0].installed[0].favFish,'Polpi');
 assert.equal(G.players[1].installed[0].favFish,'Gamberi');
 assert.equal(G.overlay,'summary');
-// Mobile controls reuse the offer flow without adding cards to the deck.
+// Auction controls remain in the offer panel with a visible coin instruction.
 startGame({n:1,name:'Test',seed:1,difficulty:'normal',humanBot:false});
 G.phase='asta';G.auctionStage='bid';G.overlay=null;G.auctionIndex=0;
-assert(mobileAuctionActionsHtml(activePlayer()).includes('disabled'));
 activePlayer().hand=[CARDS[0]];G.selectedBid=CARDS[0].id;G.bidCash=2;
-const mobileActions=mobileAuctionActionsHtml(activePlayer());
-assert(mobileActions.includes('OFFRI '+(CARDS[0].bid+2)));
-assert(mobileActions.includes('PASSA TUTTE'));
-assert.equal((mobileActions.match(/<button/g)||[]).length,3);
-assert(auctionPanelHtml(activePlayer()).includes('Aggiungi i Ducati alla tua offerta'));
-G.handoff=true;assert.equal(mobileAuctionActionsHtml(activePlayer()),'');
-G.handoff=false;G.auctionStage='buy';assert.equal(mobileAuctionActionsHtml(activePlayer()),'');
+const offerPanel=auctionPanelHtml(activePlayer());
+assert(offerPanel.includes('OFFRI '+(CARDS[0].bid+2)));
+assert(offerPanel.includes('Aggiungi i Ducati alla tua offerta'));
 // Explicit seeds remain reproducible; ordinary starts obtain a fresh random seed.
 const originalRandom=Math.random;
 for(const value of [0.25,0.75]){
