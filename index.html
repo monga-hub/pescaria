@@ -188,23 +188,21 @@
     @media(min-width:701px) and (max-width:999px){.playing .board-hand{grid-template-areas:"mat hand" "auction hand";grid-template-rows:auto auto}.playing .board-hand .hand-meta{grid-area:mat;max-height:none}.auction-panel{grid-area:auction}.playing .board-hand .hand-dock{grid-area:hand}}
     /* Le carte galleggiano sul tavolo; la colonna delle plance resta indipendente. */
     body:not(.playing) #floatingHand{display:none}
-    .playing #floatingHand{position:fixed;z-index:400;left:50%;bottom:0;width:min(760px,calc(100vw - 48px));height:320px;min-height:0;transform:translate(-50%,0);transition:transform .5s cubic-bezier(.22,.75,.25,1);pointer-events:none;perspective:1200px}
+    .playing #floatingHand{position:fixed;z-index:400;left:50%;bottom:0;width:min(760px,calc(100vw - 48px));--hand-height:320px;height:var(--hand-height);min-height:0;transform:translate(-50%,0);transition:transform .5s cubic-bezier(.22,.75,.25,1);pointer-events:none;perspective:1200px}
     .playing #floatingHand:not(.folded){z-index:400}
     .playing #floatingHand.folded{transform:translate(-50%,calc(100% - 40px))}
     #floatingHand .hand-cards{pointer-events:none;inset:0}
     .playing #floatingHand .card{pointer-events:auto;width:210px;height:294px;bottom:12px;box-shadow:0 15px 28px #061c22a8,inset 0 0 0 2px #f5dfa6}
-    #floatingHand .hand-title{top:-34px;z-index:350;pointer-events:auto;border:1px solid #b99b5c;font:inherit;left:50%;right:auto;transform:translateX(-50%);width:max-content;max-width:100%;padding:5px 14px;border-radius:12px;background:#fff5dcf2;box-shadow:0 4px 16px #0004;text-align:center;color:var(--ink)}
-    #floatingHand .hand-title strong,#floatingHand .hand-title span{display:block}
-    #floatingHand .hand-title strong{font-size:15px}#floatingHand .hand-title span{font-size:10px}
-    #floatingHand.folded .hand-hint{display:none}
-    #floatingHand .hand-title:focus-visible{outline:3px solid #d5a33a;outline-offset:3px}
+    #floatingHand .hand-toggle{position:absolute;left:-16px;bottom:12px;z-index:350;pointer-events:auto;width:44px;height:44px;padding:0;border:1px solid #b99b5c;border-radius:50%;background:#fff5dc;color:var(--ink);box-shadow:0 3px 12px #0006;font:900 27px/1 sans-serif;transition:transform .5s cubic-bezier(.22,.75,.25,1)}
+    #floatingHand.folded .hand-toggle{transform:translateY(calc(40px - var(--hand-height)))}
+    #floatingHand .hand-toggle:focus-visible{outline:3px solid #d5a33a;outline-offset:3px}
     .auction-winner{padding:6px 9px;margin-bottom:7px;border-radius:7px;background:#e1eee8;color:#155d5a;font-weight:800;font-size:13px}
     .playing .board-hand{z-index:auto;box-shadow:0 10px 30px #0005}
     .auction-panel{position:relative;z-index:350;box-shadow:0 5px 14px #50350c1c}
     @media(min-width:1000px){.playing .board-hand{align-self:start;max-height:calc(100dvh - 134px);padding-bottom:14px!important}.board-art-wrap{box-shadow:0 8px 24px #0005}}
     @media(max-width:999px){.playing .board-hand{display:flex;flex-direction:column;min-height:0;margin-bottom:50px!important}.playing .board-hand .hand-meta{max-height:none}}
-    @media(max-width:700px){.playing main{padding-bottom:76px}.playing #floatingHand{height:285px}.playing #floatingHand .card{width:180px;height:252px}}
-    @media(prefers-reduced-motion:reduce){.playing #floatingHand{transition:none}}
+    @media(max-width:700px){.playing main{padding-bottom:56px}.playing #floatingHand{--hand-height:285px}.playing #floatingHand .card{width:180px;height:252px}}
+    @media(prefers-reduced-motion:reduce){.playing #floatingHand,#floatingHand .hand-toggle{transition:none}}
     .auction-panel-heading{flex-wrap:wrap}.auction-panel .bid-wallet{display:grid;grid-template-columns:55px minmax(0,1fr);width:190px;max-width:100%;align-items:center;column-gap:6px}
     .auction-panel .bid-wallet>span{grid-column:1/-1;text-align:center}
     .auction-panel .bid-wallet small{display:block;font-size:10px;line-height:1.3;max-width:120px;text-transform:none}
@@ -244,6 +242,15 @@
     .board-art .offer-zone.human-bid{padding:clamp(16px,2.5cqw,28px) 0 .4cqw}
     .board-art .offer-card-back{width:min(90%,9.6cqw);height:auto;aspect-ratio:2556 / 3609}
     .board-art .offer-card-back .offer-coins{right:0;bottom:0}
+    .board-art .offer-zone.congrega-offer{padding:clamp(16px,2.5cqw,28px) 0 0;gap:2px}
+    .congrega-card{display:block;min-height:0;flex:1;border:0;padding:0;background:none;cursor:zoom-in}
+    .congrega-card img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 4px #0008)}
+    .congrega-card:focus-visible{outline:3px solid #f2cf73}
+    .board-art .congrega-offer .offer-detail{font-size:clamp(7px,1.1cqw,12px);background:#18352a;border-radius:4px;padding:1px 3px}
+    #automaPreview{margin:auto;padding:10px;border:1px solid #af8b4b;border-radius:14px;background:#fff7df;max-width:90vw;max-height:95dvh;overflow:clip}
+    #automaPreview::backdrop{background:#102d2bcc}
+    #automaPreview img{display:block;width:auto;max-width:80vw;height:min(70dvh,525px);object-fit:contain;margin:auto}
+    #automaPreview form{margin:8px 0 0;text-align:center}
     .table-overlay{z-index:500}
     .net-choice .cards{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
     .net-choice .card{padding:8px;min-height:180px}.net-choice .card h4{font-size:13px}
@@ -256,7 +263,7 @@
     .net-choice .upgrade small{display:block;font-size:9px;line-height:1.2}
     @media(min-width:701px) and (max-width:999px){.playing .physical-board{grid-template-columns:minmax(0,1fr) 330px}}
     @media(max-width:700px){
-      .playing .physical-board{grid-template-columns:1fr;grid-template-rows:30px minmax(0,1fr) minmax(0,1fr);padding:5px}
+      .playing .physical-board{grid-template-columns:1fr;grid-template-rows:58px minmax(0,1fr) minmax(0,1fr);padding:5px}
       .board-hud-status{gap:4px}.board-hud strong{font-size:13px}.board-hud-tools{gap:4px}
       .board-art-wrap,.playing .board-hand{grid-column:1}
       .sidebar-content{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px}
@@ -267,7 +274,7 @@
       .auction-panel .btn{padding:6px 2px;font-size:10px;min-height:34px}.auction-panel-buttons{gap:3px}
     }
     @media(max-width:700px) and (orientation:portrait){
-      .playing .physical-board{grid-template-rows:30px min(calc((100vw - 28px)*.7072),35dvh) minmax(0,1fr)}
+      .playing .physical-board{grid-template-rows:58px min(calc((100vw - 28px)*.7072),35dvh) minmax(0,1fr)}
       .board-art{margin:0 auto}
       .sidebar-content,.sidebar-content:not(:has(.auction-panel)){display:flex;flex-direction:column;align-items:stretch;max-width:none;gap:8px}
       .playing .board-hand .hand-meta{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:start;gap:6px}
@@ -284,7 +291,16 @@
     }
     body.playing,.playing main,.playing .physical-board,.playing .board-art-wrap{background:#c7afa0 url('assets/board/fondo-colonna-destra.png') center/cover no-repeat}
     .playing .physical-board{box-shadow:0 8px 28px #0004}
-    .board-hud{background:#173b34ed;border-radius:9px}
+    .board-hud{display:grid;grid-template-columns:auto minmax(0,1fr) auto;background:#173b34ed;border-radius:9px;min-width:0;gap:12px}
+    .board-hud>strong{white-space:nowrap}
+    .board-ticker{min-width:0;overflow:hidden;color:#fff5dc;font-size:13px;border-inline:1px solid #f2cf7355;padding:3px 0}
+    .board-ticker-track{display:grid;grid-template-columns:repeat(2,1fr);width:max-content;min-width:200%;animation:boardTicker var(--ticker-duration,24s) linear infinite}
+    .board-ticker-track span{white-space:nowrap;padding:0 48px 0 12px}
+    .board-ticker:hover .board-ticker-track,.board-ticker:focus .board-ticker-track{animation-play-state:paused}
+    .board-ticker:focus-visible{outline:2px solid #f2cf73}
+    @keyframes boardTicker{to{transform:translateX(-50%)}}
+    @media(max-width:700px){.board-hud{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:28px 24px;gap:0 6px}.board-hud-tools{grid-column:2;grid-row:1}.board-ticker{grid-column:1/-1;grid-row:2;font-size:12px;border-inline:0;border-top:1px solid #f2cf7333}}
+    @media(prefers-reduced-motion:reduce){.board-ticker-track{animation:none}.board-ticker-track span{padding-left:4px}}
     .phase-intro{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#071e1bd9;backdrop-filter:blur(5px);animation:phaseVeil 2.1s ease both}
     .phase-intro button{width:100%;height:100%;border:0;background:none;color:#fff4ce;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;padding:24px;text-align:center}
     .phase-intro button:focus-visible{outline:3px solid #f2cf73;outline-offset:-8px}
@@ -341,6 +357,10 @@
 
     <section id="end" class="panel end hidden"></section>
   </main>
+  <dialog id="automaPreview" aria-label="Carta della Congrega dei Mercanti">
+    <img id="automaPreviewImage" alt="" draggable="false">
+    <form method="dialog"><button class="btn secondary">Chiudi</button></form>
+  </dialog>
   <section id="floatingHand" class="hand-dock folded" aria-label="Le tue carte"></section>
 
   <div id="phaseIntro" class="phase-intro hidden"><button id="skipPhaseIntro" onclick="dismissPhaseIntro()" onkeydown="if(event.key==='Escape'){event.preventDefault();dismissPhaseIntro()}"><span class="phase-intro-label">Inizia la fase</span><span class="phase-intro-icons"><img id="phaseIntroAuctionIcon" alt="" hidden><img id="phaseIntroIcon" alt=""></span><span id="phaseIntroName" class="phase-intro-name"></span><span class="phase-intro-hint">Clicca per continuare</span></button></div>
@@ -359,7 +379,7 @@ const PLAYER_MATS=[['arancione','Oranzio'],['blu','Berry'],['giallo','Giulio'],[
 const BOTNAMES=['Lucia','Dario','Bianca','Enrico'];
 // ---- Variante Solitario e Automa: la Congrega dei Mercanti ----
 // Carte Congrega: bid=Ducati sopra l'offerta (null = Passa), fish=pesci comprati a 1 se vince. Se perde non compra.
-const CONGREGA_DECK=[{bid:null},{bid:null},{bid:null},{bid:0,fish:2},{bid:0,fish:2},{bid:0,fish:2},{bid:2,fish:3},{bid:2,fish:3},{bid:2,fish:3},{bid:4,fish:3},{bid:4,fish:3},{bid:6,fish:4}];
+const CONGREGA_DECK=[{bid:null},{bid:null},{bid:null},{bid:0,fish:2},{bid:0,fish:2},{bid:0,fish:2},{bid:2,fish:3},{bid:2,fish:3},{bid:2,fish:3},{bid:4,fish:3},{bid:4,fish:3},{bid:6,fish:4}].map((c,i)=>({...c,image:`assets/automa/${String(i).padStart(2,'0')}.png`}));
 const CONGREGA_LEVELS={apprendista:['Apprendista',{Polpi:5,Gamberi:4,Molluschi:4,Branzini:3,Sardine:2}],mercante:['Mercante',{Polpi:6,Gamberi:5,Molluschi:5,Branzini:3,Sardine:2}],maestro:['Maestro',{Polpi:6,Gamberi:5,Molluschi:5,Branzini:4,Sardine:3}],doge:['Doge',{Polpi:7,Gamberi:6,Molluschi:6,Branzini:5,Sardine:4}]};
 const PHASES=[['rete','1 · Pesca del Mattino'],['asta','2 · Aste'],['pubblico','3 · Mercato'],['bilancia','4 · Fine Giornata']];
 const PHASE_SHORT=['Pesca','Aste','Mercato','Fine Giornata'];
@@ -892,13 +912,24 @@ function offerState(p){
   if(G.auctionStage==='bid'){if(p.id===activePlayer().id&&G.selectedBid)return{value:'COPERTA',detail:G.bidCash?`+ ${G.bidCash} ◈`:'pronta'};const bid=G.bids?.find(b=>b.pid===p.id);return bid?{value:'COPERTA',detail:bid.cash?`+ ${bid.cash} Ducati`:''}:G.bidDone?.includes(p.id)?{value:'PASSA',detail:''}:{value:'ATTESA',detail:''}}
   return{value:'—',detail:''}
 }
+function congregaOfferHtml(p){
+  if(!p.congrega||G.phase!=='asta'||!G.bidDone?.includes(p.id)||!p.congregaCard)return'';
+  const c=p.congregaCard,o=offerState(p),label=c.bid===null?'Passa':`Offerta +${c.bid} Ducati · ${c.fish} pesci se vince`;
+  return`<div class="offer-zone congrega-offer" style="--player:${playerColor(p)}"><span class="offer-name">${esc(p.name)}</span><button class="congrega-card" onclick="showAutomaCard(${p.id})" aria-label="Ingrandisci carta Congrega: ${label}"><img src="${c.image}" alt="${label}" draggable="false"></button><span class="offer-detail">${o.value}${o.detail?` · ${o.detail}`:''}</span></div>`;
+}
+window.showAutomaCard=function(id){
+  const p=G.players[id];if(!congregaOfferHtml(p))return;
+  const c=p.congregaCard,img=$('automaPreviewImage');img.src=c.image;
+  img.alt=c.bid===null?'Congrega dei Mercanti: Passa':`Congrega dei Mercanti: Offerta +${c.bid} Ducati, ${c.fish} pesci se vince`;
+  $('automaPreview').showModal();
+};
 function humanArea(p,color){
   const zone=body=>`<div class="offer-zone human-action" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)} · tu</span><div class="player-area-action">${body}</div></div>`;
   if(G.phase==='asta'&&G.auctionStage==='bid'){const card=p.hand.find(c=>c.id===G.selectedBid),coins=`<button id="offerCoins" class="offer-coins ${G.bidCash?'':'hidden'}" onclick="removeBidCoin(event)" title="Riprendi un Ducato" aria-label="Riprendi un Ducato"><i></i><i></i><i></i><b id="offerCoinCount">${G.bidCash}</b></button>`;
     return`<div class="offer-zone human-bid" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)} · tu</span>${card?`<div id="humanOfferCard" class="offer-card-back" role="button" tabindex="0" title="Rimetti la carta in mano" aria-label="Carta offerta coperta. Clicca per riprenderla" onclick="returnBidCard()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();returnBidCard()}"><img src="assets/board/card-back.png" alt="Retro della carta Pescaria" draggable="false">${coins}</div>`:'<div class="offer-card-empty">SCEGLI<br>UNA CARTA</div>'}</div>`}
-  if(G.phase==='draft')return zone(`<div><b>GIRO ${G.draftRound}/5</b><small>Scegli una carta dal ventaglio</small></div>`);
-  if(G.phase==='pubblico')return zone(`<div><b>MERCATO</b><small>Clicca un contratto completabile${p.subsLeft?` · ${p.subsLeft} sostituz. per contratto`:''}</small></div><button class="player-action-btn" onclick="finishMarket()">TERMINA</button>`);
-  if(G.phase==='bilancia')return zone(`<div><b>${G.day===4?'ULTIMO CONTO':'FINE GIORNATA'}</b><small>Rendite e migliorie</small></div><button class="player-action-btn" onclick="finishDayBtn()">${G.day===4?'PUNTEGGIO':'CHIUDI'}</button>`);
+  if(G.phase==='draft')return zone('');
+  if(G.phase==='pubblico')return zone(`<button class="player-action-btn" onclick="finishMarket()">TERMINA</button>`);
+  if(G.phase==='bilancia')return zone(`<button class="player-action-btn" onclick="finishDayBtn()">${G.day===4?'PUNTEGGIO':'CHIUDI'}</button>`);
   return''
 }
 const me0=activePlayer;
@@ -922,15 +953,35 @@ function pileHtml(cards,faceUp){
   const stack=cards.slice(-3).map((c,i)=>`<img src="${faceUp?`assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2`:'assets/board/card-back.png'}" alt="${faceUp?esc(c.name):'Retro della carta Pescaria'}" style="--pile-offset:${i*2}px;--pile-rotation:${i===1?-3:0}deg" draggable="false">`).join('');
   return`<div class="board-pile ${faceUp?'discard':'deck'}-pile" aria-label="${label}: ${cards.length} carte"><div class="pile-cards">${stack}</div><span class="pile-count">${label} · ${cards.length}</span></div>`;
 }
+function playerAnnouncement(){
+  const me=activePlayer(),name=me.name;
+  if(G.handoff)return`Passa il dispositivo a ${name}. Conferma quando sei pronto.`;
+  if(G.phase==='rete')return`${name}, ecco il pescato di oggi. Vai al draft per scegliere le carte.`;
+  if(G.phase==='draft')return`${name} · Draft · Carte scelte: ${G.drafted[me.id].length}/5. Scegli una carta libera dal ventaglio.`;
+  if(G.phase==='asta'){
+    const fish=currentFish();
+    if(G.auctionStage==='bid')return G.selectedBid?`${name} · Asta ${fish}. Aggiungi i Ducati alla tua offerta, poi premi OFFRI.`:`${name} · Asta ${fish}. Scegli la carta da puntare, oppure PASSA. TUTTE salta le aste rimaste oggi.`;
+    const winner=G.auctionResult?.[0];
+    return`${winner?`${G.players[winner.pid].name} vince l’asta con ${bidScore(winner)}. `:''}${name}, scegli quanti ${fish} comprare e conferma.`;
+  }
+  if(G.phase==='pubblico')return`${name} · Mercato. Scegli un contratto completabile dalla mano${me.subsLeft?` · ${me.subsLeft} sostituzioni per contratto`:''}, oppure premi TERMINA.`;
+  if(G.phase==='conserva')return`${name}, conserva fino a 2 carte per domani e conferma la scelta.`;
+  if(G.phase==='bilancia')return`${name} · Fine giornata. ${G.overlay==='favorite'?'Scegli il pesce preferito della Congrega.':`Rendite e migliorie: premi ${G.day===4?'PUNTEGGIO':'CHIUDI'} per continuare.`}`;
+  return`${name} · ${me.hand.length} carte in mano.`;
+}
+function announcementHtml(){
+  const text=playerAnnouncement(),message=esc(text);
+  return`<div class="board-ticker" role="status" aria-label="${message}" tabindex="0" title="${message}" style="--ticker-duration:${Math.max(16,text.length/5)}s"><div class="board-ticker-track" aria-hidden="true"><span>${message}</span><span>${message}</span></div></div>`;
+}
 function renderPhysicalBoard(){
   const phase=physicalPhase(),activeFish=activeAuctionFish(),roman=['I','II','III','IV'],me=activePlayer();
   const days=roman.map((n,i)=>`<div class="board-day ${G.day===i+1?'active':''}" role="img" aria-label="Giorno ${i+1}${G.day===i+1?', in corso':''}" title="Giorno ${n}"></div>`).join('');
   const phases=PHASES.map(([key],i)=>`<div class="board-phase ${phase===i?'active':''}" role="img" aria-label="${PHASE_SHORT[i]}${phase===i?', in corso':''}" title="${PHASE_SHORT[i]}"></div>`).join('');
   const lots=FISH.map(f=>{const n=G.market[f]||0,tokens=Array.from({length:n},()=>`<img class="market-token" src="${ASSET.fish[f]}" alt="${f}">`).join('');return`<div class="fish-lot ${n>15?'dense':''} ${activeFish===f?'active':''}"><span class="fish-lot-label">${f} · ${n}</span><div class="lot-tokens">${tokens}</div></div>`}).join('');
   const bidding=G.phase==='asta'&&G.auctionStage==='bid';
-  const offers=Array.from({length:5},(_,i)=>{const p=G.players.find(p=>(p.character??p.id)===i);if(!p)return'<div class="offer-zone empty"><span class="offer-detail">Non in gioco</span></div>';const color=playerColor(p),custom=p.human&&p.id===activePlayer().id&&!G.handoff&&humanArea(p,color);if(custom)return custom;const o=offerState(p);return`<div class="offer-zone" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)}${p.id===activePlayer().id?' · tu':''}</span><span class="offer-value">${o.value}</span><span class="offer-detail">${o.detail}</span></div>`}).join('');
+  const offers=Array.from({length:5},(_,i)=>{const p=G.players.find(p=>(p.character??p.id)===i);if(!p)return'<div class="offer-zone empty"><span class="offer-detail">Non in gioco</span></div>';const color=playerColor(p),custom=p.human&&p.id===activePlayer().id&&!G.handoff&&humanArea(p,color);if(custom)return custom;const automa=congregaOfferHtml(p);if(automa)return automa;const o=offerState(p);return`<div class="offer-zone" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)}${p.id===activePlayer().id?' · tu':''}</span><span class="offer-value">${o.value}</span><span class="offer-detail">${o.detail}</span></div>`}).join('');
   const pins=FISH.map(f=>`<div class="auction-pin ${activeFish===f?'active':''}" role="img" aria-label="${activeFish===f?'Asta in corso: ':'Lotto: '}${f}">${activeFish===f?'⚓':''}</div>`).join('');
-  $('physicalBoard').innerHTML=`<div class="board-hud"><strong>Mercato di Pescaria</strong><div class="board-hud-tools"><div class="board-hud-status"><span>Giorno ${G.day} · ${phaseTitle(G.phase)}</span><span>Sacchetto ${G.bag.length}</span></div><button id="restart" class="board-new-game" onclick="restartGame()">Nuova partita</button></div></div><div class="board-art-wrap"><div class="board-art" role="group" aria-label="Tabellone centrale di Pescaria">${pileHtml(G.deck,false)}${pileHtml(G.discard,true)}<div class="board-days">${days}</div><div class="board-phases">${phases}</div><div class="board-fish">${lots}</div><div class="board-pins">${pins}</div><div class="board-offers ${bidding?'auction-bidding':''} ${offers.includes('human-action')?'player-actions':''}">${offers}</div></div></div><section id="boardHand" class="panel board board-hand"></section>${overlayHtml()}`;
+  $('physicalBoard').innerHTML=`<div class="board-hud"><strong>Mercato di Pescaria</strong>${announcementHtml()}<div class="board-hud-tools"><div class="board-hud-status"><span>Giorno ${G.day} · ${phaseTitle(G.phase)}</span><span>Sacchetto ${G.bag.length}</span></div><button id="restart" class="board-new-game" onclick="restartGame()">Nuova partita</button></div></div><div class="board-art-wrap"><div class="board-art" role="group" aria-label="Tabellone centrale di Pescaria">${pileHtml(G.deck,false)}${pileHtml(G.discard,true)}<div class="board-days">${days}</div><div class="board-phases">${phases}</div><div class="board-fish">${lots}</div><div class="board-pins">${pins}</div><div class="board-offers ${bidding?'auction-bidding':''} ${offers.includes('human-action')?'player-actions':''}">${offers}</div></div></div><section id="boardHand" class="panel board board-hand"></section>${overlayHtml()}`;
 }
 function inventoryHtml(stock,muted=false){const x=FISH.flatMap(f=>Array.from({length:stock[f]},()=>`<span class="token ${muted?'muted-token':''}" title="${f}"><img src="${ASSET.fish[f]}" alt="${f}"></span>`)).join('');return x||'<span class="empty">vuoto</span>'}
 function cardHtml(c,mode='plain',enabled=true,style=''){
@@ -963,9 +1014,11 @@ function auctionPanelHtml(me){
 function syncHandToggle(dock){
   const folded=dock.classList.contains('folded');
   dock.querySelector('.hand-cards').inert=folded;
-  const button=dock.querySelector('.hand-title');
+  const button=dock.querySelector('.hand-toggle');
   button.setAttribute('aria-expanded',String(!folded));
-  button.querySelector('.hand-toggle-label').textContent=folded?'Alza le carte ▴':'Abbassa le carte ▾';
+  button.setAttribute('aria-label',folded?'Alza le carte':'Abbassa le carte');
+  button.title=folded?'Alza le carte':'Abbassa le carte';
+  button.textContent=folded?'↑':'↓';
 }
 window.toggleHand=function(){
   if(!G||G.handoff)return;
@@ -974,16 +1027,15 @@ window.toggleHand=function(){
   dock.classList.toggle('folded',G.handFolded);syncHandToggle(dock);
 };
 function renderBoard(){
-  const me=activePlayer();let cards=me.hand,mode='plain',title='La tua mano',enabled=()=>true;
+  const me=activePlayer();let cards=me.hand,mode='plain',enabled=()=>true;
   if(G.phase==='asta'&&G.auctionStage==='bid')mode='bid';
-  if(G.phase==='pubblico'){mode='market';title='I tuoi contratti';enabled=c=>canContract(me,c)}
-  if(G.phase==='draft'){const pack=G.draftPacks[me.id];cards=[...G.drafted[me.id]].reverse().concat(pack);mode='draft';title='Carte del draft';enabled=c=>pack.some(x=>x.id===c.id)}
+  if(G.phase==='pubblico'){mode='market';enabled=c=>canContract(me,c)}
+  if(G.phase==='draft'){const pack=G.draftPacks[me.id];cards=[...G.drafted[me.id]].reverse().concat(pack);mode='draft';enabled=c=>pack.some(x=>x.id===c.id)}
   if(G.handoff)cards=[];
   if(mode==='bid'&&G.selectedBid)cards=cards.filter(c=>c.id!==G.selectedBid);
   const mid=(cards.length-1)/2,room=Math.min(760,innerWidth-48),spread=Math.min(100,Math.max(18,(room-230)/Math.max(1,cards.length-1))),fan=cards.map((c,i)=>cardHtml(c,mode,enabled(c),`--i:${i};--x:${(i-mid)*spread}px;--r:${(i-mid)*5}deg;--edge:${i===0?32:i===cards.length-1?-32:0}px;--z:${i+1}`)).join('');
   const host=$('boardHand')||$('board');
 
-  const hint=mode==='draft'?`${G.drafted[me.id].length} scelte · clicca una carta libera`:mode==='market'?'Clicca un contratto completabile':mode==='bid'?'Scegli la carta da puntare, oppure PASSA':'Passa il mouse per leggere la carta';
   const raised=mode==='draft'||mode==='market'||(mode==='bid'&&!G.selectedBid);
   const viewed=G.players[G.viewedPlayer||0],winner=G.phase==='asta'&&G.auctionStage==='buy'?G.auctionResult?.[0]:null;
   const extra=[copies(viewed,'Esperienza')?`Senza tassa ×${copies(viewed,'Esperienza')}`:'',copies(viewed,'Nuovi Clienti')?`Fortuna ×${copies(viewed,'Nuovi Clienti')}`:'',viewed.subsLeft?`Sottobanco ×${viewed.subsLeft}`:''].filter(Boolean).join(' · ');
@@ -992,7 +1044,7 @@ function renderBoard(){
   if(G.handViewKey!==handKey){G.handViewKey=handKey;G.handFolded=!raised}
   dock.classList.toggle('folded',G.handFolded);
   dock.classList.toggle('hidden',!!G.overlay||G.handoff||!cards.length);
-  dock.innerHTML=`<button class="hand-title" onclick="toggleHand()" aria-controls="handCards"><strong>${title} · ${cards.length}</strong><span class="hand-toggle-label"></span><span class="hand-hint">${hint}</span></button><div id="handCards" class="hand-cards">${fan||'<p class="empty">Nessuna carta in mano.</p>'}</div>`;
+  dock.innerHTML=`<button class="hand-toggle" onclick="toggleHand()" aria-controls="handCards"></button><div id="handCards" class="hand-cards">${fan||'<p class="empty">Nessuna carta in mano.</p>'}</div>`;
   syncHandToggle(dock);
   requestAnimationFrame(()=>{fitGameContents();animateHand(dock)})
 }

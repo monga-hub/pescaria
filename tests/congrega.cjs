@@ -2,8 +2,13 @@
 const assert=require('node:assert/strict'),fs=require('fs'),path=require('path'),vm=require('vm');
 const root=path.join(__dirname,'..');const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const source=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];const cd=path.join(root,'assets/cards');
+for(let i=0;i<12;i++)assert(fs.existsSync(path.join(root,'assets/automa',String(i).padStart(2,'0')+'.png')));
 const ctx={assert,console,__PESCARIA_HEADLESS:true,addEventListener(){},setTimeout(){return 1},clearTimeout(){},cardFiles:fs.existsSync(cd)?fs.readdirSync(cd):[],document:{getElementById:()=>({}),addEventListener(){}},matchMedia:()=>({matches:false})};ctx.window=ctx;
 const checks=`
+// Ogni carta fisica mantiene la propria immagine anche dopo il mescolamento.
+assert.equal(new Set(CONGREGA_DECK.map(c=>c.image)).size,12);
+CONGREGA_DECK.forEach((c,i)=>assert.equal(c.image,'assets/automa/'+String(i).padStart(2,'0')+'.png'));
+
 const res={};
 for(const lv of Object.keys(CONGREGA_LEVELS))for(const n of [2,3]){let win=0,g=0;
  for(let s=1;s<=150;s++){startGame({n,name:'B',seed:s*13+n,difficulty:'normal',humanBot:true,congrega:lv});
@@ -21,6 +26,11 @@ for(const humans of [1,2]){
   let actions=0;
   while(!G.finished&&actions++<3000){
     if(G.handoff)acceptHandoff();
+    const automa=G.players.find(p=>p.congrega),art=congregaOfferHtml(automa);
+    if(G.phase==='asta'&&G.bidDone.includes(automa.id)&&automa.congregaCard){
+      assert(art.includes(automa.congregaCard.image),'immagine della carta corrente');
+      assert(art.includes('showAutomaCard'),'carta ingrandibile');
+    }else assert.equal(art,'','nessuna carta vecchia o non ancora estratta');
     const me=activePlayer();
     if(G.phase==='rete')beginDraft();
     else if(G.phase==='draft')pickDraft(G.draftPacks[me.id][0].id);
