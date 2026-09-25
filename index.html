@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="icon" type="image/png" href="assets/fish/sardina.png">
-  <link rel="apple-touch-icon" href="assets/fish/sardina.png">
+  <link rel="icon" type="image/png" href="assets/fish/sardina.png?v=20260925">
+  <link rel="apple-touch-icon" href="assets/fish/sardina.png?v=20260925">
   <title>Pescaria — Gioca</title>
   <style>
     :root{--ink:#17343b;--muted:#708083;--paper:#f5efe3;--cream:#fffaf0;--teal:#0e6569;--sea:#dcece7;--coral:#dc654b;--gold:#d5a33a;--line:#ded4c2;--shadow:0 14px 38px #17343b18;--r:18px}
@@ -13,10 +13,10 @@
     .btn{border:0;border-radius:11px;padding:11px 16px;font-weight:900}.primary{background:var(--coral);color:#fff;box-shadow:0 7px 18px #dc654b30}.secondary{background:var(--sea);color:#0b5054}.wide{width:100%;margin-top:18px;padding:13px}.hidden{display:none!important}
     .progress{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:0 0 14px}.step{padding:10px;text-align:center;border-radius:11px;background:#e8e0d2;color:#7a7469;font-size:12px;font-weight:900}.step.active{background:var(--teal);color:#fff}.step.done{background:#cfe3dc;color:#165b5d}.dayline{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.dayline strong{font:700 22px Georgia,serif}.dayline span{color:var(--muted);font-weight:700}
     .scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px}.score{padding:12px 14px;display:grid;gap:3px}.score.captain{outline:2px solid var(--gold)}.score.you{background:#fff}.who{display:flex;align-items:center;gap:7px;font-weight:900}.dot{width:11px;height:11px;border-radius:50%}.money{font:700 22px Georgia,serif;color:var(--teal)}.sub{font-size:12px;color:var(--muted)}
-    .board-scroll{overflow-x:auto;margin:0 0 14px;border-radius:var(--r);box-shadow:var(--shadow);background:#102d2b;padding:0}.physical-board{min-width:960px;padding:22px;background:radial-gradient(circle at 50% 0,#54734b55,transparent 42%),linear-gradient(145deg,#173b34,#0e2927 72%);color:#fff7d4;border:1px solid #af8b4b;border-radius:var(--r);box-shadow:inset 0 0 70px #061b18}.board-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.board-heading strong{font:700 24px Georgia,serif;color:#f2cf73}.board-heading span{font-size:11px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:#b9c8b7}.board-calendar{width:min(660px,72%);margin:0 auto 20px;display:grid;gap:8px}.board-days,.board-phases{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.board-day,.board-phase{min-height:68px;border:2px solid #a78350;border-radius:11px;background:linear-gradient(#d6bb7e,#a98852);display:grid;place-items:center;color:#46331f;box-shadow:inset 0 0 0 2px #f5deaa44;font-weight:900}.board-day{font:700 29px Georgia,serif}.board-phase{grid-template-columns:48px 1fr;gap:7px;padding:7px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.board-phase img{width:45px;height:45px;object-fit:contain;filter:grayscale(1);opacity:.45}.board-phase.active img{filter:none;opacity:1}.board-day.active,.board-phase.active,.fish-lot.active,.auction-pin.active{border-color:#fff071;background:#fff07124;color:#fff;animation:boardPulse 1.45s ease-in-out infinite}.board-market-title,.board-offer-title{margin:8px 0 7px;font:700 17px Georgia,serif;color:#f2cf73}.board-fish,.board-pins,.board-offers,.board-player-pins{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.fish-lot{position:relative;min-height:168px;border:3px solid #725331;border-radius:14px;background:linear-gradient(155deg,#694322,#342215);padding:36px 8px 8px;display:flex;align-content:flex-start;justify-content:center;flex-wrap:wrap;gap:5px;box-shadow:inset 0 0 25px #0007}.fish-lot-label{position:absolute;left:8px;right:8px;top:7px;background:#10241de8;color:#fff7d4;border-radius:999px;padding:5px 8px;text-align:center;font-size:11px;font-weight:900}.market-token{width:37px;height:37px;border-radius:9px;object-fit:cover;box-shadow:0 2px 7px #000b;border:1px solid #f0d29155}.board-pins{height:52px;margin:5px 0 8px}.auction-pin{align-self:center;justify-self:center;width:45px;height:45px;border:2px solid #947448;border-radius:9px;background:#c4a36a33;display:grid;place-items:center}.auction-pin img{width:38px;height:38px;object-fit:contain;opacity:0}.auction-pin.active img{opacity:1}.offer-zone{position:relative;min-height:130px;border:4px solid var(--player,#ffffff22);border-radius:14px;background:linear-gradient(var(--player-soft,#0000),var(--player-soft,#0000)),#352317;padding:31px 9px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;text-shadow:0 2px 4px #000;box-shadow:inset 0 0 30px #0007}.offer-zone.empty{border-color:#ffffff18;background:#1f2521}.offer-name{position:absolute;left:8px;right:8px;top:7px;background:var(--player,#333);color:#fff;border-radius:999px;padding:4px 7px;font-size:11px;font-weight:900;text-shadow:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.offer-value{font:900 clamp(18px,2.2vw,31px) Georgia,serif}.offer-detail{font-size:10px;font-weight:800}.board-player-pins{height:36px;margin-top:7px}.player-pin{align-self:center;justify-self:center;width:29px;height:29px;border-radius:8px;border:4px solid var(--player,#ffffff22);background:var(--player-soft,#0003);box-shadow:0 0 12px var(--player,#000)}.progress{display:none}@keyframes boardPulse{0%,100%{box-shadow:0 0 8px #fff26b,0 0 18px #ffb300,inset 0 0 9px #fff06b55}50%{box-shadow:0 0 16px #fff,0 0 34px #ffe600,inset 0 0 18px #fff06baa}}@media(prefers-reduced-motion:reduce){.board-day.active,.board-phase.active,.fish-lot.active,.auction-pin.active{animation:none}}
+    .board-scroll{overflow-x:clip;margin:0 0 14px;border-radius:var(--r);box-shadow:var(--shadow);background:#102d2b;padding:0}.physical-board{min-width:960px;padding:22px;background:radial-gradient(circle at 50% 0,#54734b55,transparent 42%),linear-gradient(145deg,#173b34,#0e2927 72%);color:#fff7d4;border:1px solid #af8b4b;border-radius:var(--r);box-shadow:inset 0 0 70px #061b18}.board-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.board-heading strong{font:700 24px Georgia,serif;color:#f2cf73}.board-heading span{font-size:11px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:#b9c8b7}.board-calendar{width:min(660px,72%);margin:0 auto 20px;display:grid;gap:8px}.board-days,.board-phases{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.board-day,.board-phase{min-height:68px;border:2px solid #a78350;border-radius:11px;background:linear-gradient(#d6bb7e,#a98852);display:grid;place-items:center;color:#46331f;box-shadow:inset 0 0 0 2px #f5deaa44;font-weight:900}.board-day{font:700 29px Georgia,serif}.board-phase{grid-template-columns:48px 1fr;gap:7px;padding:7px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.board-phase img{width:45px;height:45px;object-fit:contain;filter:grayscale(1);opacity:.45}.board-phase.active img{filter:none;opacity:1}.board-day.active,.board-phase.active,.fish-lot.active,.auction-pin.active{border-color:#fff071;background:#fff07124;color:#fff;animation:boardPulse 1.45s ease-in-out infinite}.board-market-title,.board-offer-title{margin:8px 0 7px;font:700 17px Georgia,serif;color:#f2cf73}.board-fish,.board-pins,.board-offers,.board-player-pins{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.fish-lot{position:relative;min-height:168px;border:3px solid #725331;border-radius:14px;background:linear-gradient(155deg,#694322,#342215);padding:36px 8px 8px;display:flex;align-content:flex-start;justify-content:center;flex-wrap:wrap;gap:5px;box-shadow:inset 0 0 25px #0007}.fish-lot-label{position:absolute;left:8px;right:8px;top:7px;background:#10241de8;color:#fff7d4;border-radius:999px;padding:5px 8px;text-align:center;font-size:11px;font-weight:900}.market-token{width:37px;height:37px;border-radius:9px;object-fit:cover;box-shadow:0 2px 7px #000b;border:1px solid #f0d29155}.board-pins{height:52px;margin:5px 0 8px}.auction-pin{align-self:center;justify-self:center;width:45px;height:45px;border:2px solid #947448;border-radius:9px;background:#c4a36a33;display:grid;place-items:center}.auction-pin img{width:38px;height:38px;object-fit:contain;opacity:0}.auction-pin.active img{opacity:1}.offer-zone{position:relative;min-height:130px;border:4px solid var(--player,#ffffff22);border-radius:14px;background:linear-gradient(var(--player-soft,#0000),var(--player-soft,#0000)),#352317;padding:31px 9px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;text-shadow:0 2px 4px #000;box-shadow:inset 0 0 30px #0007}.offer-zone.empty{border-color:#ffffff18;background:#1f2521}.offer-name{position:absolute;left:8px;right:8px;top:7px;background:var(--player,#333);color:#fff;border-radius:999px;padding:4px 7px;font-size:11px;font-weight:900;text-shadow:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.offer-value{font:900 clamp(18px,2.2vw,31px) Georgia,serif}.offer-detail{font-size:10px;font-weight:800}.board-player-pins{height:36px;margin-top:7px}.player-pin{align-self:center;justify-self:center;width:29px;height:29px;border-radius:8px;border:4px solid var(--player,#ffffff22);background:var(--player-soft,#0003);box-shadow:0 0 12px var(--player,#000)}.progress{display:none}@keyframes boardPulse{0%,100%{box-shadow:0 0 8px #fff26b,0 0 18px #ffb300,inset 0 0 9px #fff06b55}50%{box-shadow:0 0 16px #fff,0 0 34px #ffe600,inset 0 0 18px #fff06baa}}@media(prefers-reduced-motion:reduce){.board-day.active,.board-phase.active,.fish-lot.active,.auction-pin.active{animation:none}}
     .fish-lot.dense .market-token{width:27px;height:27px;border-radius:7px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px}.phasebox{padding:22px;min-height:360px}.eyebrow{color:var(--coral);text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-weight:900}.lead{color:var(--muted);margin:4px 0 18px}.notice{background:#edf4f0;border-left:4px solid var(--teal);border-radius:9px;padding:11px 13px;margin:12px 0}.warning{background:#faeadf;border-left-color:var(--coral)}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
     .fish-grid{display:flex;flex-wrap:wrap;gap:10px}.fishbtn{border:1px solid var(--line);background:#fffdf8;border-radius:14px;padding:13px 17px;min-width:115px;color:var(--ink)}button.fishbtn:hover{border-color:var(--teal);transform:translateY(-1px)}.fishbtn>b{display:block;font-size:25px}.fishbtn>span{display:block;font-weight:900}.fishbtn small{color:var(--muted)}.token-strip{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}.token-icon,.token-pick{display:grid;place-items:center;width:40px;height:40px;border-radius:11px;background:#fff;border:1px solid var(--line);font-size:23px}.token-pick{padding:0;color:inherit;transition:.12s}.token-pick:hover:not(:disabled){border-color:var(--coral);transform:translateY(-2px)}.token-pick.selected{background:#fee3d9;border-color:var(--coral);box-shadow:0 0 0 2px #dc654b24}.token-pick:disabled{filter:grayscale(1);opacity:.3}.pick-label{font-weight:900;margin-top:10px}.pick-count{color:var(--coral)}
-    .side{padding:17px}.side h3,.board h3{font:700 19px Georgia,serif;margin:0 0 11px}.log{max-height:430px;overflow:auto}.logitem{border-bottom:1px solid #ebe2d3;padding:8px 2px;font-size:13px}.logitem b{color:var(--coral);font-size:10px;text-transform:uppercase;margin-right:6px}.empty{color:var(--muted);font-style:italic}
+    .side{padding:17px}.side h3,.board h3{font:700 19px Georgia,serif;margin:0 0 11px}.log{max-height:430px;overflow:clip}.logitem{border-bottom:1px solid #ebe2d3;padding:8px 2px;font-size:13px}.logitem b{color:var(--coral);font-size:10px;text-transform:uppercase;margin-right:6px}.empty{color:var(--muted);font-style:italic}
     .board{padding:20px;margin-top:14px}.inventory{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}.crate{background:#f1eadc;border-radius:12px;padding:12px}.crate-head{display:flex;justify-content:space-between;font-weight:900;margin-bottom:8px}.tokens{display:flex;flex-wrap:wrap;gap:6px}.token{display:grid;place-items:center;width:37px;height:37px;background:#fff;border:1px solid var(--line);border-radius:10px;font-size:21px}.muted-token{filter:grayscale(.45);opacity:.75}
     .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}.card{position:relative;background:#fffdf8;border:1px solid var(--line);border-radius:14px;padding:13px;min-height:176px;display:flex;flex-direction:column;transition:.15s}.card.selectable:hover,.card.selected{border-color:var(--coral);box-shadow:0 7px 17px #b84d3720;transform:translateY(-2px)}.card.selected{outline:2px solid var(--coral)}.card.disabled{opacity:.55}.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.card h4{margin:0;font:700 17px Georgia,serif}.bid{display:grid;place-items:center;min-width:34px;height:34px;border-radius:50%;background:var(--coral);color:#fff;font-weight:900}.recipe{margin:12px 0 8px;font-weight:800}.payout{color:var(--teal);font-weight:900}.upgrade{margin-top:auto;padding-top:9px;border-top:1px solid #eee3d1;color:#6a6053;font-size:12px}.card .btn{margin-top:9px;padding:8px 10px;width:100%}.card-id{color:#aaa;font-size:10px}
     .bid-controls{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;max-width:430px;margin-top:15px}.bid-controls input{width:100%;accent-color:var(--coral)}.cashrow{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}.reveal{display:grid;gap:7px;margin:13px 0}.reveal div{display:flex;justify-content:space-between;padding:9px 11px;border-radius:9px;background:#f1eadf}.winner{background:#e1eee8!important;font-weight:900}
@@ -27,13 +27,13 @@
     @media(max-width:560px){.form,.inventory,.rules-grid{grid-template-columns:1fr}.scores{grid-template-columns:repeat(2,1fr)}.progress{gap:4px}.step{font-size:10px;padding:8px 3px}.phasebox{padding:17px}.cards{grid-template-columns:1fr}.bid-controls{grid-template-columns:1fr}.fishbtn{min-width:calc(50% - 5px)}}
 
     /* Tavolo a schermata unica: riusa il gioco esistente, cambia solo la disposizione. */
-    body.playing{overflow:hidden}.playing main{max-width:none;height:100vh;margin:0;padding:8px;overflow:hidden}.playing #game{height:100%;display:grid;grid-template-areas:"status status" "scores scores" "table action" "hand hand";grid-template-columns:minmax(0,1fr) 350px;grid-template-rows:28px 62px minmax(0,1fr) 218px;gap:8px;overflow:hidden}.playing .dayline{grid-area:status;margin:0;padding:0 5px}.playing .dayline strong{font-size:18px}.playing .scores{grid-area:scores;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:0}.playing .score{min-width:0;padding:6px 9px;grid-template-columns:minmax(0,1fr) auto;align-items:center}.playing .score .who{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.playing .score .money{font-size:18px}.playing .score .sub{grid-column:1/-1;white-space:nowrap}.playing .board-scroll{grid-area:table;margin:0;min-width:0;overflow:hidden}.playing .physical-board{height:100%;min-width:0;padding:9px 12px;display:flex;flex-direction:column;overflow:hidden}.playing .board-heading{margin-bottom:4px}.playing .board-heading strong{font-size:18px}.playing .board-calendar{width:min(590px,82%);margin:0 auto 6px;gap:4px}.playing .board-days,.playing .board-phases{gap:5px}.playing .board-day{min-height:32px;font-size:19px}.playing .board-phase{min-height:38px;grid-template-columns:28px 1fr;padding:3px 6px;font-size:9px}.playing .board-phase img{width:27px;height:27px}.playing .board-market-title,.playing .board-offer-title{margin:2px 0 4px;font-size:13px}.playing .board-fish{flex:1;min-height:86px;gap:6px}.playing .fish-lot{min-height:0;padding:26px 4px 4px;gap:3px;border-width:2px}.playing .fish-lot-label{top:4px;left:4px;right:4px;padding:3px 4px;font-size:9px}.playing .market-token{width:27px;height:27px;border-radius:7px}.playing .fish-lot.dense .market-token{width:21px;height:21px}.playing .board-pins{height:31px;margin:3px 0;gap:6px}.playing .auction-pin{width:29px;height:29px}.playing .auction-pin img{width:25px;height:25px}.playing .board-offers{height:67px;gap:6px}.playing .offer-zone{min-height:0;padding:24px 4px 4px;border-width:3px}.playing .offer-name{top:4px;left:4px;right:4px;padding:2px 4px;font-size:9px}.playing .offer-value{font-size:18px}.playing .offer-detail{font-size:8px}.playing .board-player-pins{height:18px;margin-top:3px;gap:6px}.playing .player-pin{width:17px;height:17px;border-width:3px}.playing .layout{grid-area:action;display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 92px;gap:8px;min-width:0;overflow:hidden}.playing .phasebox{min-height:0;padding:14px;overflow:auto}.playing .phasebox h2{font-size:22px}.playing .lead{margin-bottom:10px}.playing .notice{margin:8px 0;padding:8px 10px}.playing .side{padding:9px;overflow:hidden}.playing .side h3{font-size:14px;margin-bottom:3px}.playing .log{max-height:58px}.playing .logitem{padding:3px 1px;font-size:10px}.playing details.rules{display:none}.playing .board{grid-area:hand;margin:0;padding:9px 12px;display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;position:relative;overflow:hidden}.hand-meta{min-width:0;overflow:hidden}.hand-meta .inventory{grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}.hand-meta .crate{padding:7px}.hand-meta .crate-head{font-size:10px;margin-bottom:4px}.hand-meta .tokens{gap:3px}.hand-meta .token{width:27px;height:27px;border-radius:7px;font-size:16px}.hand-meta h3{font-size:13px;margin:3px 0}.hand-meta .upgrades{margin:3px 0;gap:3px}.hand-meta .tag{font-size:9px;padding:3px 6px}.hand-dock{position:relative;min-width:0;height:100%}.hand-title{position:absolute;z-index:150;left:8px;top:0}.hand-title h3{display:inline;margin:0 8px 0 0;font-size:15px}.hand-title span{font-size:10px;color:var(--muted);font-weight:700}.hand-cards{position:absolute;inset:0;display:block}.hand-cards>.empty{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%)}.playing .hand-cards .card{position:absolute;left:50%;bottom:-132px;width:168px;height:200px;min-height:0;padding:11px;z-index:var(--z);transform:translateX(calc(-50% + var(--x))) rotate(var(--r));transform-origin:50% 100%;transition:bottom .18s ease,transform .18s ease,box-shadow .18s ease;box-shadow:0 5px 12px #17343b55}.playing .hand-cards .card .card-top>div{opacity:0;transition:opacity .12s}.playing .hand-cards .card:hover,.playing .hand-cards .card:focus-within{bottom:6px;z-index:200;transform:translateX(calc(-50% + var(--x))) rotate(0) scale(1.04);box-shadow:0 16px 30px #07191a99}.playing .hand-cards .card:hover .card-top>div,.playing .hand-cards .card:focus-within .card-top>div{opacity:1}.playing .hand-cards .card.selected{bottom:-102px;outline:3px solid var(--coral)}.playing .hand-cards .card.selected:hover,.playing .hand-cards .card.selected:focus-within{bottom:6px}.playing .hand-cards .card h4{font-size:15px}.playing .hand-cards .recipe{margin:9px 0 5px}.playing .hand-cards .upgrade{font-size:10px}.playing .hand-cards .btn{font-size:11px;padding:7px;margin-top:6px}
+    body.playing{overflow:hidden}.playing main{max-width:none;height:100vh;margin:0;padding:8px;overflow:hidden}.playing #game{height:100%;display:grid;grid-template-areas:"status status" "scores scores" "table action" "hand hand";grid-template-columns:minmax(0,1fr) 350px;grid-template-rows:28px 62px minmax(0,1fr) 218px;gap:8px;overflow:hidden}.playing .dayline{grid-area:status;margin:0;padding:0 5px}.playing .dayline strong{font-size:18px}.playing .scores{grid-area:scores;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:0}.playing .score{min-width:0;padding:6px 9px;grid-template-columns:minmax(0,1fr) auto;align-items:center}.playing .score .who{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.playing .score .money{font-size:18px}.playing .score .sub{grid-column:1/-1;white-space:nowrap}.playing .board-scroll{grid-area:table;margin:0;min-width:0;overflow:hidden}.playing .physical-board{height:100%;min-width:0;padding:9px 12px;display:flex;flex-direction:column;overflow:hidden}.playing .board-heading{margin-bottom:4px}.playing .board-heading strong{font-size:18px}.playing .board-calendar{width:min(590px,82%);margin:0 auto 6px;gap:4px}.playing .board-days,.playing .board-phases{gap:5px}.playing .board-day{min-height:32px;font-size:19px}.playing .board-phase{min-height:38px;grid-template-columns:28px 1fr;padding:3px 6px;font-size:9px}.playing .board-phase img{width:27px;height:27px}.playing .board-market-title,.playing .board-offer-title{margin:2px 0 4px;font-size:13px}.playing .board-fish{flex:1;min-height:86px;gap:6px}.playing .fish-lot{min-height:0;padding:26px 4px 4px;gap:3px;border-width:2px}.playing .fish-lot-label{top:4px;left:4px;right:4px;padding:3px 4px;font-size:9px}.playing .market-token{width:27px;height:27px;border-radius:7px}.playing .fish-lot.dense .market-token{width:21px;height:21px}.playing .board-pins{height:31px;margin:3px 0;gap:6px}.playing .auction-pin{width:29px;height:29px}.playing .auction-pin img{width:25px;height:25px}.playing .board-offers{height:67px;gap:6px}.playing .offer-zone{min-height:0;padding:24px 4px 4px;border-width:3px}.playing .offer-name{top:4px;left:4px;right:4px;padding:2px 4px;font-size:9px}.playing .offer-value{font-size:18px}.playing .offer-detail{font-size:8px}.playing .board-player-pins{height:18px;margin-top:3px;gap:6px}.playing .player-pin{width:17px;height:17px;border-width:3px}.playing .layout{grid-area:action;display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 92px;gap:8px;min-width:0;overflow:hidden}.playing .phasebox{min-height:0;padding:14px;overflow:clip}.playing .phasebox h2{font-size:22px}.playing .lead{margin-bottom:10px}.playing .notice{margin:8px 0;padding:8px 10px}.playing .side{padding:9px;overflow:hidden}.playing .side h3{font-size:14px;margin-bottom:3px}.playing .log{max-height:58px}.playing .logitem{padding:3px 1px;font-size:10px}.playing details.rules{display:none}.playing .board{grid-area:hand;margin:0;padding:9px 12px;display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;position:relative;overflow:hidden}.hand-meta{min-width:0;overflow:hidden}.hand-meta .inventory{grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}.hand-meta .crate{padding:7px}.hand-meta .crate-head{font-size:10px;margin-bottom:4px}.hand-meta .tokens{gap:3px}.hand-meta .token{width:27px;height:27px;border-radius:7px;font-size:16px}.hand-meta h3{font-size:13px;margin:3px 0}.hand-meta .upgrades{margin:3px 0;gap:3px}.hand-meta .tag{font-size:9px;padding:3px 6px}.hand-dock{position:relative;min-width:0;height:100%}.hand-title{position:absolute;z-index:150;left:8px;top:0}.hand-title h3{display:inline;margin:0 8px 0 0;font-size:15px}.hand-title span{font-size:10px;color:var(--muted);font-weight:700}.hand-cards{position:absolute;inset:0;display:block}.hand-cards>.empty{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%)}.playing .hand-cards .card{position:absolute;left:50%;bottom:-132px;width:168px;height:200px;min-height:0;padding:11px;z-index:var(--z);transform:translateX(calc(-50% + var(--x))) rotate(var(--r));transform-origin:50% 100%;transition:bottom .18s ease,transform .18s ease,box-shadow .18s ease;box-shadow:0 5px 12px #17343b55}.playing .hand-cards .card .card-top>div{opacity:0;transition:opacity .12s}.playing .hand-cards .card:hover,.playing .hand-cards .card:focus-within{bottom:6px;z-index:200;transform:translateX(calc(-50% + var(--x))) rotate(0) scale(1.04);box-shadow:0 16px 30px #07191a99}.playing .hand-cards .card:hover .card-top>div,.playing .hand-cards .card:focus-within .card-top>div{opacity:1}.playing .hand-cards .card.selected{bottom:-102px;outline:3px solid var(--coral)}.playing .hand-cards .card.selected:hover,.playing .hand-cards .card.selected:focus-within{bottom:6px}.playing .hand-cards .card h4{font-size:15px}.playing .hand-cards .recipe{margin:9px 0 5px}.playing .hand-cards .upgrade{font-size:10px}.playing .hand-cards .btn{font-size:11px;padding:7px;margin-top:6px}
     .playing .physical-board{position:relative}.table-overlay{position:absolute;inset:0;z-index:300;display:grid;place-items:center;padding:18px;background:#061b18c7;backdrop-filter:blur(3px)}.net-choice{width:min(720px,92%);padding:22px;border:2px solid #d5a33a;border-radius:20px;background:linear-gradient(145deg,#fffaf0,#e8deca);color:var(--ink);box-shadow:0 24px 70px #000a;text-align:center}.net-choice h2{margin:2px 0 5px;font:700 27px Georgia,serif}.net-choice p{margin:0 0 15px;color:var(--muted)}.game-intro-copy{max-width:520px;margin:12px auto 18px!important;text-align:left;line-height:1.5}.net-picks{display:flex;justify-content:center;flex-wrap:wrap;gap:10px}.net-pick{width:92px;border:2px solid #cfbea3;border-radius:15px;padding:7px;background:#fff;color:var(--ink);font-weight:900;transition:.16s}.net-pick:hover,.net-pick:focus-visible{border-color:var(--coral);transform:translateY(-7px);box-shadow:0 12px 22px #17343b33}.net-pick img{display:block;width:74px;height:74px;margin:0 auto 4px;border-radius:11px;object-fit:cover}.net-pick span{display:block;font-size:11px}.net-choice-note{font-size:11px;font-weight:800;color:var(--coral);text-transform:uppercase;letter-spacing:.06em}
     @media(max-height:760px){.playing #game{grid-template-rows:25px 54px minmax(0,1fr) 195px}.playing .side{display:none}.playing .layout{grid-template-rows:1fr}.playing .hand-cards .card{height:178px;bottom:-119px}.playing .hand-cards .card:hover,.playing .hand-cards .card:focus-within{bottom:4px}.playing .hand-cards .card.selected{bottom:-91px}.playing .board-calendar{width:88%}}
     @media(max-width:900px){.playing #game{grid-template-areas:"status" "scores" "table" "hand";grid-template-columns:1fr;grid-template-rows:28px 62px minmax(0,1fr) 218px}.playing .board-scroll{grid-area:table}.playing .layout{grid-area:table;position:relative;z-index:20;margin:8px;grid-template-rows:1fr;box-shadow:0 14px 38px #0008}.playing .side{display:none}.playing #game[data-phase="rete"] .layout{display:none}.playing .board{grid-template-columns:1fr}.playing .hand-meta{display:none}.playing .hand-title{left:2px}.net-choice{padding:15px}.net-choice h2{font-size:22px}.net-pick{width:74px}.net-pick img{width:57px;height:57px}}
 
     /* Tutto il gioco vive dentro la plancia centrale. */
-    .playing #game{display:block;height:100%}.playing #game>.dayline,.playing #game>.progress,.playing #game>.scores,.playing #game>.layout,.playing #game>#board,.playing #game>details{display:none!important}.playing .board-scroll{display:block!important;width:100%;height:100%;margin:0;overflow:hidden}.playing .physical-board{display:grid;height:100%;grid-template-rows:38px 50px 66px minmax(0,1fr) 205px;gap:5px;padding:8px;overflow:hidden}.board-hud{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 7px;color:#f2cf73}.board-hud strong{font:700 20px Georgia,serif}.board-hud-tools{display:flex;align-items:center;gap:10px}.board-hud-status{display:flex;gap:14px;align-items:center;color:#fff7d4;font-weight:900;font-size:12px}.board-hud-status span:last-child{color:#b9c8b7}.board-new-game{border:1px solid #d5a33a;border-radius:7px;padding:5px 8px;background:#ffffff10;color:#fff7d4;font-size:9px;font-weight:900;white-space:nowrap}.board-new-game:hover,.board-new-game:focus-visible{background:#d5a33a;color:#2d2418}.board-scorebar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.playing .board-scorebar .score{padding:5px 8px;border-radius:10px;box-shadow:none;grid-template-columns:minmax(0,1fr) auto}.playing .board-scorebar .score .who{font-size:11px}.playing .board-scorebar .score .money{font-size:16px}.playing .board-scorebar .score .sub{grid-column:1/-1;font-size:9px;white-space:nowrap}.playing .board-calendar{width:100%;margin:0;display:grid;grid-template-columns:1fr 1.2fr;gap:8px}.playing .board-days,.playing .board-phases{height:100%}.playing .board-day,.playing .board-phase{min-height:0}.board-center{display:flex;flex-direction:column;min-height:0;overflow:hidden}.playing .board-center .board-fish{flex:1;min-height:62px}.playing .board-center .board-offers{height:58px}.playing .board-center .board-pins{height:25px}.playing .board-center .auction-pin{width:24px;height:24px}.playing .board-center .auction-pin img{width:21px;height:21px}.playing .board-center .board-player-pins{height:14px}.playing .board-center .player-pin{width:14px;height:14px}.board-action{position:absolute;z-index:180;top:164px;right:14px;width:min(350px,calc(100% - 28px));max-height:calc(100% - 385px);margin:0!important;padding:14px!important;overflow:auto;background:#fffaf0f4;box-shadow:0 18px 45px #0009}.board-action:empty{display:none}.playing #game[data-phase="rete"] .board-action{display:none}.playing .board-hand{grid-area:auto!important;height:auto;margin:0!important;padding:8px 10px!important;grid-template-columns:250px minmax(0,1fr);gap:10px}.playing .board-hand .hand-meta{display:block}.fan-values{position:absolute;left:0;right:0;bottom:49px;height:35px;z-index:240;pointer-events:none}.fan-value{position:absolute;left:50%;display:grid;place-items:center;width:32px;height:32px;border:2px solid #fff1c4;border-radius:50%;background:var(--coral);color:#fff;font-weight:900;box-shadow:0 4px 9px #0008;transform:translateX(calc(-50% + var(--x)))}.playing .hand-cards .card>.card-top>.bid{opacity:0}.playing .hand-cards .card:hover,.playing .hand-cards .card:focus-within{z-index:260}.playing .hand-cards .card:hover>.card-top>.bid,.playing .hand-cards .card:focus-within>.card-top>.bid{opacity:1}
+    .playing #game{display:block;height:100%}.playing #game>.dayline,.playing #game>.progress,.playing #game>.scores,.playing #game>.layout,.playing #game>#board,.playing #game>details{display:none!important}.playing .board-scroll{display:block!important;width:100%;height:100%;margin:0;overflow:hidden}.playing .physical-board{display:grid;height:100%;grid-template-rows:38px 50px 66px minmax(0,1fr) 205px;gap:5px;padding:8px;overflow:hidden}.board-hud{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 7px;color:#f2cf73}.board-hud strong{font:700 20px Georgia,serif}.board-hud-tools{display:flex;align-items:center;gap:10px}.board-hud-status{display:flex;gap:14px;align-items:center;color:#fff7d4;font-weight:900;font-size:12px}.board-hud-status span:last-child{color:#b9c8b7}.board-new-game{border:1px solid #d5a33a;border-radius:7px;padding:5px 8px;background:#ffffff10;color:#fff7d4;font-size:9px;font-weight:900;white-space:nowrap}.board-new-game:hover,.board-new-game:focus-visible{background:#d5a33a;color:#2d2418}.board-scorebar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.playing .board-scorebar .score{padding:5px 8px;border-radius:10px;box-shadow:none;grid-template-columns:minmax(0,1fr) auto}.playing .board-scorebar .score .who{font-size:11px}.playing .board-scorebar .score .money{font-size:16px}.playing .board-scorebar .score .sub{grid-column:1/-1;font-size:9px;white-space:nowrap}.playing .board-calendar{width:100%;margin:0;display:grid;grid-template-columns:1fr 1.2fr;gap:8px}.playing .board-days,.playing .board-phases{height:100%}.playing .board-day,.playing .board-phase{min-height:0}.board-center{display:flex;flex-direction:column;min-height:0;overflow:hidden}.playing .board-center .board-fish{flex:1;min-height:62px}.playing .board-center .board-offers{height:58px}.playing .board-center .board-pins{height:25px}.playing .board-center .auction-pin{width:24px;height:24px}.playing .board-center .auction-pin img{width:21px;height:21px}.playing .board-center .board-player-pins{height:14px}.playing .board-center .player-pin{width:14px;height:14px}.board-action{position:absolute;z-index:180;top:164px;right:14px;width:min(350px,calc(100% - 28px));max-height:calc(100% - 385px);margin:0!important;padding:14px!important;overflow:clip;background:#fffaf0f4;box-shadow:0 18px 45px #0009}.board-action:empty{display:none}.playing #game[data-phase="rete"] .board-action{display:none}.playing .board-hand{grid-area:auto!important;height:auto;margin:0!important;padding:8px 10px!important;grid-template-columns:250px minmax(0,1fr);gap:10px}.playing .board-hand .hand-meta{display:block}.fan-values{position:absolute;left:0;right:0;bottom:49px;height:35px;z-index:240;pointer-events:none}.fan-value{position:absolute;left:50%;display:grid;place-items:center;width:32px;height:32px;border:2px solid #fff1c4;border-radius:50%;background:var(--coral);color:#fff;font-weight:900;box-shadow:0 4px 9px #0008;transform:translateX(calc(-50% + var(--x)))}.playing .hand-cards .card>.card-top>.bid{opacity:0}.playing .hand-cards .card:hover,.playing .hand-cards .card:focus-within{z-index:260}.playing .hand-cards .card:hover>.card-top>.bid,.playing .hand-cards .card:focus-within>.card-top>.bid{opacity:1}
     .playing .board-action,.playing .board-hand,.playing .board-scorebar .score{color:var(--ink)}
     @media(min-width:901px){.playing .board-hand .hand-cards{left:-260px}}
     @media(max-width:900px){.playing .physical-board{grid-template-rows:34px 45px 58px minmax(0,1fr) 200px}.board-hud strong{font-size:16px}.board-hud-status{font-size:10px;gap:7px}.board-scorebar{grid-template-columns:repeat(5,minmax(0,1fr))}.playing .board-scorebar .score{padding:4px}.playing .board-scorebar .score .who{font-size:9px}.playing .board-scorebar .score .money{font-size:13px}.playing .board-scorebar .score .sub{display:none}.playing .board-calendar{grid-template-columns:1fr 1.35fr}.playing .board-phase span{display:none}.playing .board-phase{grid-template-columns:1fr}.board-action{top:148px;left:12px;right:12px;width:auto;max-height:calc(100% - 365px)}.playing .board-hand{grid-template-columns:1fr}.playing .board-hand .hand-meta{display:none}.net-choice{width:min(440px,96%)}}
@@ -53,7 +53,7 @@
     .playing .hand-cards .card{width:180px;height:252px;border-radius:17px}.playing .hand-cards .card-top{position:relative;z-index:2;min-height:46px;align-items:center;justify-content:flex-start}.playing .hand-cards .card .card-top>div{min-width:0;flex:1;opacity:1!important}.playing .hand-cards .card-id{display:block;color:#f4ddb0;font-size:8px;font-weight:900;letter-spacing:.08em}.playing .hand-cards .card h4{color:#fffaf0;font-size:13px;line-height:1.05;text-shadow:0 1px 2px #0008;max-height:28px;overflow:hidden}.playing .hand-cards .card>.card-top>.bid{flex:0 0 40px;width:40px;height:40px;min-width:40px;opacity:1!important;border:2px solid #fff0b9;background:radial-gradient(circle at 35% 28%,#f5bd62,#b74d38 72%);box-shadow:0 2px 7px #0008;line-height:1}.playing .hand-cards .bid strong{display:block;font-size:25px}.playing .hand-cards .recipe{position:relative;display:flex;align-items:center;justify-content:center;gap:7px;margin:8px 0 5px;padding:4px 7px;border:1px solid #b89153;border-radius:9px;background:#fff8dfcc;line-height:1}.playing .hand-cards .recipe-item{display:inline-flex;align-items:center;gap:1px}.playing .hand-cards .recipe-item b{font-size:14px}.playing .hand-cards .recipe-item span{font-size:27px;line-height:1}.playing .hand-cards .payout{position:relative;padding:3px 5px;border-radius:7px;background:#1d666015;color:#155d5a;font:900 14px Georgia,serif}.playing .hand-cards .upgrade{position:relative;display:flex;align-items:center;gap:6px;min-height:40px;margin-top:auto;padding:5px 4px 0;border-top:1px solid #9a784f66;color:#5b4935;font-size:9px;font-weight:800;line-height:1.05}.playing .hand-cards .upgrade img{flex:0 0 35px;width:35px;height:35px;object-fit:contain;filter:drop-shadow(0 1px 2px #0003)}.playing .hand-cards .btn{position:relative;margin-top:4px}.playing .hand-cards .card.suit-anchor{--card-accent:#2c7182}.playing .hand-cards .card.suit-hammer{--card-accent:#9a6734}.playing .hand-cards .card.suit-scale{--card-accent:#656184}.playing .hand-cards .card.suit-coin{--card-accent:#8a5541}
     @media(max-height:760px){.playing .hand-cards .card{width:168px;height:235px}}
     .playing .hand-cards .card h4{font-size:15px;max-height:32px}.playing .hand-cards .recipe{padding:6px 7px}.playing .hand-cards .recipe-item b{font-size:16px}.playing .hand-cards .recipe-item span{font-size:31px}.playing .hand-cards .payout{padding:5px 7px;font-size:16px}.playing .hand-cards .upgrade{min-height:68px;margin-top:8px;padding-top:6px;gap:8px;font-size:10px}.playing .hand-cards .upgrade img{flex-basis:48px;width:48px;height:48px}.playing .hand-cards .upgrade div{min-width:0}.playing .hand-cards .upgrade b{display:block;font-size:11px}.playing .hand-cards .upgrade small{display:block;margin-top:3px;font-size:8px;font-weight:600;line-height:1.15;color:#75634d}
-    .playing .board-center .board-offers.auction-bidding{height:clamp(116px,15vh,170px)}.board-offers.auction-bidding .offer-zone{padding:23px 3px 3px}.offer-zone.human-bid{display:grid;grid-template-columns:42px minmax(0,1fr);gap:4px;align-items:center;overflow:visible}.offer-card-back,.offer-card-empty{width:39px;height:56px;border-radius:7px;display:grid;place-items:center}.offer-card-back{position:relative;border:2px solid #e8cb75;background:repeating-linear-gradient(45deg,#164f55 0 6px,#0e393e 6px 12px);color:#f3d87a;box-shadow:0 5px 10px #0008,inset 0 0 0 2px #ffffff22;animation:offerCardFlip .42s cubic-bezier(.2,.9,.3,1.25);cursor:pointer}.offer-card-back>span:first-child{font-size:22px;filter:drop-shadow(0 2px 2px #000)}.offer-card-empty{border:1px dashed #ffffff66;color:#ffffffaa;font-size:8px;font-weight:900;line-height:1.1;text-align:center}.auction-controls{display:grid;grid-template-columns:1fr;gap:2px}.auction-btn{min-width:0;border:1px solid #ffffff55;border-radius:5px;padding:3px 2px;background:#ffffff18;color:#fff;font-size:7px;font-weight:900;line-height:1.1}.auction-btn.offer-submit{background:#d5a33a;color:#2d2418;border-color:#ffe69b;font-size:8px}.auction-btn:hover:not(:disabled),.auction-btn:focus-visible{filter:brightness(1.2);transform:translateY(-1px)}.offer-coins{position:absolute;right:-13px;bottom:-8px;width:27px;height:27px;border:0;background:transparent;padding:0;color:#49300a}.offer-coins i,.flying-ducat{display:grid;place-items:center;border:2px solid #875c12;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff29c,#e6a928 60%,#a56a12);color:#5b3908;font-style:normal;font-weight:1000;box-shadow:0 2px 5px #0007}.offer-coins i{position:absolute;width:23px;height:23px;inset:2px}.offer-coins i:nth-child(2){transform:translate(-3px,-2px)}.offer-coins i:nth-child(3){transform:translate(-6px,-4px)}.offer-coins b{position:absolute;z-index:2;right:-7px;bottom:-5px;min-width:17px;padding:1px 3px;border-radius:8px;background:#fff4c9;font-size:9px}.bid-wallet{position:absolute;z-index:245;right:8px;top:27px;display:grid;justify-items:center;gap:2px;color:#6b5437;font-size:8px;font-weight:900;text-transform:uppercase}.bid-coin-source{position:relative;width:54px;height:48px;border:0;background:transparent;padding:0}.bid-coin-source i{position:absolute;left:8px;top:9px;width:31px;height:31px;border:2px solid #875c12;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff29c,#e6a928 60%,#a56a12);box-shadow:0 3px 6px #0005}.bid-coin-source i:nth-child(2){transform:translate(5px,-4px)}.bid-coin-source i:nth-child(3){transform:translate(10px,-8px)}.bid-coin-source b{position:absolute;right:0;bottom:0;min-width:24px;padding:2px 4px;border-radius:10px;background:#17343b;color:#fff;font-size:11px}.bid-wallet small{font-size:7px;text-transform:none}.flying-ducat{position:fixed;z-index:1000;width:30px;height:30px;pointer-events:none}.flying-ducat::before{content:'◈'}
+    .playing .board-center .board-offers.auction-bidding{height:clamp(116px,15vh,170px)}.board-offers.auction-bidding .offer-zone{padding:23px 3px 3px}.offer-zone.human-bid{display:grid;grid-template-columns:42px minmax(0,1fr);gap:4px;align-items:center;overflow:visible}.offer-card-back,.offer-card-empty{width:39px;height:56px;border-radius:7px;display:grid;place-items:center}.offer-card-back{position:relative;border:0;background:none;color:#f3d87a;box-shadow:0 5px 10px #0008;animation:offerCardFlip .42s cubic-bezier(.2,.9,.3,1.25);cursor:pointer}.offer-card-back>img{display:block;width:100%;height:100%;object-fit:contain;border-radius:inherit;pointer-events:none}.offer-card-empty{border:1px dashed #ffffff66;color:#ffffffaa;font-size:8px;font-weight:900;line-height:1.1;text-align:center}.auction-controls{display:grid;grid-template-columns:1fr;gap:2px}.auction-btn{min-width:0;border:1px solid #ffffff55;border-radius:5px;padding:3px 2px;background:#ffffff18;color:#fff;font-size:7px;font-weight:900;line-height:1.1}.auction-btn.offer-submit{background:#d5a33a;color:#2d2418;border-color:#ffe69b;font-size:8px}.auction-btn:hover:not(:disabled),.auction-btn:focus-visible{filter:brightness(1.2);transform:translateY(-1px)}.offer-coins{position:absolute;right:-13px;bottom:-8px;width:27px;height:27px;border:0;background:transparent;padding:0;color:#49300a}.offer-coins i,.flying-ducat{display:grid;place-items:center;border:2px solid #875c12;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff29c,#e6a928 60%,#a56a12);color:#5b3908;font-style:normal;font-weight:1000;box-shadow:0 2px 5px #0007}.offer-coins i{position:absolute;width:23px;height:23px;inset:2px}.offer-coins i:nth-child(2){transform:translate(-3px,-2px)}.offer-coins i:nth-child(3){transform:translate(-6px,-4px)}.offer-coins b{position:absolute;z-index:2;right:-7px;bottom:-5px;min-width:17px;padding:1px 3px;border-radius:8px;background:#fff4c9;font-size:9px}.bid-wallet{position:absolute;z-index:245;right:8px;top:27px;display:grid;justify-items:center;gap:2px;color:#6b5437;font-size:8px;font-weight:900;text-transform:uppercase}.bid-coin-source{position:relative;width:54px;height:48px;border:0;background:transparent;padding:0}.bid-coin-source i{position:absolute;left:8px;top:9px;width:31px;height:31px;border:2px solid #875c12;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff29c,#e6a928 60%,#a56a12);box-shadow:0 3px 6px #0005}.bid-coin-source i:nth-child(2){transform:translate(5px,-4px)}.bid-coin-source i:nth-child(3){transform:translate(10px,-8px)}.bid-coin-source b{position:absolute;right:0;bottom:0;min-width:24px;padding:2px 4px;border-radius:10px;background:#17343b;color:#fff;font-size:11px}.bid-wallet small{font-size:7px;text-transform:none}.flying-ducat{position:fixed;z-index:1000;width:30px;height:30px;pointer-events:none}.flying-ducat::before{content:'◈'}
     @keyframes offerCardFlip{from{opacity:0;transform:translateY(28px) rotateY(180deg) scale(.7)}to{opacity:1;transform:translateY(0) rotateY(0) scale(1)}}
     @media(max-width:900px){.offer-zone.human-bid{grid-template-columns:32px minmax(0,1fr);gap:2px}.offer-card-back,.offer-card-empty{width:30px;height:47px}.auction-btn{font-size:6px;padding:3px 1px}.bid-wallet{right:2px}}
     .playing .board-center .board-offers.player-actions{height:clamp(110px,14vh,155px)}.offer-zone.human-action{padding:23px 4px 4px}.player-area-action{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px;text-align:left}.player-area-action b{font-size:11px;line-height:1.05}.player-area-action small{display:block;color:#f9e8c7;font-size:7px;line-height:1.05}.player-action-btn{border:1px solid #ffe69b;border-radius:6px;padding:5px 6px;background:#d5a33a;color:#2d2418;font-size:7px;font-weight:1000;line-height:1.05}.market-token-pick{border:0;background:transparent;padding:0;line-height:0}.market-token-pick .market-token{transition:.15s}.market-token-pick:hover .market-token,.market-token-pick:focus-visible .market-token,.market-token-pick.selected .market-token{transform:translateY(-4px) scale(1.08);outline:2px solid #fff071;box-shadow:0 0 13px #ffe600}.fish-lot.selectable-lot{cursor:pointer;color:inherit;font:inherit}.fish-lot.selectable-lot:hover,.fish-lot.selectable-lot:focus-visible{border-color:#fff071;box-shadow:0 0 18px #ffe600,inset 0 0 25px #0007}
@@ -70,24 +70,244 @@
     @media(max-width:900px){.playing .physical-board{grid-template-rows:34px 45px 46px minmax(0,1fr) 200px}.playing .board-calendar{width:88%}.playing .fish-lot{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-wrap:nowrap;gap:3px;padding-inline:1px}.playing .market-token{width:44px;height:44px;margin-block:-1px;border-radius:11px}.playing .fish-lot.dense{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.playing .fish-lot.dense .market-token{width:30px;height:30px;margin:0}}
     @media(max-width:900px) and (max-height:800px){.playing .fish-lot{gap:1px}.playing .market-token{width:28px;height:28px;margin:0;border-radius:8px}.playing .fish-lot.dense .market-token{width:22px;height:22px}}
     .playing .hand-cards,.playing .hand-cards *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.playing .hand-cards img{-webkit-user-drag:none}
+    /* Coordinate percentuali sulla plancia originale: nessun ritaglio o deformazione. */
+    .playing .physical-board{grid-template-rows:38px 50px minmax(0,1fr) 185px;background:#213e38;padding:8px;gap:5px}
+    .board-art-wrap{min-width:0;min-height:0;display:flex;overflow:clip;border-radius:10px;background:#142b27}
+    .board-art{position:relative;flex:none;width:min(100%,calc((100dvh - 322px)*1.414078));min-width:560px;aspect-ratio:4962/3509;margin:auto;background:url('assets/board/plancia-centrale.png') center/100% 100% no-repeat;color:#302417;box-shadow:0 8px 28px #0007;container-type:inline-size}
+    .board-art .board-days,.board-art .board-phases,.board-art .board-fish,.board-art .board-pins,.board-art .board-offers{position:absolute;margin:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));height:auto}
+    .board-art .board-days{left:34.5%;top:5.7%;width:31%;height:8.1%;grid-template-columns:repeat(4,1fr);gap:7.1%}
+    .board-art .board-phases{left:34%;top:15.4%;width:32%;height:10.5%;grid-template-columns:repeat(4,1fr);gap:3.5%}
+    .board-art .board-day,.board-art .board-phase{min-height:0;padding:0;border:2px solid transparent;border-radius:5px;background:none;box-shadow:none;animation:none}
+    .board-art .board-phase{border-radius:50%}
+    .board-art .board-day.active,.board-art .board-phase.active{border-color:#fff8a4;box-shadow:0 0 0 3px #176b64,0 0 13px #fff69a;background:#fff3a51c}
+    .board-pile{position:absolute;top:6.8%;height:18.8%;width:16%;padding:0;text-align:center;font-size:clamp(7px,1.3cqw,16px);font-weight:900;color:#352519}
+    .pile-cards{position:absolute;inset:0 0 15%}
+    .pile-cards img{position:absolute;left:50%;top:50%;width:9.6cqw;height:auto;object-fit:contain;border-radius:5px;box-shadow:0 2px 5px #0008;transform:translate(calc(-50% + var(--pile-offset)),calc(-50% + var(--pile-offset))) rotate(calc(90deg + var(--pile-rotation)))}
+    .pile-count{position:absolute;bottom:0;left:50%;transform:translateX(-50%);white-space:nowrap;border-radius:6px;padding:2px 6px;background:#fff2d8ed;box-shadow:0 2px 4px #0005}
+    .deck-pile{left:12.5%}.discard-pile{right:12.5%}
+    .board-art .board-fish{left:2.4%;top:29%;width:95.2%;height:25%;gap:2.1%;min-height:0}
+    .board-art .fish-lot{min-height:0;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;flex-wrap:nowrap;gap:0;padding:0 5px 5px;border:2px solid transparent;border-radius:45%;background:none;box-shadow:none;animation:none;overflow:visible}
+    .board-art .fish-lot.active{border-color:#fff5a0;box-shadow:0 0 0 3px #176b64,0 0 16px #fff69a}
+    .board-art .fish-lot-label{position:relative;top:auto;left:auto;right:auto;align-self:center;flex:none;width:88%;margin-bottom:4px;padding:3px 2px;font-size:clamp(10px,1.45cqw,15px);background:#203d35ed;color:#fff8df;box-shadow:0 2px 5px #0005}
+    .lot-tokens{display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:3px;max-height:86%;overflow:clip;border-radius:10px;background:#fff5d68c;padding:4px}
+    .lot-tokens:empty{display:none}
+    .board-art .market-token,.board-art .fish-lot.dense .market-token{display:block;flex:none;width:clamp(32px,4.5cqw,56px);height:clamp(32px,4.5cqw,56px);margin:0;border-radius:7px}
+    .board-art .fish-lot.dense .lot-tokens{gap:2px}
+    .board-art .fish-lot.dense .market-token{width:clamp(28px,3.8cqw,46px);height:clamp(28px,3.8cqw,46px)}
+    .board-art .board-pins{left:8.8%;top:56.2%;width:82.4%;height:5.6%;gap:18.5%;grid-template-columns:repeat(5,1fr)}
+    .board-art .auction-pin{width:100%;height:100%;min-width:0;border:0;background:none;box-shadow:none;font-size:clamp(19px,3cqw,33px);color:#123e38;animation:none}
+    .board-art .auction-pin.active{border-radius:50%;background:#fff3af;box-shadow:0 0 0 2px #176b64,0 3px 9px #0007}
+    .board-art .board-offers{left:3.8%;top:70.7%;width:92.4%;height:22.8%;gap:5.2%;grid-template-columns:repeat(5,minmax(0,1fr))}
+    .board-art .offer-zone,.board-art .offer-zone.human-action{min-height:0;padding:25px 4px 5px;border:0;border-radius:8px;background:linear-gradient(transparent 15%,#18352aca 80%);box-shadow:none;justify-content:flex-end;overflow:visible}
+    .board-art .offer-zone.empty{background:#e7d5b477;justify-content:flex-end;color:#322b20;text-shadow:0 1px #fff}
+    .board-art .offer-name{top:0;left:0;right:0;padding:3px 2px;font-size:clamp(9px,1.3cqw,14px);box-shadow:0 2px 5px #0006}
+    .board-art .offer-value{font-size:clamp(15px,2cqw,22px)}
+    .board-art .offer-detail{font-size:clamp(9px,1.1cqw,12px)}
+    .board-art .offer-zone.human-bid{display:grid;grid-template-columns:35% minmax(0,1fr);align-content:end;align-items:center;gap:5px}
+    .board-art .offer-card-back,.board-art .offer-card-empty{width:100%;height:clamp(48px,7cqw,77px)}
+    .board-art .auction-controls{gap:4px}.board-art .auction-btn{min-height:23px;padding:4px 2px;font-size:clamp(8px,1.1cqw,12px)}
+    .board-art .player-area-action{grid-template-columns:1fr;gap:5px;text-align:center}
+    .board-art .player-area-action b{font-size:clamp(10px,1.3cqw,14px)}.board-art .player-area-action small{font-size:clamp(8px,1.1cqw,12px);line-height:1.2}
+    .board-art .player-action-btn{min-height:26px;font-size:clamp(9px,1.2cqw,13px)}
+    .board-art button:focus-visible,.board-art [role="button"]:focus-visible{outline:3px solid #fff69a;outline-offset:3px}
+    @media(min-width:1000px){
+      .playing .physical-board{grid-template-columns:minmax(0,1fr) 320px;grid-template-rows:38px 50px minmax(0,1fr)}
+      .board-hud,.board-scorebar{grid-column:1/-1}
+      .board-art{width:min(100%,calc((100dvh - 134px)*1.414078));min-width:0}
+      .playing .board-hand{display:flex;flex-direction:column;min-width:0;min-height:0;gap:16px}
+      .playing .board-hand .hand-meta{flex:none;display:block}
+      .playing .board-hand .hand-dock{flex:1;min-height:0}
+      .playing .board-hand .hand-cards{left:0;right:0}
+      .playing .board-hand .hand-cards .card{bottom:12px}
+      .hand-title{left:0;right:0}.hand-title h3,.hand-title span{display:block}
+      .bid-wallet{top:60px;right:8px}
+    }
+    @media(max-width:700px){.board-hud strong{font-size:14px}.board-hud-status{font-size:9px;gap:4px}.board-hud-status span:last-child{display:none}.playing .physical-board{grid-template-rows:34px 45px minmax(0,1fr) 185px}.board-art{margin:auto 0}.board-art-wrap{scrollbar-width:thin}.playing .board-hand .hand-meta{display:none}}
+    /* Banco sul ghiaccio, Cesta nel barile, contratti sotto la categoria. */
+    .playing .board-hand{gap:10px}
+    .playing .board-hand .hand-meta{display:block;max-height:50%;overflow:clip;scrollbar-width:thin}
+    .player-mat-buttons{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px}
+    .player-mat-button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:30px;padding:4px 7px;border:1px solid #c4ad83;border-bottom:3px solid var(--player-color);border-radius:6px;background:#fff9e9;color:#302417;font-size:11px;font-weight:800;cursor:pointer}
+    .player-mat-button[aria-pressed="true"]{background:#dceee8;border-color:#17656a;border-bottom-color:var(--player-color);box-shadow:inset 0 0 0 1px #17656a}
+    .player-mat-button:hover,.player-mat-button:focus-visible{background:#e5f2ee;outline:2px solid #17656a;outline-offset:1px}
+    .player-mat-button .player-ducats{display:inline-flex;align-items:center;gap:2px;white-space:nowrap;color:#17656a}
+    .player-mat-button img{width:16px;height:16px;object-fit:contain}
+    .player-mat{position:relative;width:100%;container-type:inline-size;border-radius:8px;overflow:hidden}
+    .player-mat-art{display:block;width:100%;height:auto}
+    .mat-label{position:absolute;z-index:2;background:#fff6dcf2;border:1px solid #826743;border-radius:5px;padding:1px 4px;color:#382916;font-size:clamp(9px,2.6cqw,13px);font-weight:900;line-height:1.3}
+    .mat-bank-label{left:37%;top:2%}.mat-cesta-label{right:3.5%;top:43%}
+    .mat-bank{position:absolute;left:37%;top:11%;width:54%;height:24%;display:grid;grid-template-columns:repeat(3,1fr);gap:10%}
+    .bank-tray{display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:2px;min-width:0;overflow:clip;scrollbar-width:thin}
+    .mat-cesta{position:absolute;left:82%;top:54%;width:12%;height:18%;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:2px}
+    .player-mat .token{flex:none;width:clamp(14px,5cqw,24px);height:clamp(14px,5cqw,24px);border-radius:5px;border-color:#664e2a;box-shadow:0 1px 3px #0006}
+    .mat-coins{position:absolute;left:40%;top:57%;border:1px solid #986b19;border-radius:50%;padding:4px;background:#f9dd85ed;color:#4e3512;font-weight:900;font-size:clamp(10px,3.5cqw,17px);box-shadow:0 2px 4px #0005}
+    .mat-upgrade-lanes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3%;padding:0 2%;max-height:135px;overflow:clip;scrollbar-width:thin}
+    .mat-upgrade-lane{min-width:0;padding:4px 3px;background:#eee1c9;border:1px solid #c4ad83;border-top:0;border-radius:0 0 7px 7px}
+    .mat-upgrade-lane h4{margin:0 0 4px;font-size:9px;display:flex;justify-content:space-between;color:#4d3b23}
+    .mat-upgrade-lane h4 span{color:#116660}.mat-empty{display:block;text-align:center;color:#9c8c75;font-size:11px}
+    .mat-upgrade{margin-top:3px;padding:3px;background:#fffaf0;border:1px solid #cdb996;border-radius:4px;font-size:9px;line-height:1.2}
+    .mat-upgrade summary{cursor:pointer;font-weight:800;overflow-wrap:anywhere}.mat-upgrade p{margin:5px 0 1px;font-size:10px}
+    .mat-pending{margin-top:7px;padding:6px;border:1px dashed #b57950;border-radius:6px;background:#fae9db;font-size:10px}
+    .mat-pending b{display:block;margin-bottom:3px}.mat-pending span{display:inline-block;margin-right:6px}
+    .mat-uses{margin-top:5px;font-size:10px;color:#16635f}
+    .playing .board-hand .hand-cards{left:0;right:0}.playing .board-hand .hand-cards .card{bottom:12px}
+    .playing .board-hand .hand-dock{min-height:260px}
+    .board-hand .bid-wallet{top:0;right:0;gap:2px;font-size:9px}
+    .board-hand .bid-coin-source{width:65px;height:51px}.board-hand .bid-coin-source i{left:7px;top:13px;width:32px;height:32px;border-width:2px}.board-hand .bid-coin-source i:nth-child(2){transform:translate(6px,-5px)}.board-hand .bid-coin-source i:nth-child(3){transform:translate(12px,-10px)}.board-hand .bid-coin-source b{min-width:24px;padding:2px 4px;font-size:11px}
+    .board-hand .hand-dock:has(.bid-wallet) .hand-title{right:105px}
+    @media(min-width:1000px){.playing .physical-board{grid-template-columns:minmax(0,1fr) 400px}}
+    @media(max-width:999px){
+      body.playing{overflow:clip;overflow-x:clip}.playing main{height:auto;min-height:100dvh;overflow:visible;overflow-x:clip}
+      .playing #game,.playing .board-scroll{height:auto;overflow:visible}
+      .playing .physical-board{display:flex;height:auto;overflow:visible;gap:8px}
+      .board-hud{min-height:34px}.board-scorebar{min-height:45px}
+      .board-art-wrap{flex:none}.board-art{width:100%;margin:0;min-width:560px}
+      .playing .board-hand{display:grid;grid-template-columns:1fr 1fr;min-height:340px}
+      .playing .board-hand .hand-meta{display:block;max-height:330px}
+      .playing .board-hand .hand-dock{min-height:320px}
+      .table-overlay{position:fixed}.net-choice{max-height:90dvh;overflow:clip}
+    }
+    @media(max-width:700px){.playing .board-hand{display:flex;flex-direction:column}.playing .board-hand .hand-meta{max-height:none}.playing .board-hand .hand-dock{flex:none;height:330px}.hand-title{left:0;right:0}}
+    /* I comandi d'asta restano leggibili sotto la plancia personale. */
+    .auction-panel{flex:none;padding:10px;border:1px solid #c4ad83;border-radius:10px;background:#f0e5cf;color:var(--ink)}
+    .auction-panel h3{margin:0;font:700 17px Georgia,serif}.auction-panel p{margin:4px 0 8px;font-size:12px;color:#61533e}
+    .auction-panel-heading{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .auction-panel .bid-wallet{position:static;flex:none}.auction-panel .bid-wallet small{display:none}
+    .auction-table{width:100%;border-collapse:collapse;font-size:12px;margin:5px 0 9px}
+    .auction-table th,.auction-table td{padding:4px 2px;border-bottom:1px solid #cdbb98;text-align:left}.auction-table th{width:30%;font-weight:700}.auction-table td{text-align:right}
+    .auction-panel-buttons{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:7px}
+    .auction-panel .btn{min-height:42px;padding:9px;font-size:12px}.bid-minus{width:30px;height:30px;border:1px solid #b69a67;border-radius:6px;background:#fffaf0;color:var(--ink);font-size:20px}
+    .purchase-fish-list{display:flex;flex-wrap:wrap;gap:7px;max-height:145px;overflow:clip;padding:3px}
+    .purchase-fish{position:relative;flex:none;width:58px;height:58px;padding:3px;border:2px solid #bba57e;border-radius:11px;background:#fffaf0}
+    .purchase-fish img{width:100%;height:100%;object-fit:contain;border-radius:7px}.purchase-fish span{position:absolute;bottom:-2px;right:-2px;padding:1px 5px;border-radius:7px;background:#fff7da;color:#382916;font-size:11px;font-weight:900}
+    .purchase-fish.selected{border-color:#13665d;background:#d8ede1;box-shadow:0 0 0 2px #13665d}.purchase-fish:focus-visible{outline:3px solid #d5a33a;outline-offset:2px}
+    .purchase-confirm{width:100%}
+    .board-art .offer-zone.human-bid{display:flex;align-items:center;justify-content:flex-end;padding-bottom:9px}
+    .board-art .offer-card-back,.board-art .offer-card-empty{width:54px;height:76px;flex:none}
+    @media(min-width:1000px){.playing .board-hand{overflow:clip!important;scrollbar-width:thin}.playing .board-hand .hand-meta{max-height:none;overflow:visible}.playing .board-hand .hand-dock{flex:1 0 280px}}
+    @media(min-width:701px) and (max-width:999px){.playing .board-hand{grid-template-areas:"mat hand" "auction hand";grid-template-rows:auto auto}.playing .board-hand .hand-meta{grid-area:mat;max-height:none}.auction-panel{grid-area:auction}.playing .board-hand .hand-dock{grid-area:hand}}
+    /* Le carte galleggiano sul tavolo; la colonna delle plance resta indipendente. */
+    body:not(.playing) #floatingHand{display:none}
+    .playing #floatingHand{position:fixed;z-index:300;left:50%;bottom:0;width:min(760px,calc(100vw - 48px));height:320px;min-height:0;transform:translate(-50%,0);transition:transform .5s cubic-bezier(.22,.75,.25,1);pointer-events:none;perspective:1200px}
+    .playing #floatingHand:not(.folded){z-index:400}
+    .playing #floatingHand.folded{transform:translate(-50%,calc(100% - 40px))}
+    .playing #floatingHand.folded:is(.peeking,:focus-within){transform:translate(-50%,0)}
+    #floatingHand .hand-cards{pointer-events:none;inset:0}
+    .playing #floatingHand .card{pointer-events:auto;width:210px;height:294px;bottom:12px;box-shadow:0 15px 28px #061c22a8,inset 0 0 0 2px #f5dfa6}
+    #floatingHand .hand-title{top:-34px;left:50%;right:auto;transform:translateX(-50%);width:max-content;max-width:100%;padding:5px 14px;border-radius:12px;background:#fff5dcf2;box-shadow:0 4px 16px #0004;text-align:center;color:var(--ink)}
+    #floatingHand .hand-title h3,#floatingHand .hand-title span{display:block}
+    #floatingHand.folded:not(.peeking):not(:focus-within) .hand-title{visibility:hidden}
+    .hand-peek{position:absolute;z-index:350;left:50%;top:0;transform:translateX(-50%);pointer-events:auto;border:1px solid #b99b5c;border-radius:12px;background:#fff2cf;color:#17343b;padding:3px 15px;font-size:11px;font-weight:800;white-space:nowrap}
+    #floatingHand:not(.folded) .hand-peek{visibility:hidden}
+    #floatingHand:is(.peeking,:focus-within) .hand-peek{opacity:0;pointer-events:none}
+    #floatingHand:is(.peeking,:focus-within) .hand-cards{pointer-events:auto}
+    .auction-winner{padding:6px 9px;margin-bottom:7px;border-radius:7px;background:#e1eee8;color:#155d5a;font-weight:800;font-size:13px}
+    .playing .board-hand{z-index:auto;box-shadow:0 10px 30px #0005}
+    .auction-panel{position:relative;z-index:350;box-shadow:0 5px 14px #50350c1c}
+    @media(min-width:1000px){.playing .board-hand{align-self:start;max-height:calc(100dvh - 134px);padding-bottom:14px!important}.board-art-wrap{box-shadow:0 8px 24px #0005}}
+    @media(max-width:999px){.playing .board-hand{display:flex;flex-direction:column;min-height:0;margin-bottom:50px!important}.playing .board-hand .hand-meta{max-height:none}}
+    @media(max-width:700px){.playing #floatingHand{height:285px}.playing #floatingHand .card{width:180px;height:252px}}
+    @media(prefers-reduced-motion:reduce){.playing #floatingHand{transition:none}}
+    /* Icone originali rinnovate, con proporzioni e trasparenze preservate. */
+    .playing .market-token,.token img,.inline-fish,.playing .hand-cards .recipe-fish{object-fit:contain}
+    .playing .market-token{border:0;background:none;box-shadow:none;border-radius:0}
+    .ducat-icon{width:22px;height:22px;object-fit:contain;vertical-align:middle}
+    .bid-coin-source i,.offer-coins i,.flying-ducat{background:url('assets/tokens/moneta.png') center/contain no-repeat;border:0;border-radius:0;box-shadow:none;filter:drop-shadow(0 2px 2px #0005)}
+    .flying-ducat::before{content:none}
+    .mat-coins{display:grid;place-items:center;min-width:36px;min-height:38px;background:url('assets/tokens/moneta.png') center/contain no-repeat;border:0;border-radius:0;box-shadow:none;color:#302417;text-shadow:0 1px #ffefb8}
+    .playing .hand-cards .card>.card-top>.bid{background:url('assets/tokens/scudo.png') center/contain no-repeat;border:0;border-radius:0;box-shadow:none;height:46px;color:#fff5cf;text-shadow:0 2px 3px #000,1px 0 #000}
+    /* Le illustrazioni originali conservano proporzioni e interazioni delle carte. */
+    .card.illustrated-card,.playing .hand-cards .card.illustrated-card,.net-choice .card.illustrated-card{padding:0;border:0;min-height:0;aspect-ratio:5/7;background:transparent;overflow:hidden}
+    .illustrated-card .card-art{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
+    .playing .hand-cards .card.illustrated-card::before{display:none}
+    .card-bonus{position:absolute;left:6px;right:6px;top:17%;padding:4px;border:1px solid #c4ad83;border-radius:6px;background:#fff8df;color:#155d5a;font-size:12px;font-weight:900;text-align:center}
+    /* Schermata fissa: contenuti adattati al riquadro, senza scorrimento. */
+    html,body{height:100%;overflow:clip}
+    main{height:100dvh;margin:0 auto;padding:12px 20px;overflow:clip}
+    body:not(.playing) main{display:grid;place-items:center}.setup,.end{width:100%;margin:0;max-height:none}
+    .playing main{height:100dvh;min-height:0;overflow:clip}
+    .playing #game,.playing .board-scroll{height:100%;overflow:clip}
+    .playing .physical-board{display:grid;height:100%;overflow:clip;grid-template-columns:minmax(0,1fr) 400px;grid-template-rows:38px minmax(0,1fr)}
+    .board-hud,.board-scorebar{grid-column:1/-1}
+    .board-art-wrap{container-type:size;overflow:clip}
+    .board-art{width:min(100cqw,141.4078cqh);min-width:0;margin:auto}
+    .playing .board-hand{display:block;align-self:stretch;height:100%;max-height:none;min-height:0;margin:0!important;overflow:clip!important;background:#c7afa0 url('assets/board/fondo-colonna-destra.png') center/cover no-repeat}
+    .sidebar-content{display:flex;flex-direction:column;gap:10px;margin:0 auto}
+    .playing .board-hand .hand-meta{display:block;max-height:none;overflow:visible}
+    .mat-upgrade-lanes,.purchase-fish-list,.net-choice{max-height:none;overflow:visible}
+    .lot-tokens{display:grid;flex:none;max-height:none;gap:3px;justify-content:center;align-content:start;overflow:visible}
+    .bank-tray,.mat-cesta{display:grid;gap:3px;overflow:visible;justify-content:center;align-content:center}
+    .board-art .fish-lot.dense .lot-tokens{gap:3px}
+    .board-art .market-token{object-fit:contain;min-width:0;min-height:0}
+    .board-art .fish-lot-label{font-size:clamp(6px,1.45cqw,15px);white-space:nowrap}
+    .board-art .offer-card-back,.board-art .offer-card-empty{width:clamp(20px,5.4cqw,54px);height:clamp(28px,7.6cqw,76px)}
+    .board-art .offer-zone.human-bid{padding:clamp(16px,2.5cqw,28px) 0 .4cqw}
+    .board-art .offer-card-back{width:min(90%,9.6cqw);height:auto;aspect-ratio:2556 / 3609}
+    .board-art .offer-card-back .offer-coins{right:0;bottom:0}
+    .table-overlay{z-index:500}
+    .net-choice .cards{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+    .net-choice .card{padding:8px;min-height:180px}.net-choice .card h4{font-size:13px}
+    .net-choice .recipe{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:7px 0}
+    .net-choice .recipe-item{display:inline-flex;align-items:center;gap:2px}
+    .net-choice .recipe-fish{width:28px;height:28px;object-fit:contain}
+    .net-choice .upgrade{display:flex;align-items:center;gap:5px;font-size:10px}
+    .net-choice .upgrade>img{width:38px;height:38px;object-fit:contain}
+    .net-choice .upgrade-phase{width:15px;height:15px;object-fit:contain;vertical-align:middle}
+    .net-choice .upgrade small{display:block;font-size:9px;line-height:1.2}
+    @media(min-width:701px) and (max-width:999px){.playing .physical-board{grid-template-columns:minmax(0,1fr) 330px}}
+    @media(max-width:700px){
+      .playing .physical-board{grid-template-columns:1fr;grid-template-rows:30px minmax(0,1fr) minmax(0,1fr);padding:5px}
+      .board-hud-status{gap:4px}.board-hud strong{font-size:13px}.board-hud-tools{gap:4px}
+      .board-art-wrap,.playing .board-hand{grid-column:1}
+      .sidebar-content{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px}
+      .sidebar-content:not(:has(.auction-panel)){grid-template-columns:1fr;max-width:300px}
+      .player-mat-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}
+      .player-mat-button{min-width:0;padding:3px 2px;gap:3px;font-size:9px}.player-mat-button>span:first-child{overflow-wrap:anywhere}.player-mat-button img{width:12px;height:12px}
+      .auction-panel{padding:6px}.auction-panel-heading{flex-wrap:wrap}.auction-panel h3{font-size:14px}
+      .auction-panel .btn{padding:6px 2px;font-size:10px;min-height:34px}.auction-panel-buttons{gap:3px}
+    }
+    .phase-intro{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#071e1bd9;backdrop-filter:blur(5px);animation:phaseVeil 2.1s ease both}
+    .phase-intro button{width:100%;height:100%;border:0;background:none;color:#fff4ce;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;padding:24px;text-align:center}
+    .phase-intro button:focus-visible{outline:3px solid #f2cf73;outline-offset:-8px}
+    .phase-intro-label{font-size:clamp(13px,2vw,19px);font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+    .phase-intro-icons{display:flex;align-items:center;justify-content:center;gap:clamp(12px,2vw,28px)}
+    .phase-intro img{width:min(260px,36vw,38dvh);height:min(260px,36vw,38dvh);object-fit:contain;filter:drop-shadow(0 15px 30px #0008);animation:phaseEmblem 2.1s cubic-bezier(.2,.8,.2,1) both}
+    .phase-intro-name{font:700 clamp(25px,4vw,46px) Georgia,serif;color:#f2cf73;text-shadow:0 4px 16px #0008}
+    .phase-intro-hint{font-size:12px;color:#d6dbc9}
+    @keyframes phaseVeil{0%,100%{opacity:0}16%,82%{opacity:1}}
+    @keyframes phaseEmblem{0%{transform:translateY(24px) scale(.65);opacity:0}20%,78%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-12px) scale(1.08);opacity:0}}
+    @media(prefers-reduced-motion:reduce){.phase-intro,.phase-intro img{animation:none}}
+    body:not(.playing){background:#c7afa0 url('assets/board/fondo-colonna-destra.png') center/cover fixed}
+    #setup{max-width:1180px;padding:24px;background:#fff5dfed;border:2px solid #98744a;box-shadow:0 20px 70px #271c1690}
+    .setup-heading{text-align:center}.setup-heading h1{font:900 clamp(36px,5vw,64px) Georgia,serif;color:#a57924;text-shadow:1px 2px #fff3c3;margin:0;letter-spacing:.08em}.setup-heading h2{font-size:24px;margin:0 0 5px}.setup-heading p{margin-bottom:16px}
+    .setup-options{display:flex;justify-content:center;flex-wrap:wrap;gap:18px 32px;margin:0 auto 22px}
+    .setup-choice{display:grid;gap:6px}.setup-choice-label{color:#76664e;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+    .setup-buttons{display:flex;gap:5px}.setup-buttons button{flex:1;border:1px solid #cdbc9e;border-radius:8px;background:#fffaf0;color:#65563e;padding:8px 12px;font-size:13px;font-weight:800;white-space:nowrap}
+    .setup-buttons button[aria-pressed="true"]{background:#174f46;color:#fff2cb;border-color:#174f46;box-shadow:0 2px 5px #17343b25}
+    .setup-count button{width:40px;padding:8px}.setup-buttons button:hover{border-color:#174f46}.setup-buttons button:focus-visible,.setup-colors button:focus-visible{outline:3px solid #17343b;outline-offset:3px}
+    .setup-colors{display:flex;justify-content:space-between;gap:7px}.setup-colors button{width:28px;height:28px;flex:none;border:2px solid #fffaf0;border-radius:50%;background:var(--swatch);color:white;font-weight:900;padding:0;box-shadow:0 0 0 1px #74634745}
+    .setup-colors button[aria-pressed="true"]{box-shadow:0 0 0 2px #17343b}.setup-character-name{color:var(--player);font-weight:900;text-transform:none;letter-spacing:0}
+    .setup-players{display:grid;grid-template-columns:repeat(var(--players),minmax(0,1fr));gap:12px;max-width:calc(var(--players)*220px);margin:auto}
+    .setup-player{min-width:0;display:grid;gap:8px;padding:12px;border:2px solid var(--player);border-radius:16px;background:#fffaf0;box-shadow:0 5px 14px #422c1b20}
+    .setup-player legend{font-weight:900;color:var(--player);padding:0 5px}.setup-player img{display:block;width:100%;height:clamp(100px,16vw,195px);object-fit:contain;filter:drop-shadow(0 5px 4px #45361c30)}
+    .setup-player .field{font-size:10px;gap:4px}.setup-player input{min-width:0;width:100%;padding:8px;font-size:13px;text-transform:none;letter-spacing:0}.setup-player-fields{display:grid;gap:8px}
+    #setup .setup-note{font-size:12px;text-align:center;margin:16px auto 0;max-width:700px}.setup .wide{max-width:420px;display:block;margin:16px auto 0;background:#174f46;color:#fff2cb;font-size:17px;border:1px solid #af8b4b}
+    .handoff-portrait{height:min(200px,28dvh);max-width:80%;object-fit:contain;margin:8px auto}.active-operator{font-weight:900;color:#184d43;background:#fff3d6;padding:6px 10px;border-radius:8px;margin-bottom:8px}
+    @media(max-width:700px){#setup{padding:14px}.setup-heading h1{font-size:38px}.setup-heading h2{font-size:19px}.setup-heading p{font-size:12px;margin:4px 0 10px}.setup-options{gap:9px 18px;margin-bottom:10px}.setup-choice-label{font-size:9px}.setup-buttons button{padding:6px 8px;font-size:11px}.setup-count button{width:32px}.setup-players{grid-template-columns:1fr;max-width:none;gap:5px}.setup-player{grid-template-columns:70px 1fr;padding:6px;gap:8px;border-radius:10px}.setup-player legend{font-size:11px}.setup-player img{height:90px}.setup-player-fields{grid-template-columns:1fr 1fr;gap:5px}.setup-player-fields>.setup-choice:last-child{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px}.setup-player input{padding:5px;font-size:12px}.setup-player .setup-choice-label{font-size:9px}.setup-player-fields>.setup-choice:last-child>.setup-choice-label{max-width:60px}.setup-colors{gap:5px}.setup-colors button{width:25px;height:25px}.setup-character-label{display:none}.setup-character-name{display:block}#setup .setup-note{font-size:10px;margin:9px auto 0}.setup .wide{margin-top:10px;padding:10px}}
+
   </style>
 </head>
 <body>
   <main>
     <section id="setup" class="panel setup">
-      <div class="eyebrow">Regolamento V5 (Archimede) · Mazzo V4.5</div>
-      <h2>Apri il tuo banco</h2>
-      <p>Drafta i clienti, gareggia nelle aste e completa i contratti per costruire la tua pescheria. Giochi tu; gli altri mercanti sono gestiti dal computer.</p>
-      <div class="form">
-        <label class="field">Il tuo nome<input id="playerName" value="Daniele" maxlength="18"></label>
-        <label class="field">Giocatori<select id="playerCount"><option value="2">2 · tu + 1 bot</option><option value="3">3 · tu + 2 bot</option><option value="4" selected>4 · tu + 3 bot</option><option value="5">5 · tu + 4 bot</option></select></label>
-        <label class="field">Difficoltà<select id="difficulty"><option value="easy">Tranquilla</option><option value="normal" selected>Normale</option><option value="hard">Esperta</option></select></label>
-        <label class="field">Seed della partita<input id="seed" type="number" value="32026"></label>
-      </div>
-      <button class="btn primary wide" onclick="newGame()">Inizia la partita</button>
+      <div class="setup-heading"><div class="eyebrow">Il mercato della laguna</div><h1>PESCARIA</h1><h2>Chi apre il banco oggi?</h2><p>Scegli i mercanti, assegna i personaggi e preparati all’asta.</p></div>
+      <div id="setupOptions" class="setup-options"></div>
+      <div id="setupPlayers" class="setup-players"></div>
+      <p class="setup-note">I giocatori umani si passano lo stesso dispositivo. Ogni personaggio è unico: scegliendone uno già assegnato, i due mercanti se lo scambiano.</p>
+      <button class="btn primary wide" onclick="newGame()">Apri il mercato</button>
     </section>
 
-    <section id="game" class="hidden">
+    <section id="game" class="hidden" tabindex="-1">
       <div class="dayline"><strong id="dayTitle"></strong><span id="deckInfo"></span></div>
       <div class="progress" id="progress"></div>
       <div class="scores" id="scores"></div>
@@ -102,6 +322,9 @@
 
     <section id="end" class="panel end hidden"></section>
   </main>
+  <section id="floatingHand" class="hand-dock folded" aria-label="Le tue carte"></section>
+
+  <div id="phaseIntro" class="phase-intro hidden"><button id="skipPhaseIntro" onclick="dismissPhaseIntro()" onkeydown="if(event.key==='Escape'){event.preventDefault();dismissPhaseIntro()}"><span class="phase-intro-label">Inizia la fase</span><span class="phase-intro-icons"><img id="phaseIntroAuctionIcon" alt="" hidden><img id="phaseIntroIcon" alt=""></span><span id="phaseIntroName" class="phase-intro-name"></span><span class="phase-intro-hint">Clicca per continuare</span></button></div>
 
 <script src="vendor/gsap.min.js"></script>
 <script>
@@ -112,7 +335,8 @@
 // ============================================================
 const FISH=['Polpi','Gamberi','Molluschi','Branzini','Sardine'];
 const ICON={Polpi:'🐙',Gamberi:'🦐',Molluschi:'🐚',Branzini:'🐟',Sardine:'🐠'};
-const COLORS=['#dc654b','#247d94','#d5a33a','#7466a6','#4f9564'];
+const COLORS=['#dc654b','#247d94','#d5a33a','#a9433c','#4f9564'];
+const PLAYER_MATS=[['arancione','Oranzio'],['blu','Berry'],['giallo','Giulio'],['rosso','Carlo'],['verde','Olivia']];
 const BOTNAMES=['Lucia','Dario','Bianca','Enrico'];
 const PHASES=[['rete','1 · Pesca del Mattino'],['asta','2 · Aste'],['pubblico','3 · Mercato'],['bilancia','4 · Fine Giornata']];
 const PHASE_SHORT=['Pesca','Aste','Mercato','Fine Giornata'];
@@ -124,21 +348,21 @@ const UPG={
   'Banco Ampliato':{cat:'A',img:'banco-migliorato',fx:'Il Banco contiene 1 pesce in più.'},
   'Fiuto per il Pescato':{cat:'A',img:'fiuto-pescato',fx:'Ogni mattina peschi 1 pesce a caso dal sacchetto.'},
   'Esperienza':{cat:'E',img:'senza-tassa',fx:'Quando perdi un’asta a cui hai partecipato, compri 1 pesce a 1 Ducato invece che a 2. Ogni copia: 1 pesce in più.'},
-  'Nuovi Clienti':{cat:'E',img:'scegli-asta',fx:'A consumo: se sei il Capitano, prima di un’asta scegli tu quale lotto si mette all’asta ora.'},
-  'Contrattazione Sottobanco':{cat:'C',img:'contrattazione',fx:'A consumo: sostituisci 1 pesce di un contratto con 2 pesci uguali di un altro tipo.'},
+  'Nuovi Clienti':{cat:'E',img:'patto-scarto',fx:'Quando perdi un’asta a cui hai partecipato, peschi 1 carta. Ogni copia: 1 carta in più.'},
+  'Contrattazione Sottobanco':{cat:'C',img:'contrattazione',fx:'In ogni contratto puoi sostituire 1 pesce richiesto con 2 pesci uguali di un altro tipo. Ogni copia: 1 sostituzione in più per contratto.'},
   'Favorito della Gilda':{cat:'C',img:'favorito-gilda',fx:'Quando la installi prendi dal sacchetto un pesce a scelta e mettilo sulla carta: ogni contratto che lo richiede rende +2 Ducati.'},
   'Maestro della Pescaria':{cat:'B',img:'amico-pescatori',fx:'A Fine giornata: +2 Ducati per ogni carta Ancora installata.'},
   'Maestro delle Aste':{cat:'B',img:'capitano-aste',fx:'A Fine giornata: +2 Ducati per ogni carta Asta installata.'},
   'Maestro del Mercato':{cat:'B',img:'arte-venditore',fx:'A Fine giornata: +2 Ducati per ogni carta Mercato installata.'}
 };
 // Nomi stampati sulle carte e usati nel regolamento.
-const DISPLAY={'Banco Ampliato':'Banco più grande','Fiuto per il Pescato':'Amici','Esperienza':'Senza tassa','Nuovi Clienti':'Scegli l’asta','Contrattazione Sottobanco':'Sottobanco','Favorito della Gilda':'La Congrega','Maestro della Pescaria':'Mercante ⚓','Maestro delle Aste':'Mercante 🔨','Maestro del Mercato':'Mercante 💰'};
+const DISPLAY={'Banco Ampliato':'Banco più grande','Fiuto per il Pescato':'Amici','Esperienza':'Senza tassa','Nuovi Clienti':'Fortuna','Contrattazione Sottobanco':'Sottobanco','Favorito della Gilda':'La Congrega','Maestro della Pescaria':'Mercante ⚓','Maestro delle Aste':'Mercante 🔨','Maestro del Mercato':'Mercante 💰'};
 const KEEP_MAX=2;
 const ESP_X=(typeof window.__ESP_X!=='undefined')?window.__ESP_X:1; // Esperienza: punti d'asta per carta
 const ASSET={
-  phase:{rete:'assets/phase/ingrosso.png',asta:'assets/phase/aste.png',pubblico:'assets/phase/pescheria.png',bilancia:'assets/phase/bilancia.png'},
-  fish:{Polpi:'assets/fish/polpo.png',Gamberi:'assets/fish/gambero.png',Molluschi:'assets/fish/mollusco.png',Branzini:'assets/fish/branzino.png',Sardine:'assets/fish/sardina.png'},
-  upgrade:Object.fromEntries(Object.entries(UPG).map(([k,v])=>[k,`assets/upgrades/${v.img}.png`]))
+  phase:{rete:'assets/phase/ingrosso.png?v=20260925',asta:'assets/phase/aste.png?v=20260925',pubblico:'assets/phase/pescheria.png?v=20260925',bilancia:'assets/phase/bilancia.png?v=20260925'},
+  fish:{Polpi:'assets/fish/polpo.png?v=20260925',Gamberi:'assets/fish/gambero.png?v=20260925',Molluschi:'assets/fish/mollusco.png?v=20260925',Branzini:'assets/fish/branzino.png?v=20260925',Sardine:'assets/fish/sardina.png?v=20260925'},
+  upgrade:Object.fromEntries(Object.entries(UPG).map(([k,v])=>[k,`assets/upgrades/${v.img}.png?v=20260925`]))
 };
 // Mazzo V4.5 (CSV Dextrous, guadagni ricalibrati) — id|nome|asta|guadagno|pesce|categoria|miglioria|pesce Fiuto
 const RAW=`1|Bacaro Risorto|3|4|2 Sardine|A|Banco Ampliato|
@@ -272,7 +496,7 @@ function turnOrder(){return Array.from({length:G.players.length},(_,i)=>(G.capta
 
 // ---------------- Contratti ----------------
 // Restituisce il piano di consegna {use:{fish:n}, subs:k} o null. Contrattazione: 1 pesce mancante = 2 pesci uguali di altro tipo.
-function planContract(p,card,stock=mix(p.banco,p.cesta),subsLeft=p.subsLeft){
+function planContract(p,card,stock=mix(p.banco,p.cesta),subsLeft=copies(p,'Contrattazione Sottobanco')){
   const use={...card.recipe};let subs=0;
   for(const f of FISH){let miss=(use[f]||0)-(stock[f]||0);
     while(miss>0){if(subs>=subsLeft)return null;
@@ -286,7 +510,7 @@ function payout(p,card){return card.value+catBonus(p,card)+congregaBonus(p,card)
 function completeContract(p,card){
   const plan=planContract(p,card);if(!plan)return false;
   for(const [f,n0] of Object.entries(plan.use)){let n=n0;const fromC=Math.min(n,p.cesta[f]);p.cesta[f]-=fromC;n-=fromC;p.banco[f]-=n;returnFish(f,n0)}
-  p.subsLeft-=plan.subs;
+  p.subsUsed=(p.subsUsed||0)+plan.subs;
   const cb=catBonus(p,card),fav=congregaBonus(p,card),gain=card.value+cb+fav;
   p.coins+=gain;p.orders++;p.catTot=(p.catTot||0)+cb;p.favTot=(p.favTot||0)+fav;p.today.contracts.push(card);p.today.income+=gain;
   if(p.keptIds&&p.keptIds.has(card.id))p.keptUsed=(p.keptUsed||0)+1;
@@ -296,22 +520,55 @@ function completeContract(p,card){
 }
 
 // ---------------- Setup ----------------
-window.newGame=function(){
-  const n=+$('playerCount').value,name=$('playerName').value.trim()||'Mercante',seed=+$('seed').value||1,difficulty=$('difficulty').value;
-  startGame({n,name,seed,difficulty,humanBot:false});
-  document.body.classList.add('playing');$('setup').classList.add('hidden');$('end').classList.add('hidden');$('game').classList.remove('hidden');render();
+let setupCount=4,setupDifficulty='normal';
+const setupRoster=PLAYER_MATS.map((_,id)=>({name:id?BOTNAMES[id-1]:'Daniele',human:id===0,character:id}));
+window.renderSetupPlayers=function(){
+  const n=setupCount,host=$('setupPlayers');host.style.setProperty('--players',n);
+  $('setupOptions').innerHTML=`<div class="setup-choice"><span class="setup-choice-label">Giocatori</span><div class="setup-buttons setup-count" role="group" aria-label="Numero di giocatori">${[1,2,3,4,5].map(count=>`<button type="button" aria-pressed="${n===count}" onclick="setSetupCount(${count})">${count}</button>`).join('')}</div></div><div class="setup-choice"><span class="setup-choice-label">Difficoltà AI</span><div class="setup-buttons" role="group" aria-label="Difficoltà AI">${[['easy','Tranquilla'],['normal','Normale'],['hard','Esperta']].map(([key,label])=>`<button type="button" aria-pressed="${setupDifficulty===key}" onclick="setSetupDifficulty('${key}')">${label}</button>`).join('')}</div></div>`;
+  host.innerHTML=setupRoster.slice(0,n).map((p,id)=>`<fieldset class="setup-player" style="--player:${COLORS[p.character]}">
+    <legend>Mercante ${id+1}</legend><img src="assets/players/ritratto-${PLAYER_MATS[p.character][0]}.png" alt="${PLAYER_MATS[p.character][1]}">
+    <div class="setup-player-fields">
+      <label class="field">Nome<input aria-label="Nome del giocatore ${id+1}" value="${esc(p.name)}" maxlength="18" required oninput="setSetupName(${id},this.value)"></label>
+      <div class="setup-choice"><span class="setup-choice-label">Controllo</span><div class="setup-buttons" role="group" aria-label="Controllo del giocatore ${id+1}"><button type="button" aria-pressed="${p.human}" onclick="setSetupHuman(${id},'human')">Giocatore</button><button type="button" aria-pressed="${!p.human}" onclick="setSetupHuman(${id},'ai')">AI</button></div></div>
+      <div class="setup-choice"><span class="setup-choice-label"><span class="setup-character-label">Personaggio · </span><span class="setup-character-name">${PLAYER_MATS[p.character][1]}</span></span><div class="setup-colors" role="group" aria-label="Personaggio del giocatore ${id+1}">${PLAYER_MATS.map(([color,name],i)=>`<button type="button" style="--swatch:${COLORS[i]}" aria-label="${name} · ${color}" title="${name} · ${color}" aria-pressed="${p.character===i}" onclick="setSetupCharacter(${id},${i})">${p.character===i?'✓':''}</button>`).join('')}</div></div>
+    </div></fieldset>`).join('');
+  scheduleFit();
 };
-function startGame({n,name,seed,difficulty,humanBot}){
+window.setSetupCount=count=>{setupCount=count;renderSetupPlayers()};
+window.setSetupDifficulty=difficulty=>{setupDifficulty=difficulty;renderSetupPlayers()};
+window.setSetupName=(id,name)=>{setupRoster[id].name=name};
+window.setSetupHuman=(id,value)=>{setupRoster[id].human=value==='human';renderSetupPlayers()};
+window.setSetupCharacter=function(id,character){
+  const other=setupRoster.find(p=>p.character===character),previous=setupRoster[id].character;
+  if(other)other.character=previous;setupRoster[id].character=character;renderSetupPlayers();
+};
+window.newGame=function(){
+  const n=setupCount,roster=setupRoster.slice(0,n).map(p=>({...p,name:p.name.trim()}));
+  const missing=roster.findIndex(p=>!p.name);if(missing>=0){const input=$('setupPlayers').querySelectorAll('input')[missing];input.value='';input.reportValidity();return}
+  document.body.classList.add('playing');$('setup').classList.add('hidden');$('end').classList.add('hidden');$('game').classList.remove('hidden');
+  startGame({n,roster,difficulty:setupDifficulty,humanBot:false});render();
+};
+const activePlayer=()=>G.players[G.activePlayer??0];
+const humanPlayers=()=>G.players.filter(p=>p.human);
+const playerColor=p=>COLORS[p.character??p.id];
+function setActivePlayer(id){
+  if(G.activePlayer!==id&&humanPlayers().length>1)G.handoff=true;
+  G.activePlayer=id;G.viewedPlayer=id;G.selectedBid=null;G.bidCash=0;G.bidInfl=0;
+}
+window.acceptHandoff=function(){G.handoff=false;render()};
+function startGame({n,name,seed=Math.floor(Math.random()*4294967295)+1,difficulty,humanBot,roster}){
+  if(roster&&(roster.length!==n||new Set(roster.map(p=>p.character)).size!==n||roster.some(p=>!PLAYER_MATS[p.character]||!p.name.trim())))throw new Error("Configurazione giocatori non valida");
   const rng=new RNG(seed),bag=[];for(const f of FISH)for(let i=0;i<BAG[f];i++)bag.push(f);
-  G={rng,day:1,phase:'rete',difficulty,humanBot,players:Array.from({length:n},(_,id)=>({id,name:id?BOTNAMES[id-1]:name,human:id===0&&!humanBot,coins:START_COINS,banco:inv(),cesta:inv(),hand:[],installed:[],pending:[],kept:[],keptIds:new Set(),fortunaLeft:0,influence:0,subsLeft:0,orders:0,wasted:0,bilanciaTot:0,passedAll:false,today:{contracts:[],income:0,bilancia:[]}})),bag:rng.shuffle(bag),deck:rng.shuffle(CARDS.map(c=>({...c}))),discard:[],captain:rng.int(n),market:inv(),log:[],selectedBid:null,bidCash:0,bidInfl:0,overlay:null};
+  G={rng,seed,day:1,phase:'rete',difficulty,humanBot,players:Array.from({length:n},(_,id)=>({id,name:roster?roster[id].name:(id?BOTNAMES[id-1]:name),human:roster?roster[id].human:id===0&&!humanBot,character:roster?roster[id].character:id,coins:START_COINS,banco:inv(),cesta:inv(),hand:[],installed:[],pending:[],kept:[],keptIds:new Set(),fortunaLeft:0,influence:0,subsLeft:0,orders:0,wasted:0,bilanciaTot:0,passedAll:false,today:{contracts:[],income:0,bilancia:[]}})),bag:rng.shuffle(bag),deck:rng.shuffle(CARDS.map(c=>({...c}))),discard:[],captain:rng.int(n),market:inv(),log:[],selectedBid:null,bidCash:0,bidInfl:0,overlay:null};
+  G.activePlayer=G.players.find(p=>p.human)?.id??0;G.viewedPlayer=G.activePlayer;
   log('Partita',`${G.players[G.captain].name} ha mangiato pesce più di recente: è il primo Capitano.`);
   startDay();
 }
-window.restartGame=function(){if(G&&!G.finished&&!confirm('Abbandonare la partita in corso?'))return;G=null;document.body.classList.remove('playing');$('game').classList.add('hidden');$('end').classList.add('hidden');$('setup').classList.remove('hidden')};
+window.restartGame=function(){if(G&&!G.finished&&!confirm('Abbandonare la partita in corso?'))return;dismissPhaseIntro();G=null;document.body.classList.remove('playing');$('game').classList.add('hidden');$('end').classList.add('hidden');$('setup').classList.remove('hidden');scheduleFit()};
 
 // ---------------- Fase 1 · Pesca del Mattino ----------------
 function startDay(){
-  for(const p of G.players){p.influence=0;p.subsLeft=copies(p,'Contrattazione Sottobanco');p.fortunaLeft=0;p.sceltaLeft=copies(p,'Nuovi Clienti');p.passedAll=false;p.today={contracts:[],income:0,bilancia:[]}}
+  for(const p of G.players){p.influence=0;p.subsLeft=copies(p,'Contrattazione Sottobanco');p.fortunaLeft=copies(p,'Nuovi Clienti');p.passedAll=false;p.today={contracts:[],income:0,bilancia:[]}}
   G.phase='rete';G.market=inv();
   const n=G.players.length===1?6:6*G.players.length;let drawn=0;
   for(let i=0;i<n;i++){const f=drawFish();if(!f)break;G.market[f]++;drawn++}
@@ -328,22 +585,27 @@ function startDay(){
 window.beginDraft=function(){if(!G||G.phase!=='rete')return;G.overlay=null;startDraft();render()};
 
 function startDraft(){
-  G.phase='draft';G.draftRound=1;G.drafted=G.players.map(()=>[]);G.draftPacks=G.players.map(()=>Array.from({length:HAND},drawCard).filter(Boolean));
+  G.phase='draft';G.draftRound=1;G.drafted=G.players.map(()=>[]);G.draftChoices={};G.draftPacks=G.players.map(()=>Array.from({length:HAND},drawCard).filter(Boolean));
   log('Draft','Inizia il draft: pacchetti di 5 carte, si passa a sinistra.');
-  if(!G.players[0].human){while(G.phase==='draft')draftStep(null)}
+  if(humanPlayers().length)setActivePlayer(humanPlayers()[0].id);
+  else while(G.phase==='draft')draftStep(null);
 }
 function draftStep(humanId){
-  const picks=G.players.map((p,i)=>p.human?G.draftPacks[i].find(c=>c.id===humanId):botDraft(p,G.draftPacks[i]));
+  if(humanId!=null)G.draftChoices[activePlayer().id]=humanId;
+  const waiting=humanPlayers().find(p=>G.draftChoices[p.id]==null);
+  if(waiting){setActivePlayer(waiting.id);return false}
+  const picks=G.players.map((p,i)=>p.human?G.draftPacks[i].find(c=>c.id===G.draftChoices[i]):botDraft(p,G.draftPacks[i]));
   if(picks.some(x=>!x))return false;
   for(const p of G.players){const pack=G.draftPacks[p.id],card=picks[p.id];pack.splice(pack.indexOf(card),1);G.drafted[p.id].push(card)}
+  G.draftChoices={};
   if(!G.draftPacks[0].length){finishDraft();return true}
-  const k=G.players.length,passed=Array(k);for(let i=0;i<k;i++)passed[(i+1)%k]=G.draftPacks[i];G.draftPacks=passed;G.draftRound++;return true;
+  const k=G.players.length,passed=Array(k);for(let i=0;i<k;i++)passed[(i+1)%k]=G.draftPacks[i];G.draftPacks=passed;G.draftRound++;
+  if(G.draftPacks[0].length===1){for(const p of humanPlayers())G.draftChoices[p.id]=G.draftPacks[p.id][0].id;return draftStep(null)}
+  if(humanPlayers().length)setActivePlayer(humanPlayers()[0].id);return true;
 }
 window.pickDraft=function(id){
-  if(G.phase!=='draft')return;const c=G.draftPacks[0].find(x=>x.id===id);if(!c)return;
-  log('Draft',`${G.players[0].name} sceglie “${c.name}” al giro ${G.draftRound}.`);draftStep(id);
-  if(G.phase==='draft'&&G.draftPacks[0].length===1){log('Draft','L’ultima carta rimasta viene presa automaticamente.');draftStep(G.draftPacks[0][0].id)}
-  render();
+  if(G.phase!=='draft'||G.handoff)return;const me=activePlayer(),c=G.draftPacks[me.id].find(x=>x.id===id);if(!c)return;
+  log('Draft',`${me.name} sceglie una carta al giro ${G.draftRound}.`);draftStep(id);render();
 };
 function finishDraft(){
   for(const p of G.players){p.hand.push(...G.drafted[p.id],...p.kept);p.keptIds=new Set(p.kept.map(c=>c.id));p.kept=[];p.plan=null}
@@ -358,34 +620,29 @@ function nextAuction(){
   G.auctionIndex++;
   while(G.auctionIndex<FISH.length&&!G.market[currentFish()]){log('Asta',`Nessun ${currentFish().toLowerCase()} al mercato: asta saltata.`);G.auctionIndex++}
   if(G.auctionIndex>=FISH.length){startMarket();return}
-  // Scegli l'asta: il Capitano può scegliere quale lotto va all'asta ora.
-  const cp=G.players[G.captain],left=lotsLeft();
-  if(cp.sceltaLeft>0&&left.length>1){
-    if(cp.human){G.overlay='scegli';return}
-    const keep=botPlan(cp),want=f=>Math.min(needOf(cp,f,keep),G.market[f]);
-    const best=[...left].sort((a,b)=>want(b)-want(a))[0];
-    if(want(best)>want(currentFish()))chooseLot(cp,best);
-  }
   beginBids();
 }
-function lotsLeft(){return G.aOrder.slice(G.auctionIndex).filter(f=>G.market[f]>0)}
-function chooseLot(p,f){if(f===currentFish())return;const j=G.aOrder.indexOf(f);[G.aOrder[G.auctionIndex],G.aOrder[j]]=[G.aOrder[j],G.aOrder[G.auctionIndex]];p.sceltaLeft--;p.sceltaUsed=(p.sceltaUsed||0)+1;log('Scegli l’asta',`${p.name} (Capitano) mette all’asta ora i ${f}.`)}
 function beginBids(){
-  G.auctionStage='bid';
-  const me=G.players[0];if(!me.human||me.passedAll||!me.hand.length)submitBid('none');
+  G.auctionStage='bid';G.bids=[];G.bidDone=[];G.bidOrder=turnOrder();G.bidPos=0;advanceBidders();
 }
-window.pickLot=function(f){if(G.overlay!=='scegli')return;G.overlay=null;if(f)chooseLot(G.players[0],f);beginBids();render()};
+function advanceBidders(){
+  while(G.bidPos<G.bidOrder.length){
+    const p=G.players[G.bidOrder[G.bidPos]];
+    if(p.human&&!p.passedAll&&p.hand.length){setActivePlayer(p.id);return}
+    if(!p.human){const b=botBid(p,currentFish(),G.bids);if(b)G.bids.push(b)}
+    G.bidDone.push(p.id);G.bidPos++;
+  }
+  resolveBids(G.bids);
+}
 function bidScore(b){return b.card.bid+b.cash+b.infl*ESP_X}
-window.chooseBid=function(id){if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.players[0].hand.some(c=>c.id===id))return;G.selectedBid=id;G.bidCash=0;G.bidInfl=0;render()};
+window.chooseBid=function(id){if(G.phase!=='asta'||G.auctionStage!=='bid'||!activePlayer().hand.some(c=>c.id===id))return;G.selectedBid=id;G.bidCash=0;G.bidInfl=0;render()};
 window.returnBidCard=function(){if(G.phase!=='asta'||G.auctionStage!=='bid')return;G.selectedBid=null;G.bidCash=0;G.bidInfl=0;render()};
-window.addInfluence=function(){const me=G.players[0];if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid)return;G.bidInfl=G.bidInfl>=me.influence?0:G.bidInfl+1;render()};
+window.addInfluence=function(){const me=activePlayer();if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid)return;G.bidInfl=G.bidInfl>=me.influence?0:G.bidInfl+1;render()};
 window.submitBid=function(mode='bid'){
-  if(G.phase!=='asta'||G.auctionStage!=='bid')return;const me=G.players[0],f=currentFish(),bids=[];
-  if(mode==='all'){me.passedAll=true;log('Asta','Non partecipi alle aste rimaste oggi.')}
-  if(mode==='bid'){const card=me.hand.find(c=>c.id===G.selectedBid);if(!card)return;bids.push({pid:0,card,cash:Math.min(G.bidCash,me.coins),infl:Math.min(G.bidInfl,me.influence)})}
-  // Offerte in ordine dal Capitano: i Ducati sono pubblici, la carta è coperta.
-  const ord=turnOrder();for(const i of ord){const p=G.players[i];if(p.human||(p.id===0&&mode==='bid'))continue;const seen=bids.filter(x=>ord.indexOf(x.pid)<ord.indexOf(p.id));const b=botBid(p,f,seen);if(b)bids.push(b)}
-  resolveBids(bids);render();
+  if(G.phase!=='asta'||G.auctionStage!=='bid'||G.handoff)return;const me=activePlayer();
+  if(mode==='all'){me.passedAll=true;log('Asta',`${me.name} non partecipa alle aste rimaste oggi.`)}
+  if(mode==='bid'){const card=me.hand.find(c=>c.id===G.selectedBid);if(!card)return;G.bids.push({pid:me.id,card,cash:Math.min(G.bidCash,me.coins),infl:Math.min(G.bidInfl,me.influence)})}
+  G.bidDone.push(me.id);G.bidPos++;advanceBidders();render();
 };
 function resolveBids(bids){
   const f=currentFish(),order=turnOrder();G.clientsQueue=[];
@@ -393,8 +650,10 @@ function resolveBids(bids){
   if(!bids.length){log('Asta',`Nessuno partecipa all’asta dei ${f}: il pesce torna nel Sacchetto.`);returnFish(f,G.market[f]);G.market[f]=0;G.auctionResult=[];afterAuction();return}
   bids.sort((a,b)=>bidScore(b)-bidScore(a)||order.indexOf(a.pid)-order.indexOf(b.pid));
   const win=bids[0],wp=G.players[win.pid];wp.coins-=win.cash;for(const b of bids)G.players[b.pid].influence-=b.infl;G.captain=win.pid;
-  G.auctionResult=bids;
+  G.auctionResult=bids;G.viewedPlayer=win.pid;
   log('Asta',`${wp.name} vince l’asta dei ${f} con ${bidScore(win)} (carta ${win.card.bid}${win.cash?` + ${win.cash} Ducati`:''}${win.infl?` + ${win.infl*ESP_X} Esperienza`:''}) e diventa Capitano.`);
+  // Fortuna: chi ha partecipato e perso pesca 1 carta (una volta al giorno per carta).
+  for(const b of bids.slice(1)){const p=G.players[b.pid];for(let i=0;i<copies(p,'Nuovi Clienti');i++)G.clientsQueue.push({pid:p.id,k:1})}
   G.buyQueue=bids.map((b,i)=>({pid:b.pid,price:i===0?1:2,rank:i}));G.buyPos=0;G.auctionStage='buy';advanceBuys();
 }
 // Senza tassa: chi ha perso l'asta compra a 1 Ducato un pesce per ogni copia, il resto al prezzo pieno.
@@ -405,13 +664,13 @@ function buy(p,f,n,price){n=Math.max(0,Math.min(n,maxBuy(p,f,price)));if(n){cons
 function advanceBuys(){
   const f=currentFish();
   while(G.buyPos<G.buyQueue.length&&G.market[f]){const q=G.buyQueue[G.buyPos],p=G.players[q.pid];
-    if(p.human){if(maxBuy(p,f,q.price)>0){G.buyQty=Math.min(maxBuy(p,f,q.price),Math.max(q.rank===0?1:0,needOf(p,f)));return}G.buyPos++;continue}
+    if(p.human){if(maxBuy(p,f,q.price)>0){setActivePlayer(p.id);G.viewedPlayer=G.auctionResult[0].pid;G.buyQty=Math.min(maxBuy(p,f,q.price),Math.max(q.rank===0?1:0,needOf(p,f)));return}G.buyPos++;continue}
     botBuy(p,f,q.price,q.rank);G.buyPos++}
   if(G.market[f]){returnFish(f,G.market[f]);log('Asta',`${G.market[f]} ${f} invenduti tornano nel Sacchetto.`);G.market[f]=0}
   afterAuction();
 }
 window.toggleBuyToken=function(n){G.buyQty=G.buyQty===n?n-1:n;render()};
-window.confirmBuy=function(){const q=G.buyQueue[G.buyPos];buy(G.players[0],currentFish(),G.buyQty||0,q.price);G.buyPos++;advanceBuys();render()};
+window.confirmBuy=function(){const q=G.buyQueue[G.buyPos];buy(G.players[q.pid],currentFish(),G.buyQty||0,q.price);G.buyPos++;advanceBuys();render()};
 function afterAuction(){
   G.auctionStage='clients';
   while(G.clientsQueue?.length){const {pid}=G.clientsQueue.shift(),p=G.players[pid],c=drawCard();if(!c)continue;
@@ -422,25 +681,26 @@ function afterAuction(){
 // ---------------- Fase 3 · Mercato ----------------
 function startMarket(){
   G.phase='pubblico';G.overlay=null;log('Mercato','Apre il Mercato: ogni mercante completa i propri contratti.');
-  for(const p of G.players)if(!p.human)botMarket(p);
-  if(!G.players[0].human)finishMarket();
+  for(const p of G.players)if(!p.human){botMarket(p);closePlayerMarket(p);keepCards(p,botKeep(p))}
+  G.marketQueue=turnOrder().filter(id=>G.players[id].human);nextMarketPlayer();
 }
-window.serveContract=function(id){if(G.phase!=='pubblico')return;const p=G.players[0],c=p.hand.find(x=>x.id===id);if(c&&completeContract(p,c))render()};
-window.finishMarket=function(){if(G.phase!=='pubblico')return;finishMarket();render()};
+function nextMarketPlayer(){
+  if(!G.marketQueue.length){startEndOfDay();return}
+  G.phase='pubblico';G.overlay=null;setActivePlayer(G.marketQueue.shift());
+}
+window.serveContract=function(id){if(G.phase!=='pubblico'||G.handoff)return;const p=activePlayer(),c=p.hand.find(x=>x.id===id);if(c&&completeContract(p,c))render()};
+window.finishMarket=function(){if(G.phase!=='pubblico'||G.handoff)return;finishMarket();render()};
+function closePlayerMarket(p){
+  const pool=[];for(const f of FISH)for(let i=0;i<p.banco[f]+p.cesta[f];i++)pool.push(f);
+  const pri=f=>({Polpi:5,Gamberi:4,Molluschi:4,Branzini:3,Sardine:2})[f];pool.sort((a,b)=>pri(b)-pri(a));
+  const keep=pool.slice(0,CESTA_CAP),gone=pool.slice(CESTA_CAP);p.banco=inv();p.cesta=inv();
+  for(const f of keep)p.cesta[f]++;for(const f of gone)returnFish(f);p.wasted+=gone.length;
+  log('Mercato',`${p.name}: ${keep.length} pesci in Cesta${gone.length?`, ${gone.length} tornano nel sacchetto`:''}.`);
+}
 function finishMarket(){
-  for(const p of G.players){
-    // Cesta: dei pesci rimasti se ne tengono al massimo 3 (priorità ai più pregiati); il resto torna nel sacchetto.
-    const pool=[];for(const f of FISH)for(let i=0;i<p.banco[f]+p.cesta[f];i++)pool.push(f);
-    const pri=f=>({Polpi:5,Gamberi:4,Molluschi:4,Branzini:3,Sardine:2})[f];
-    pool.sort((a,b)=>pri(b)-pri(a));const keep=pool.slice(0,CESTA_CAP),gone=pool.slice(CESTA_CAP);
-    p.banco=inv();p.cesta=inv();for(const f of keep)p.cesta[f]++;for(const f of gone)returnFish(f);p.wasted+=gone.length;
-    log('Mercato',`${p.name}: ${keep.length} pesci in Cesta${gone.length?`, ${gone.length} tornano nel sacchetto`:''}.`);
-    if(!p.human)keepCards(p,botKeep(p));
-  }
-  const me=G.players[0];
-  if(me.human&&me.hand.length&&G.day<4){G.phase='conserva';G.keepSel=new Set();G.overlay='keep';return}
-  if(me.human)keepCards(me,[]);
-  startEndOfDay();
+  const me=activePlayer();closePlayerMarket(me);
+  if(me.hand.length&&G.day<4){G.phase='conserva';G.keepSel=new Set();G.overlay='keep';return}
+  keepCards(me,[]);nextMarketPlayer();
 }
 function keepCards(p,ids){
   const keep=p.hand.filter(c=>ids.includes(c.id)).slice(0,KEEP_MAX);
@@ -449,7 +709,7 @@ function keepCards(p,ids){
   if(keep.length)log('Mercato',`${p.name} conserva ${keep.length} carte per domani.`);
 }
 window.toggleKeep=function(id){if(G.overlay!=='keep')return;if(G.keepSel.has(id))G.keepSel.delete(id);else if(G.keepSel.size<KEEP_MAX)G.keepSel.add(id);render()};
-window.confirmKeep=function(){if(G.overlay!=='keep')return;keepCards(G.players[0],[...G.keepSel]);G.overlay=null;startEndOfDay();render()};
+window.confirmKeep=function(){if(G.overlay!=='keep')return;keepCards(activePlayer(),[...G.keepSel]);G.overlay=null;nextMarketPlayer();render()};
 
 // ---------------- Fase 4 · Fine Giornata ----------------
 const MAESTRO={'Maestro della Pescaria':'A','Maestro delle Aste':'E','Maestro del Mercato':'C'},MAESTRO_X=2;
@@ -464,10 +724,10 @@ function startEndOfDay(){
     if(p.pending.length)log('Migliorie',`${p.name} installa ${p.pending.map(upName).join(', ')}.`);
     p.installed.push(...p.pending);
     for(const c of p.pending.filter(c=>c.up==='Favorito della Gilda')){
-      if(p.human)G.favQueue.push(c);else placeFavorite(p,c,botFavorite(p));}
+      if(p.human)G.favQueue.push({pid:p.id,card:c});else placeFavorite(p,c,botFavorite(p));}
     p.pending=[];
   }
-  if(G.favQueue.length){G.overlay='favorite';return}
+  if(G.favQueue.length){setActivePlayer(G.favQueue[0].pid);G.overlay='favorite';return}
   endOfDayIncome();
 }
 function placeFavorite(p,c,f){
@@ -481,10 +741,10 @@ function endOfDayIncome(){
     const inc=bilanciaIncome(p),tot=inc.reduce((s,x)=>s+x.v,0);p.coins+=tot;p.bilanciaTot+=tot;p.today.bilancia=inc;
     if(tot)log('Rendite',`${p.name}: i Mercanti rendono ${tot} Ducati.`);
   }
-  G.overlay=G.players[0].human?'summary':null;
-  if(!G.players[0].human)finishDay();
+  G.overlay=humanPlayers().length?'summary':null;
+  if(!humanPlayers().length)finishDay();
 }
-window.pickFavorite=function(f){if(G.overlay!=='favorite')return;const c=G.favQueue.shift();placeFavorite(G.players[0],c,f);if(G.favQueue.length){render();return}G.overlay=null;endOfDayIncome();render()};
+window.pickFavorite=function(f){if(G.overlay!=='favorite')return;const {pid,card}=G.favQueue.shift();placeFavorite(G.players[pid],card,f);if(G.favQueue.length){setActivePlayer(G.favQueue[0].pid);render();return}G.overlay=null;endOfDayIncome();render()};
 window.finishDayBtn=function(){if(G.phase!=='bilancia'||G.overlay==='favorite'||G.overlay==='keep')return;G.overlay=null;finishDay();render()};
 function finishDay(){
   if(G.day===4){finishGame();return}
@@ -494,8 +754,9 @@ function ranking(){return[...G.players].sort((a,b)=>b.coins-a.coins||(b.installe
 function finishGame(){
   G.finished=true;G.phase='fine';const ranked=ranking();if(HEADLESS)return;
   document.body.classList.remove('playing');$('game').classList.add('hidden');$('end').classList.remove('hidden');
-  const human=G.players[0].human;
-  $('end').innerHTML=`<div class="trophy">${human&&ranked[0].id===0?'🏆':'⚓'}</div><div class="eyebrow">Partita conclusa</div><h2>${human&&ranked[0].id===0?'Hai vinto!':esc(ranked[0].name)+' vince'}</h2><p>Dopo quattro giornate di mercato, il miglior mercante della Laguna ha ${ranked[0].coins} Ducati.</p><div class="rank">${ranked.map((p,i)=>`<div class="rankrow"><div class="place">${i+1}°</div><div class="who"><i class="dot" style="background:${COLORS[p.id]}"></i>${esc(p.name)}${p.human?' (tu)':''}</div><b>${p.coins} ◈ · ${p.orders} contratti · ${p.installed.length+p.pending.length} migliorie · Bilancia ${p.bilanciaTot}</b></div>`).join('')}</div><button class="btn primary" onclick="restartGame()">Gioca ancora</button>`;
+  const human=humanPlayers().length===1,solo=humanPlayers()[0]?.id;
+  $('end').innerHTML=`<div class="trophy">${human&&ranked[0].id===solo?'🏆':'⚓'}</div><div class="eyebrow">Partita conclusa</div><h2>${human&&ranked[0].id===solo?'Hai vinto!':esc(ranked[0].name)+' vince'}</h2><p>Dopo quattro giornate di mercato, il miglior mercante della Laguna ha ${ranked[0].coins} Ducati.</p><div class="rank">${ranked.map((p,i)=>`<div class="rankrow"><div class="place">${i+1}°</div><div class="who"><i class="dot" style="background:${playerColor(p)}"></i>${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.coins} ◈ · ${p.orders} contratti · ${p.installed.length+p.pending.length} migliorie · Bilancia ${p.bilanciaTot}</b></div>`).join('')}</div><button class="btn primary" onclick="restartGame()">Gioca ancora</button>`;
+  scheduleFit();
 }
 
 // ---------------- Bot ----------------
@@ -527,11 +788,21 @@ function botPlanFresh(p){
   const keepN=Math.min(cards.length,2);return new Set(cards.slice(0,keepN).map(c=>c.id));
 }
 // Contratti del piano ancora realizzabili: ogni pesce mancante è quello in asta ora o in un'asta successiva con abbastanza pesce.
-function feasible(p,c){const stock=mix(p.banco,p.cesta);return Object.entries(c.recipe).every(([g,n])=>{const miss=n-(stock[g]||0);if(miss<=0)return true;const gi=(G.aOrder||FISH).indexOf(g);return gi>=G.auctionIndex&&(G.market[g]||0)>=miss})}
+// Pesci del contratto ancora ottenibili: quelli in stock o in un lotto non ancora battuto.
+function lostFish(p,c){const stock=mix(p.banco,p.cesta);let m=0;for(const [g,n] of Object.entries(c.recipe)){const miss=n-(stock[g]||0);if(miss<=0)continue;const gi=(G.aOrder||FISH).indexOf(g);const avail=gi>=G.auctionIndex?(G.market[g]||0):0;m+=Math.max(0,miss-avail)}return m}
+// Un contratto è ancora realizzabile se i pesci ormai persi si possono coprire con Sottobanco (1 sostituzione per copia).
+function feasible(p,c){const m=lostFish(p,c);return m===0||m<=copies(p,'Contrattazione Sottobanco')}
 function needOf(p,f,keepIds){
   const keep=keepIds?p.hand.filter(c=>keepIds.has(c.id)&&(G.phase!=='asta'||feasible(p,c))):p.hand;let need=0;for(const c of keep)need+=c.recipe[f]||0;
+  // Sottobanco: se un pesce del contratto è perso (asta già passata o persa), compro 2 pesci in più dell'asta in corso per sostituirlo.
+  if(G.phase==='asta'&&copies(p,'Contrattazione Sottobanco')){
+    const stock=mix(p.banco,p.cesta);let lost=0;for(const c of keep)lost+=lostFish(p,c);
+    if(lost){let cover=0;for(const g of FISH){const req=keep.reduce((t,c)=>t+(c.recipe[g]||0),0);cover+=Math.floor(Math.max(0,(stock[g]||0)-req)/2)}
+      const still=Math.max(0,lost-cover);if(still&&!keep.some(c=>lostFishTypes(p,c).includes(f)))need+=2*still}
+  }
   return Math.max(0,need-p.banco[f]-p.cesta[f]);
 }
+function lostFishTypes(p,c){const stock=mix(p.banco,p.cesta);return Object.entries(c.recipe).filter(([g,n])=>{const miss=n-(stock[g]||0);if(miss<=0)return false;const gi=(G.aOrder||FISH).indexOf(g);return (gi>=G.auctionIndex?(G.market[g]||0):0)<miss}).map(([g])=>g)}
 const CARD_AVG=CARDS.reduce((s,c)=>s+c.bid,0)/CARDS.length;
 function botBid(p,f,seen=[]){
   if(!p.hand.length||!roomBanco(p))return null;
@@ -566,89 +837,151 @@ function botKeep(p){if(G.day===4)return[];const stock=p.cesta;const sc=c=>{let h
 function botFavorite(p){const tally=inv();for(const c of [...p.installed,...p.pending,...p.hand])for(const [f,n] of Object.entries(c.recipe))tally[f]+=n;return [...FISH].sort((a,b)=>tally[b]-tally[a])[0]}
 
 // ---------------- Rendering ----------------
-function scoreCard(p){return`<article class="panel score ${p.id===G.captain?'captain':''} ${p.human?'you':''}"><div class="who"><i class="dot" style="background:${COLORS[p.id]}"></i>${esc(p.name)} ${p.id===G.captain?'⚓':''}</div><div class="money">${p.coins} ◈</div><div class="sub">${p.orders} contratti · ${p.installed.length+p.pending.length} migliorie</div></article>`}
+function scoreCard(p){return`<article class="panel score ${p.id===G.captain?'captain':''} ${p.human?'you':''}"><div class="who"><i class="dot" style="background:${playerColor(p)}"></i>${esc(p.name)} ${p.id===G.captain?'⚓':''}</div><div class="money">${p.coins} <img class="ducat-icon" src="assets/tokens/moneta.png" alt="Ducati"></div><div class="sub">${p.orders} contratti · ${p.installed.length+p.pending.length} migliorie</div></article>`}
 function physicalPhase(){return G.phase==='asta'?1:(G.phase==='pubblico'||G.phase==='conserva')?2:G.phase==='bilancia'?3:0}
 function activeAuctionFish(){return G.phase==='asta'&&['bid','buy'].includes(G.auctionStage)?currentFish():null}
 function offerState(p){
   if(G.phase!=='asta')return{value:'—',detail:p.human?'':`${count(p.banco)}/${capBanco(p)} banco`};
   if(G.auctionResult){const b=G.auctionResult.find(x=>x.pid===p.id);return b?{value:bidScore(b),detail:`carta ${b.card.bid}${b.cash?` + ${b.cash} ◈`:''}${b.infl?` + ${b.infl*ESP_X} esp.`:''}`}:{value:'PASSA',detail:''}}
-  if(G.auctionStage==='bid'){if(p.human&&G.selectedBid)return{value:'COPERTA',detail:G.bidCash?`+ ${G.bidCash} ◈`:'pronta'};return{value:'ATTESA',detail:''}}
+  if(G.auctionStage==='bid'){if(p.id===activePlayer().id&&G.selectedBid)return{value:'COPERTA',detail:G.bidCash?`+ ${G.bidCash} ◈`:'pronta'};const bid=G.bids?.find(b=>b.pid===p.id);return bid?{value:'COPERTA',detail:bid.cash?`+ ${bid.cash} Ducati`:''}:G.bidDone?.includes(p.id)?{value:'PASSA',detail:''}:{value:'ATTESA',detail:''}}
   return{value:'—',detail:''}
 }
 function humanArea(p,color){
   const zone=body=>`<div class="offer-zone human-action" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)} · tu</span><div class="player-area-action">${body}</div></div>`;
-  if(G.phase==='asta'&&G.auctionStage==='bid'){const card=p.hand.find(c=>c.id===G.selectedBid),coins=`<button id="offerCoins" class="offer-coins ${G.bidCash?'':'hidden'}" onclick="removeBidCoin(event)" title="Riprendi un Ducato" aria-label="Riprendi un Ducato"><i>◈</i><i>◈</i><i>◈</i><b id="offerCoinCount">${G.bidCash}</b></button>`,infl=p.influence?`<button class="auction-btn" ${card?'':'disabled'} title="Usa Esperienza: +${ESP_X} per carta" onclick="addInfluence()">ESP +${G.bidInfl*ESP_X} (${G.bidInfl}/${p.influence})</button>`:'';
-    return`<div class="offer-zone human-bid" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)} · tu</span>${card?`<div id="humanOfferCard" class="offer-card-back" role="button" tabindex="0" title="Rimetti la carta in mano" aria-label="Carta offerta coperta. Clicca per riprenderla" onclick="returnBidCard()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();returnBidCard()}"><span>⚓</span>${coins}</div>`:'<div class="offer-card-empty">SCEGLI<br>UNA CARTA</div>'}<div class="auction-controls"><button class="auction-btn offer-submit" ${card?'':'disabled'} onclick="submitBid()">OFFRI${card?` ${card.bid+G.bidCash+G.bidInfl*ESP_X}`:''}</button>${infl}<button class="auction-btn" title="Non partecipi a questa asta" onclick="submitBid('pass')">PASSA</button><button class="auction-btn" title="Non partecipi alle aste rimaste oggi" onclick="submitBid('all')">TUTTE</button></div></div>`}
+  if(G.phase==='asta'&&G.auctionStage==='bid'){const card=p.hand.find(c=>c.id===G.selectedBid),coins=`<button id="offerCoins" class="offer-coins ${G.bidCash?'':'hidden'}" onclick="removeBidCoin(event)" title="Riprendi un Ducato" aria-label="Riprendi un Ducato"><i></i><i></i><i></i><b id="offerCoinCount">${G.bidCash}</b></button>`;
+    return`<div class="offer-zone human-bid" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)} · tu</span>${card?`<div id="humanOfferCard" class="offer-card-back" role="button" tabindex="0" title="Rimetti la carta in mano" aria-label="Carta offerta coperta. Clicca per riprenderla" onclick="returnBidCard()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();returnBidCard()}"><img src="assets/board/card-back.png" alt="Retro della carta Pescaria" draggable="false">${coins}</div>`:'<div class="offer-card-empty">SCEGLI<br>UNA CARTA</div>'}</div>`}
   if(G.phase==='draft')return zone(`<div><b>GIRO ${G.draftRound}/5</b><small>Scegli una carta dal ventaglio</small></div>`);
-  if(G.phase==='asta'&&G.auctionStage==='buy'){const q=G.buyQueue?.[G.buyPos];if(q?.pid===0)return zone(`<div><b>${G.buyQty} <img class="inline-fish" src="${ASSET.fish[currentFish()]}" alt="${currentFish()}"></b><small>${q.price} Ducat${q.price>1?'i':'o'} per pesce${cheapN(me0(),q.price)?` (Senza tassa: ${cheapN(me0(),q.price)} a 1)`:''} · ${costOf(me0(),G.buyQty,q.price)} tot.</small></div><button class="player-action-btn" onclick="confirmBuy()">COMPRA</button>`)}
-  if(G.phase==='pubblico')return zone(`<div><b>MERCATO</b><small>Clicca un contratto completabile${p.subsLeft?` · ${p.subsLeft} sostituz.`:''}</small></div><button class="player-action-btn" onclick="finishMarket()">TERMINA</button>`);
+  if(G.phase==='pubblico')return zone(`<div><b>MERCATO</b><small>Clicca un contratto completabile${p.subsLeft?` · ${p.subsLeft} sostituz. per contratto`:''}</small></div><button class="player-action-btn" onclick="finishMarket()">TERMINA</button>`);
   if(G.phase==='bilancia')return zone(`<div><b>${G.day===4?'ULTIMO CONTO':'FINE GIORNATA'}</b><small>Rendite e migliorie</small></div><button class="player-action-btn" onclick="finishDayBtn()">${G.day===4?'PUNTEGGIO':'CHIUDI'}</button>`);
   return''
 }
-const me0=()=>G.players[0];
+const me0=activePlayer;
 function overlayHtml(){
-  const me=G.players[0],box=(note,title,body)=>`<div class="table-overlay" role="dialog" aria-modal="true" aria-labelledby="ovTitle"><div class="net-choice"><div class="net-choice-note">${note}</div><h2 id="ovTitle">${title}</h2>${body}</div></div>`;
+  const me=activePlayer(),box=(note,title,body)=>`<div class="table-overlay" role="dialog" aria-modal="true" aria-labelledby="ovTitle"><div class="net-choice"><div class="net-choice-note">${note}</div><h2 id="ovTitle">${title}</h2>${body}</div></div>`;
+  if(G.handoff)return box('Passa il dispositivo',`Tocca a ${esc(me.name)}`,`<img class="handoff-portrait" src="assets/players/ritratto-${PLAYER_MATS[me.character??me.id][0]}.png" alt=""><p>Le carte restano nascoste finché non sei pronto.</p><button class="btn primary" onclick="acceptHandoff()">Sono ${esc(me.name)}, cominciamo</button>`);
   if(G.overlay==='morning'){
     const lots=FISH.map(f=>`<div class="net-pick" style="cursor:default"><img src="${ASSET.fish[f]}" alt=""><span>${G.market[f]} ${f}</span></div>`).join(''),mine=G.fiutoLog.filter(x=>x.pid===0).map(x=>`${ICON[x.f]} ${x.f}`).join(', ');
     const intro=G.day===1?`<p class="game-intro-copy">Quattro giornate di mercato. Ogni mattina il Capitano estrae il pescato; poi <b>drafterai 5 carte</b>. Ogni carta serve a una sola cosa: <b>puntarla in asta</b>, oppure <b>completarla come contratto</b>, che diventa una <b>miglioria</b> permanente. Ogni contratto rende +1 Ducato per ogni miglioria già installata della sua stessa categoria.</p>`:'';
     return box(`Giorno ${G.day} · Pesca del Mattino`,'Il pescato di oggi',`${intro}<div class="net-picks">${lots}</div>${mine?`<p style="margin-top:12px">Fiuto per il Pescato: ricevi ${mine}.</p>`:''}<button class="btn primary" onclick="beginDraft()">Al draft</button>`)}
   if(G.overlay==='keep')return box('Fine del Mercato','Conserva fino a 2 carte',`<p>Le carte conservate restano da parte durante il draft e tornano in mano domani. Le altre vanno negli scarti.</p><div class="cards" style="text-align:left">${me.hand.map(c=>cardHtml(c,'keep',true)).join('')}</div><button class="btn primary" onclick="confirmKeep()">Conferma (${G.keepSel.size}/2)</button>`);
-  if(G.overlay==='scegli')return box('Scegli l’asta','Sei il Capitano: quale lotto va all’asta ora?',`<p>Oggi puoi ancora usare Scegli l’asta ${me.sceltaLeft===1?'1 volta':me.sceltaLeft+' volte'}.</p><div class="net-picks">${lotsLeft().map(f=>`<button class="net-pick" onclick="pickLot('${f}')"><img src="${ASSET.fish[f]}" alt=""><span>${f} (${G.market[f]})</span></button>`).join('')}</div><p><button class="btn" onclick="pickLot(null)">Non usarla: asta dei ${esc(currentFish())}</button></p>`);
   if(G.overlay==='favorite')return box('La Congrega','Scegli il pesce preferito',`<p>Lo prendi dal sacchetto e lo metti sulla carta: ogni contratto che lo richiede renderà +2 Ducati.</p><div class="net-picks">${FISH.map(f=>`<button class="net-pick" onclick="pickFavorite('${f}')"><img src="${ASSET.fish[f]}" alt=""><span>${f}</span></button>`).join('')}</div>`);
   if(G.overlay==='summary'){
-    const rows=G.players.map(p=>`<div class="rankrow"><div class="place"><i class="dot" style="background:${COLORS[p.id]}"></i></div><div class="who">${esc(p.name)}${p.human?' (tu)':''}</div><b>${p.today.contracts.length} contratti +${p.today.income} · Bilancia +${p.today.bilancia.reduce((s,x)=>s+x.v,0)} · ${p.coins} ◈</b></div>`).join('');
+    const rows=G.players.map(p=>`<div class="rankrow"><div class="place"><i class="dot" style="background:${playerColor(p)}"></i></div><div class="who">${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.today.contracts.length} contratti +${p.today.income} · Bilancia +${p.today.bilancia.reduce((s,x)=>s+x.v,0)} · ${p.coins} ◈</b></div>`).join('');
     const mine=me.today.bilancia.map(x=>`${esc(x.card.up)}: +${x.v}`).join(' · ');
     return box(`Giorno ${G.day} · Fine Giornata`,G.day===4?'Ultima giornata conclusa':'Il mercato chiude',`<div class="rank" style="text-align:left">${rows}</div>${mine?`<p>Le tue rendite: ${mine}</p>`:''}<button class="btn primary" onclick="finishDayBtn()">${G.day===4?'Vedi il punteggio':'Nuova giornata'}</button>`)}
   return'';
 }
+function pileHtml(cards,faceUp){
+  const label=faceUp?'Scarti':'Mazzo';
+  const stack=cards.slice(-3).map((c,i)=>`<img src="${faceUp?`assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2`:'assets/board/card-back.png'}" alt="${faceUp?esc(c.name):'Retro della carta Pescaria'}" style="--pile-offset:${i*2}px;--pile-rotation:${i===1?-3:0}deg" draggable="false">`).join('');
+  return`<div class="board-pile ${faceUp?'discard':'deck'}-pile" aria-label="${label}: ${cards.length} carte"><div class="pile-cards">${stack}</div><span class="pile-count">${label} · ${cards.length}</span></div>`;
+}
 function renderPhysicalBoard(){
-  const phase=physicalPhase(),activeFish=activeAuctionFish(),roman=['I','II','III','IV'],me=G.players[0];
-  const days=roman.map((n,i)=>`<div class="board-day ${G.day===i+1?'active':''}" aria-label="Giorno ${i+1}">${n}</div>`).join('');
-  const phases=PHASES.map(([key],i)=>`<div class="board-phase ${phase===i?'active':''}"><img src="${ASSET.phase[key]}" alt=""><span>${PHASE_SHORT[i]}</span></div>`).join('');
-  const q=G.auctionStage==='buy'?G.buyQueue?.[G.buyPos]:null,buying=G.phase==='asta'&&G.auctionStage==='buy'&&q?.pid===0,buyMax=buying?maxBuy(me,currentFish(),q.price):0;
-  const lots=FISH.map(f=>{const n=G.market[f]||0,tokens=Array.from({length:n},(_,i)=>{const img=`<img class="market-token" src="${ASSET.fish[f]}" alt="${f}">`;if(buying&&f===currentFish()&&i<buyMax)return`<button class="market-token-pick ${i<G.buyQty?'selected':''}" onclick="toggleBuyToken(${i+1})" aria-label="${i<G.buyQty?'Rimuovi':'Seleziona'} ${f} numero ${i+1}">${img}</button>`;return img}).join('');return`<div class="fish-lot ${n>15?'dense':''} ${activeFish===f?'active':''}"><span class="fish-lot-label">${f} · ${n}</span>${tokens}</div>`}).join('');
+  const phase=physicalPhase(),activeFish=activeAuctionFish(),roman=['I','II','III','IV'],me=activePlayer();
+  const days=roman.map((n,i)=>`<div class="board-day ${G.day===i+1?'active':''}" role="img" aria-label="Giorno ${i+1}${G.day===i+1?', in corso':''}" title="Giorno ${n}"></div>`).join('');
+  const phases=PHASES.map(([key],i)=>`<div class="board-phase ${phase===i?'active':''}" role="img" aria-label="${PHASE_SHORT[i]}${phase===i?', in corso':''}" title="${PHASE_SHORT[i]}"></div>`).join('');
+  const lots=FISH.map(f=>{const n=G.market[f]||0,tokens=Array.from({length:n},()=>`<img class="market-token" src="${ASSET.fish[f]}" alt="${f}">`).join('');return`<div class="fish-lot ${n>15?'dense':''} ${activeFish===f?'active':''}"><span class="fish-lot-label">${f} · ${n}</span><div class="lot-tokens">${tokens}</div></div>`}).join('');
   const bidding=G.phase==='asta'&&G.auctionStage==='bid';
-  const offers=G.players.map((p,i)=>{const color=COLORS[i],custom=p.human&&humanArea(p,color);if(custom)return custom;const o=offerState(p);return`<div class="offer-zone" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)}${p.human?' · tu':''}</span><span class="offer-value">${o.value}</span><span class="offer-detail">${o.detail}</span></div>`}).join('');
-  const playerPins=G.players.map((_,i)=>`<div class="player-pin" style="--player:${COLORS[i]};--player-soft:${COLORS[i]}66"></div>`).join('');
-  $('physicalBoard').innerHTML=`<div class="board-hud"><strong>Mercato di Pescaria</strong><div class="board-hud-tools"><div class="board-hud-status"><span>Giorno ${G.day} · ${phaseTitle(G.phase)}</span><span>Mazzo ${G.deck.length} · Sacchetto ${G.bag.length}</span></div><button id="restart" class="board-new-game" onclick="restartGame()">Nuova partita</button></div></div><div id="boardScores" class="board-scorebar" style="--players:${G.players.length}"></div><div class="board-calendar"><div class="board-days">${days}</div><div class="board-phases">${phases}</div></div><div class="board-center" style="--players:${G.players.length}"><div class="board-market-title">${G.phase==='asta'&&activeFish?`Asta dei ${activeFish}`:'Pescato disponibile per le aste'}</div><div class="board-fish">${lots}</div><div class="board-offer-title">Aree dei giocatori</div><div class="board-offers ${bidding?'auction-bidding':''} ${offers.includes('human-action')?'player-actions':''}">${offers}</div><div class="board-player-pins">${playerPins}</div></div><section id="boardHand" class="panel board board-hand"></section>${overlayHtml()}`;
+  const offers=Array.from({length:5},(_,i)=>{const p=G.players.find(p=>(p.character??p.id)===i);if(!p)return'<div class="offer-zone empty"><span class="offer-detail">Non in gioco</span></div>';const color=playerColor(p),custom=p.human&&p.id===activePlayer().id&&!G.handoff&&humanArea(p,color);if(custom)return custom;const o=offerState(p);return`<div class="offer-zone" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)}${p.id===activePlayer().id?' · tu':''}</span><span class="offer-value">${o.value}</span><span class="offer-detail">${o.detail}</span></div>`}).join('');
+  const pins=FISH.map(f=>`<div class="auction-pin ${activeFish===f?'active':''}" role="img" aria-label="${activeFish===f?'Asta in corso: ':'Lotto: '}${f}">${activeFish===f?'⚓':''}</div>`).join('');
+  $('physicalBoard').innerHTML=`<div class="board-hud"><strong>Mercato di Pescaria</strong><div class="board-hud-tools"><div class="board-hud-status"><span>Giorno ${G.day} · ${phaseTitle(G.phase)}</span><span>Sacchetto ${G.bag.length}</span></div><button id="restart" class="board-new-game" onclick="restartGame()">Nuova partita</button></div></div><div class="board-art-wrap"><div class="board-art" role="group" aria-label="Tabellone centrale di Pescaria">${pileHtml(G.deck,false)}${pileHtml(G.discard,true)}<div class="board-days">${days}</div><div class="board-phases">${phases}</div><div class="board-fish">${lots}</div><div class="board-pins">${pins}</div><div class="board-offers ${bidding?'auction-bidding':''} ${offers.includes('human-action')?'player-actions':''}">${offers}</div></div></div><section id="boardHand" class="panel board board-hand"></section>${overlayHtml()}`;
 }
 function inventoryHtml(stock,muted=false){const x=FISH.flatMap(f=>Array.from({length:stock[f]},()=>`<span class="token ${muted?'muted-token':''}" title="${f}"><img src="${ASSET.fish[f]}" alt="${f}"></span>`)).join('');return x||'<span class="empty">vuoto</span>'}
 function cardHtml(c,mode='plain',enabled=true,style=''){
-  const me=G.players[0],selected=(mode==='bid'&&G.selectedBid===c.id)||(mode==='keep'&&G.keepSel?.has(c.id)),locked=mode==='draft'&&!enabled,selectable=enabled&&['bid','draft','market','client','keep'].includes(mode),fn={bid:'chooseBid',draft:'pickDraft',market:'serveContract',client:'pickClient',keep:'toggleKeep'}[mode],cat=CATS[c.cat],phase=cat.phase,select=selectable?`role="button" tabindex="0" onclick="${fn}(${c.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}(${c.id})}"`:'';
-  const pay=mode==='market'&&enabled?payout(me,c):c.value,fx=UPG[c.up].fx;
-  return`<article class="card suit-${cat.suit} ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" ${style?`style="${style}"`:''} ${select}>${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}<div class="card-top"><span class="bid" title="Valore d’asta"><strong>${c.bid}</strong></span><div><span class="card-id">CLIENTE #${c.id}</span><h4>${esc(c.name)}</h4></div></div><div class="recipe">${fishText(c.recipe)}</div><div class="payout">${pay} Ducati${pay!==c.value?` <small>(${c.value}+${pay-c.value})</small>`:''}</div><div class="upgrade"><img src="${ASSET.upgrade[c.up]}" alt="" aria-hidden="true"><div><b><img class="upgrade-phase" src="${ASSET.phase[phase]}" alt="${cat.name}">${cat.icon} ${esc(upName(c))}</b><small>${esc(fx)}</small></div></div></article>`}
+  const me=activePlayer(),selected=(mode==='bid'&&G.selectedBid===c.id)||(mode==='keep'&&G.keepSel?.has(c.id)),locked=mode==='draft'&&!enabled,selectable=enabled&&['bid','draft','market','client','keep'].includes(mode),fn={bid:'chooseBid',draft:'pickDraft',market:'serveContract',client:'pickClient',keep:'toggleKeep'}[mode],select=selectable?`role="button" tabindex="0" onclick="${fn}(${c.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}(${c.id})}"`:'tabindex="0"';
+  const pay=mode==='market'&&enabled?payout(me,c):c.value,description=`${c.bid} CLIENTE #${c.id} ${c.name}. ${c.fish}. ${pay} Ducati. ${upName(c)}. ${UPG[c.up].fx}`;
+  return`<article class="card illustrated-card ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" aria-label="${esc(description)}" title="${esc(description)}" ${style?`style="${style}"`:''} ${select}><img class="card-art" src="assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2" alt="" draggable="false">${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}${pay!==c.value?`<span class="card-bonus">${pay} Ducati · +${pay-c.value} bonus</span>`:''}</article>`}
 function phaseTitle(k){if(k==='draft')return'1 · Draft';if(k==='conserva')return'3 · Mercato';return PHASES.find(x=>x[0]===k)?.[1]||''}
-function upgradeTags(p){
-  const group=list=>{const m=new Map();for(const c of list){const k=upName(c);m.set(k,(m.get(k)||0)+1)}return[...m]};
-  const inst=group(p.installed).map(([k,n])=>`<span class="tag" title="${esc(UPG[k.startsWith('Fiuto')?'Fiuto per il Pescato':k]?.fx||'')}">${esc(k)}${n>1?` ×${n}`:''}</span>`).join('');
-  const pend=group(p.pending).map(([k,n])=>`<span class="tag pending">${esc(k)}${n>1?` ×${n}`:''} · da installare</span>`).join('');
-  return inst+pend||'<span class="empty">Nessuna ancora</span>';
+function playerMatHtml(p){
+  const [color,character]=PLAYER_MATS[p.character??p.id],fish=FISH.flatMap(f=>Array(p.banco[f]).fill(f));
+  const trays=Array.from({length:3},(_,i)=>{const stock=inv();fish.filter((_,j)=>j%3===i).forEach(f=>stock[f]++);return`<div class="bank-tray">${count(stock)?inventoryHtml(stock):''}</div>`}).join('');
+  const lanes=Object.entries(CATS).map(([key,cat])=>{const cards=p.installed.filter(c=>c.cat===key);return`<section class="mat-upgrade-lane" aria-label="Migliorie ${cat.name}"><h4>${cat.name} <span>${cards.length}</span></h4>${cards.map(c=>`<details class="mat-upgrade"><summary>${esc(upName(c))}</summary><p>${esc(c.name)}<br>${esc(UPG[c.up].fx)}${c.favFish?`<br>Pesce preferito: ${esc(c.favFish)}`:''}</p></details>`).join('')||'<span class="mat-empty">—</span>'}</section>`}).join('');
+  const pending=p.pending.length?`<div class="mat-pending"><b>Da installare a fine giornata</b>${p.pending.map(c=>`<span>${CATS[c.cat].icon} ${esc(upName(c))}</span>`).join('')}</div>`:'';
+  return`<div class="player-mat" role="group" aria-label="Plancia ${character} di ${esc(p.name)}"><img class="player-mat-art" src="assets/players/plancia-${color}.png" alt="Plancia ${color}: ${character}" draggable="false"><span class="mat-label mat-bank-label">Banco ${count(p.banco)}/${capBanco(p)}</span><div class="mat-bank" role="group" aria-label="Banco: ${count(p.banco)} pesci su ${capBanco(p)}">${trays}</div><span class="mat-label mat-cesta-label">Cesta ${count(p.cesta)}/${CESTA_CAP}</span><div class="mat-cesta" role="group" aria-label="Cesta: ${count(p.cesta)} pesci su ${CESTA_CAP}">${count(p.cesta)?inventoryHtml(p.cesta):''}</div><span class="mat-coins" aria-label="${p.coins} Ducati">${p.coins}</span></div><div class="mat-upgrade-lanes">${lanes}</div>${pending}`;
+}
+window.viewPlayerMat=function(id){if(!G||!G.players[id])return;G.viewedPlayer=id;renderBoard()};
+function auctionPanelHtml(me){
+  if(G.phase!=='asta'||G.handoff)return'';
+  const f=currentFish();
+  if(G.auctionStage==='bid'){
+    const card=me.hand.find(c=>c.id===G.selectedBid);
+  const wallet=`<div class="bid-wallet"><span>Ducati disponibili</span><button id="bidCoinSource" class="bid-coin-source" ${G.selectedBid&&G.bidCash<me.coins?'':'disabled'} onclick="addBidCoin(event)" aria-label="Aggiungi un Ducato all'offerta"><i></i><i></i><i></i><b id="bidWalletCount">${Math.max(0,me.coins-G.bidCash)}</b></button><small>${G.selectedBid?'Clicca per aggiungere':'Prima scegli una carta'}</small></div>`;
+    return`<section class="auction-panel" aria-label="La tua offerta"><div class="auction-panel-heading"><h3>Asta dei ${f}</h3>${wallet}</div><table class="auction-table"><tbody><tr><th>Carta</th><td>${card?esc(card.name):'Scegli una carta dalla mano'}</td></tr><tr><th>Valore d’asta della carta</th><td><strong>${card?card.bid:'—'}</strong></td></tr><tr><th>Ducati puntati</th><td><button class="bid-minus" aria-label="Togli un Ducato dall’offerta" onclick="removeBidCoin(event)" ${G.bidCash?'':'disabled'}>−</button> <b id="bidCashValue">${G.bidCash}</b></td></tr></tbody></table><div class="auction-panel-buttons"><button class="btn primary offer-submit" ${card?'':'disabled'} onclick="submitBid()">OFFRI${card?` ${bidScore({card,cash:G.bidCash,infl:G.bidInfl})}`:''}</button><button class="btn secondary" title="Non partecipi a questa asta" onclick="submitBid('pass')">PASSA</button><button class="btn secondary" title="Non partecipi alle aste rimaste oggi" onclick="submitBid('all')">TUTTE</button></div></section>`;
+  }
+  const q=G.buyQueue?.[G.buyPos];
+  if(G.auctionStage!=='buy'||q?.pid!==me.id)return'';
+  const max=maxBuy(me,f,q.price),qty=G.buyQty||0;
+  const tokens=Array.from({length:max},(_,i)=>`<button class="purchase-fish ${i<qty?'selected':''}" aria-pressed="${i<qty}" aria-label="${i<qty?'Rimuovi':'Seleziona'} ${f} numero ${i+1}" onclick="toggleBuyToken(${i+1})"><img src="${ASSET.fish[f]}" alt=""><span>${i+1}</span></button>`).join('');
+  return`<section class="auction-panel" aria-label="Acquisto del pesce"><h3>Compra ${f}</h3><p>${G.market[f]} nel lotto · puoi comprarne fino a ${max}</p><div class="purchase-fish-list" role="group" aria-label="Scegli quanti ${f} comprare">${tokens}</div><table class="auction-table"><tbody><tr><th>Prezzo</th><td>${q.price} Ducat${q.price===1?'o':'i'} per pesce${cheapN(me,q.price)?` · primi ${cheapN(me,q.price)} a 1 (Senza tassa)`:''}</td></tr><tr><th>Selezionati</th><td>${qty} · <strong>${costOf(me,qty,q.price)} Ducati totali</strong></td></tr></tbody></table><button class="btn primary purchase-confirm" onclick="confirmBuy()">${qty?`COMPRA ${qty} · ${costOf(me,qty,q.price)} ◈`:'NON COMPRARE'}</button></section>`;
 }
 function renderBoard(){
-  const me=G.players[0];let cards=me.hand,mode='plain',title='La tua mano',enabled=()=>true;
+  const me=activePlayer();let cards=me.hand,mode='plain',title='La tua mano',enabled=()=>true;
   if(G.phase==='asta'&&G.auctionStage==='bid')mode='bid';
   if(G.phase==='pubblico'){mode='market';title='I tuoi contratti';enabled=c=>canContract(me,c)}
-  if(G.phase==='draft'){const pack=G.draftPacks[0];cards=[...G.drafted[0]].reverse().concat(pack);mode='draft';title='Carte del draft';enabled=c=>pack.some(x=>x.id===c.id)}
+  if(G.phase==='draft'){const pack=G.draftPacks[me.id];cards=[...G.drafted[me.id]].reverse().concat(pack);mode='draft';title='Carte del draft';enabled=c=>pack.some(x=>x.id===c.id)}
+  if(G.handoff)cards=[];
   if(mode==='bid'&&G.selectedBid)cards=cards.filter(c=>c.id!==G.selectedBid);
-  const mid=(cards.length-1)/2,room=innerWidth<900?Math.min(420,innerWidth-40):560,spread=Math.min(72,Math.max(48,(room-180)/Math.max(1,cards.length-1))),fan=cards.map((c,i)=>cardHtml(c,mode,enabled(c),`--i:${i};--x:${(i-mid)*spread}px;--r:${(i-mid)*3.5}deg;--edge:${i===0?32:i===cards.length-1?-32:0}px;--z:${i+1}`)).join('');
+  const mid=(cards.length-1)/2,room=Math.min(760,innerWidth-48),spread=Math.min(100,Math.max(18,(room-230)/Math.max(1,cards.length-1))),fan=cards.map((c,i)=>cardHtml(c,mode,enabled(c),`--i:${i};--x:${(i-mid)*spread}px;--r:${(i-mid)*5}deg;--edge:${i===0?32:i===cards.length-1?-32:0}px;--z:${i+1}`)).join('');
   const host=$('boardHand')||$('board');
-  const wallet=mode==='bid'?`<div class="bid-wallet"><span>Ducati disponibili</span><button id="bidCoinSource" class="bid-coin-source" ${G.selectedBid&&G.bidCash<me.coins?'':'disabled'} onclick="addBidCoin(event)" aria-label="Aggiungi un Ducato all'offerta"><i></i><i></i><i></i><b id="bidWalletCount">${Math.max(0,me.coins-G.bidCash)}</b></button><small>${G.selectedBid?'Clicca per aggiungere':'Prima scegli una carta'}</small></div>`:'';
-  const hint=mode==='draft'?`${G.drafted[0].length} scelte · clicca una carta libera`:mode==='market'?'Clicca un contratto completabile':mode==='bid'?'Scegli la carta da puntare, oppure PASSA':'Passa il mouse per leggere la carta';
-  const extra=`${copies(me,'Esperienza')?` · Senza tassa ${copies(me,'Esperienza')}`:''}${me.sceltaLeft?` · Scegli l’asta ${me.sceltaLeft}`:''}${me.subsLeft?` · Sottobanco ${me.subsLeft}`:''}`;
-  host.innerHTML=`<div class="hand-meta"><div class="inventory"><div class="crate"><div class="crate-head"><span>Banco</span><span>${count(me.banco)}/${capBanco(me)}</span></div><div class="tokens">${inventoryHtml(me.banco)}</div></div><div class="crate"><div class="crate-head"><span>Cesta</span><span>${count(me.cesta)}/${CESTA_CAP}</span></div><div class="tokens">${inventoryHtml(me.cesta,true)}</div></div></div><h3>Migliorie<small style="font:600 11px Inter,sans-serif;color:var(--muted)">${extra}</small></h3><div class="upgrades">${upgradeTags(me)}</div></div><div class="hand-dock"><div class="hand-title"><h3>${title} · ${cards.length}</h3><span>${hint}</span></div>${wallet}<div class="hand-cards">${fan||'<p class="empty">Nessuna carta in mano.</p>'}</div></div>`;
-  requestAnimationFrame(()=>animateHand(host))
+
+  const hint=mode==='draft'?`${G.drafted[me.id].length} scelte · clicca una carta libera`:mode==='market'?'Clicca un contratto completabile':mode==='bid'?'Scegli la carta da puntare, oppure PASSA':'Passa il mouse per leggere la carta';
+  const raised=mode==='draft'||mode==='market'||(mode==='bid'&&!G.selectedBid);
+  const viewed=G.players[G.viewedPlayer||0],winner=G.phase==='asta'&&G.auctionStage==='buy'?G.auctionResult?.[0]:null;
+  const extra=[copies(viewed,'Esperienza')?`Senza tassa ×${copies(viewed,'Esperienza')}`:'',copies(viewed,'Nuovi Clienti')?`Fortuna ×${copies(viewed,'Nuovi Clienti')}`:'',viewed.subsLeft?`Sottobanco ×${viewed.subsLeft}`:''].filter(Boolean).join(' · ');
+  host.innerHTML=`<div class="sidebar-content">${humanPlayers().length>1?`<div class="active-operator">Turno di ${esc(me.name)}</div>`:''}<div class="hand-meta">${winner?`<div class="auction-winner">${esc(G.players[winner.pid].name)} vince l’asta · ${bidScore(winner)}</div>`:''}<div class="player-mat-buttons" role="group" aria-label="Scegli la plancia del giocatore">${G.players.map(p=>`<button class="player-mat-button" style="--player-color:${playerColor(p)}" aria-pressed="${p.id===viewed.id}" onclick="viewPlayerMat(${p.id})"><span>${esc(p.name)}</span><span class="player-ducats">${p.coins}<img src="assets/tokens/moneta.png" alt="Ducati"></span></button>`).join('')}</div>${playerMatHtml(viewed)}${extra?`<div class="mat-uses">${extra}</div>`:''}</div>${auctionPanelHtml(me)}</div>`;
+  const dock=$('floatingHand');
+  dock.classList.remove('peeking');
+  dock.classList.toggle('folded',!raised);
+  dock.classList.toggle('hidden',!!G.overlay||G.handoff||!cards.length);
+  dock.innerHTML=`<div class="hand-title"><h3>${title} · ${cards.length}</h3><span>${hint}</span></div><div class="hand-cards">${fan||'<p class="empty">Nessuna carta in mano.</p>'}</div><button class="hand-peek" aria-label="Mostra le carte in mano" onclick="this.closest('.hand-dock').classList.add('peeking')">${title} · ${cards.length} ▴</button>`;
+  dock.onpointerenter=()=>dock.classList.add('peeking');
+  dock.onpointerleave=()=>dock.classList.remove('peeking');
+  dock.onfocusout=e=>{if(!dock.contains(e.relatedTarget))dock.classList.remove('peeking')};
+  requestAnimationFrame(()=>{fitGameContents();animateHand(dock)})
 }
-function syncBidCash(){const available=Math.max(0,G.players[0].coins-G.bidCash),source=$('bidCoinSource'),wallet=$('bidWalletCount'),stack=$('offerCoins'),total=$('offerCoinCount');if(wallet)wallet.textContent=available;if(source)source.disabled=!G.selectedBid||!available;if(total)total.textContent=G.bidCash;if(stack)stack.classList.toggle('hidden',!G.bidCash);const sub=document.querySelector('.offer-submit'),card=G.players[0].hand.find(c=>c.id===G.selectedBid);if(sub&&card)sub.textContent=`OFFRI ${card.bid+G.bidCash+G.bidInfl*ESP_X}`}
+// Tutte le pedine entrano nello spazio disponibile, conservando la forma.
+function tokenGrid(n,width,height,maxSize){
+  let best={columns:1,size:0};
+  for(let columns=1;columns<=n;columns++){
+    const rows=Math.ceil(n/columns),size=Math.floor(Math.min(maxSize,(width-(columns-1)*3)/columns,(height-(rows-1)*3)/rows));
+    if(size>best.size)best={columns,size};
+  }
+  return best;
+}
+let fitFrame=0;
+function scheduleFit(){if(HEADLESS||fitFrame)return;fitFrame=requestAnimationFrame(()=>{fitFrame=0;fitGameContents()})}
+function fitGameContents(){
+  const side=document.querySelector('.sidebar-content');
+  if(side){
+    side.style.zoom=1;side.style.width=Math.max(1,side.parentElement.clientWidth-22)+'px';
+    side.style.zoom=Math.min(1,(side.parentElement.clientHeight-24)/side.scrollHeight);
+  }
+  document.querySelectorAll('.lot-tokens,.bank-tray,.mat-cesta').forEach(box=>{
+    const tokens=[...box.children];if(!tokens.length)return;
+    const lot=box.classList.contains('lot-tokens'),parent=box.parentElement;
+    const width=lot?parent.clientWidth-18:box.clientWidth;
+    const height=lot?parent.clientHeight-parent.querySelector('.fish-lot-label').offsetHeight-18:box.clientHeight;
+    const {columns,size}=tokenGrid(tokens.length,width,height,lot?56:24);
+    box.style.gridTemplateColumns=`repeat(${columns},${size}px)`;
+    tokens.forEach(token=>{token.style.width=size+'px';token.style.height=size+'px'});
+  });
+  document.querySelectorAll('.net-choice,#setup:not(.hidden),#end:not(.hidden)').forEach(panel=>{
+    panel.style.zoom=1;panel.style.width='';
+    panel.style.width=panel.offsetWidth+'px';
+    panel.style.zoom=Math.min(1,(innerHeight-40)/panel.scrollHeight,(innerWidth-32)/panel.offsetWidth);
+  });
+}
+function syncBidCash(){const available=Math.max(0,activePlayer().coins-G.bidCash),source=$('bidCoinSource'),wallet=$('bidWalletCount'),stack=$('offerCoins'),total=$('offerCoinCount');if(wallet)wallet.textContent=available;if(source)source.disabled=!G.selectedBid||!available;if(total)total.textContent=G.bidCash;const cash=$('bidCashValue'),minus=document.querySelector('.bid-minus');if(cash)cash.textContent=G.bidCash;if(minus)minus.disabled=!G.bidCash;if(stack)stack.classList.toggle('hidden',!G.bidCash);const sub=document.querySelector('.offer-submit'),card=activePlayer().hand.find(c=>c.id===G.selectedBid);if(sub&&card)sub.textContent=`OFFRI ${card.bid+G.bidCash+G.bidInfl*ESP_X}`}
 function flyBidCoin(from){const target=$('humanOfferCard');if(!target||reducedMotion)return;const to=target.getBoundingClientRect(),coin=document.createElement('span');coin.className='flying-ducat';coin.style.left=from.left+from.width/2-23+'px';coin.style.top=from.top+from.height/2-23+'px';document.body.appendChild(coin);if(window.gsap)gsap.to(coin,{left:to.left+to.width/2-23,top:to.top+to.height/2-23,rotation:720,scale:.72,duration:.52,ease:'power2.inOut',onComplete:()=>coin.remove()});else coin.animate([{transform:'translate(0) rotate(0)'},{transform:`translate(${to.left-from.left}px,${to.top-from.top}px) rotate(720deg) scale(.72)`}],{duration:520,easing:'ease-in-out'}).finished.then(()=>coin.remove())}
-window.addBidCoin=function(e){if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid||G.bidCash>=G.players[0].coins)return;const from=e.currentTarget.getBoundingClientRect();G.bidCash++;syncBidCash();flyBidCoin(from)};
+window.addBidCoin=function(e){if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid||G.bidCash>=activePlayer().coins)return;const from=e.currentTarget.getBoundingClientRect();G.bidCash++;syncBidCash();flyBidCoin(from)};
 window.removeBidCoin=function(e){e.stopPropagation();if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.bidCash)return;G.bidCash--;syncBidCash()};
 function animateHand(host){
   const hand=host.querySelector('.hand-cards'),cards=[...host.querySelectorAll('.hand-cards .card')];
   if(!hand||!cards.length||!window.gsap||reducedMotion)return;
-  hand.classList.add('gsap-hand');hand.style.setProperty('--rest-bottom',innerHeight<=760?'-117px':'-126px');
+  hand.classList.add('gsap-hand');hand.style.setProperty('--rest-bottom','12px');
   const base=cards.map(c=>({x:+c.style.getPropertyValue('--x').replace('px',''),r:+c.style.getPropertyValue('--r').replace('deg',''),y:c.classList.contains('selected')?-23:0}));
   gsap.set(cards,{xPercent:-50,transformOrigin:'50% 100%',force3D:true});
-  gsap.fromTo(cards,{y:110,scale:.78,opacity:0,rotation:i=>base[i].r*1.35},{x:i=>base[i].x,y:i=>base[i].y,rotation:i=>base[i].r,scale:1,opacity:1,duration:.56,stagger:.055,ease:'power3.out',overwrite:true});
+  gsap.fromTo(cards,{y:24,scale:.98,opacity:1,rotation:i=>base[i].r*1.35},{x:i=>base[i].x,y:i=>base[i].y,rotation:i=>base[i].r,scale:1,opacity:1,duration:.32,stagger:.02,ease:'power3.out',overwrite:true});
   const close=()=>{cards.forEach(c=>{c.classList.remove('gsap-open');c.style.pointerEvents='auto'});gsap.to(cards,{x:i=>base[i].x,y:i=>base[i].y,rotation:i=>base[i].r,rotationX:0,rotationY:0,scale:1,opacity:1,zIndex:i=>i+1,duration:.36,ease:'power3.out',overwrite:true});delete hand.dataset.open};
   const open=index=>{hand.dataset.open=index;cards.forEach((c,i)=>{c.classList.toggle('gsap-open',i===index);c.style.pointerEvents=i===index?'auto':'none'});gsap.to(cards,{x:i=>base[i].x+(i<index?-58:i>index?58:0)+(i===index?(index===0?30:index===cards.length-1?-30:0):0),y:i=>i===index?-104:base[i].y+10,rotation:i=>i===index?0:base[i].r*.72,rotationX:0,rotationY:0,scale:i=>i===index?1.07:.95,opacity:i=>i===index?1:.62,zIndex:i=>i===index?300:i+1,duration:.3,ease:'power3.out',overwrite:true})};
   cards.forEach((card,index)=>{const tiltX=gsap.quickTo(card,'rotationX',{duration:.24,ease:'power3.out'}),tiltY=gsap.quickTo(card,'rotationY',{duration:.24,ease:'power3.out'});let frame=0,lastEvent;card.addEventListener('pointerenter',()=>{if(hand.dataset.open==null)open(index)});card.addEventListener('focusin',()=>open(index));card.addEventListener('pointermove',e=>{if(hand.dataset.open!=index)return;lastEvent=e;if(frame)return;frame=requestAnimationFrame(()=>{const r=card.getBoundingClientRect();tiltX(((lastEvent.clientY-r.top)/r.height-.5)*-6);tiltY(((lastEvent.clientX-r.left)/r.width-.5)*8);frame=0})})});
@@ -656,13 +989,41 @@ function animateHand(host){
   hand.addEventListener('pointerleave',close);
   hand.addEventListener('focusout',e=>{if(!hand.contains(e.relatedTarget))close()});
 }
-function render(){if(!G||HEADLESS||G.finished)return;$('game').dataset.phase=G.phase;$('dayTitle').textContent=`Giorno ${G.day} di 4 · ${phaseTitle(G.phase)}`;$('deckInfo').textContent=`Mazzo: ${G.deck.length} · Sacchetto: ${G.bag.length}`;$('progress').innerHTML=PHASES.map(([k,n])=>{const order=['rete','asta','pubblico','bilancia'],actual=G.phase==='draft'?'rete':G.phase==='conserva'?'pubblico':G.phase,i=order.indexOf(k),now=order.indexOf(actual);return`<div class="step ${i===now?'active':i<now?'done':''}">${n}</div>`}).join('');renderPhysicalBoard();const scores=G.players.map(scoreCard).join('');$('scores').innerHTML=scores;$('boardScores').innerHTML=scores;renderBoard();$('log').innerHTML=[...G.log].reverse().map(x=>`<div class="logitem"><b>G${x.day} · ${esc(x.phase)}</b>${esc(x.text)}</div>`).join('')}
+let phaseIntroTimer=null,phaseIntroFocus=null;
+window.dismissPhaseIntro=function(){
+  clearTimeout(phaseIntroTimer);phaseIntroTimer=null;
+  $('phaseIntro').classList.add('hidden');
+  $('game').inert=false;$('floatingHand').inert=false;
+  if(phaseIntroFocus){(phaseIntroFocus.isConnected?phaseIntroFocus:$('game')).focus({preventScroll:true});phaseIntroFocus=null}
+};
+function showPhaseIntro(){
+  const phase=G.phase==='conserva'?'pubblico':G.phase,fish=phase==='asta'?currentFish():null,key=`${G.day}:${phase}:${fish||''}`;
+  if(G.phaseIntroSeen?.has(key))return;
+  (G.phaseIntroSeen??=new Set()).add(key);G.phaseIntroKey=key;
+  const name=fish?`Asta ${fish==='Sardine'?'delle':'dei'} ${fish}`:phase==='draft'?'Draft':PHASES.find(([k])=>k===phase)?.[1].split(' · ')[1];
+  if(!name)return;
+  dismissPhaseIntro();phaseIntroFocus=document.activeElement;
+  $('phaseIntroAuctionIcon').hidden=!fish;
+  $('phaseIntroAuctionIcon').src=ASSET.phase.asta;
+  $('phaseIntroIcon').src=fish?ASSET.fish[fish]:ASSET.phase[phase==='draft'?'rete':phase];
+  $('phaseIntroName').textContent=name;
+  $('skipPhaseIntro').setAttribute('aria-label',`Inizia la fase: ${name}. Salta animazione`);
+  $('phaseIntro').classList.remove('hidden');
+  $('game').inert=true;$('floatingHand').inert=true;
+  $('skipPhaseIntro').focus({preventScroll:true});
+  phaseIntroTimer=setTimeout(dismissPhaseIntro,2100);
+}
+function render(){if(!G||HEADLESS||G.finished)return;showPhaseIntro();$('game').dataset.phase=G.phase;$('dayTitle').textContent=`Giorno ${G.day} di 4 · ${phaseTitle(G.phase)}`;$('deckInfo').textContent=`Mazzo: ${G.deck.length} · Sacchetto: ${G.bag.length}`;$('progress').innerHTML=PHASES.map(([k,n])=>{const order=['rete','asta','pubblico','bilancia'],actual=G.phase==='draft'?'rete':G.phase==='conserva'?'pubblico':G.phase,i=order.indexOf(k),now=order.indexOf(actual);return`<div class="step ${i===now?'active':i<now?'done':''}">${n}</div>`}).join('');renderPhysicalBoard();const scores=G.players.map(scoreCard).join('');$('scores').innerHTML=scores;renderBoard();$('log').innerHTML=[...G.log].reverse().map(x=>`<div class="logitem"><b>G${x.day} · ${esc(x.phase)}</b>${esc(x.text)}</div>`).join('')}
 
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+window.addEventListener('resize',()=>{render();scheduleFit()});
+document.addEventListener('load',scheduleFit,true);
+document.addEventListener('toggle',scheduleFit,true);
+if(!HEADLESS){renderSetupPlayers();scheduleFit()}
 document.addEventListener('pointermove',e=>{const c=e.target.closest?.('.hand-cards .card');if(!c||reducedMotion||window.gsap)return;const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.setProperty('--tilt-y',`${x*11}deg`);c.style.setProperty('--tilt-x',`${y*-8}deg`)});
 document.addEventListener('pointerout',e=>{const c=e.target.closest?.('.hand-cards .card');if(!c||window.gsap||c.contains(e.relatedTarget))return;c.style.removeProperty('--tilt-x');c.style.removeProperty('--tilt-y')});
 
-$('rules').innerHTML=`<div class="rule"><b>Incasso</b>Ogni contratto: guadagno + 1 Ducato per ogni miglioria già installata della stessa categoria.</div><div class="rule"><b>A consumo</b>Esperienza, Fortuna e Sottobanco: una volta per giornata per carta.</div>`+Object.entries(UPG).map(([n,u])=>`<div class="rule"><b>${CATS[u.cat].icon} ${esc(DISPLAY[n])}</b>${esc(u.fx)}</div>`).join('');
+$('rules').innerHTML=`<div class="rule"><b>Incasso</b>Ogni contratto: guadagno + 1 Ducato per ogni miglioria già installata della stessa categoria.</div><div class="rule"><b>A consumo</b>Fortuna e Sottobanco: una volta per giornata per carta.</div>`+Object.entries(UPG).map(([n,u])=>`<div class="rule"><b>${CATS[u.cat].icon} ${esc(DISPLAY[n])}</b>${esc(u.fx)}</div>`).join('');
 
 // Autocontrollo del mazzo V4.1: 100 carte, 25 per categoria, Fiuto 2-3-2-3-2 e sempre un pesce del contratto.
 const fiuto=CARDS.filter(c=>c.up==='Fiuto per il Pescato');
