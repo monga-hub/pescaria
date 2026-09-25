@@ -266,6 +266,22 @@
       .auction-panel{padding:6px}.auction-panel-heading{flex-wrap:wrap}.auction-panel h3{font-size:14px}
       .auction-panel .btn{padding:6px 2px;font-size:10px;min-height:34px}.auction-panel-buttons{gap:3px}
     }
+    @media(max-width:700px) and (orientation:portrait){
+      .playing .physical-board{grid-template-rows:30px min(calc((100vw - 28px)*.7072),35dvh) minmax(0,1fr)}
+      .board-art{margin:0 auto}
+      .sidebar-content,.sidebar-content:not(:has(.auction-panel)){display:flex;flex-direction:column;align-items:stretch;max-width:none;gap:8px}
+      .playing .board-hand .hand-meta{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:start;gap:6px}
+      .player-mat-buttons{grid-column:1/-1;grid-template-columns:repeat(auto-fit,minmax(54px,1fr));gap:4px}
+      .player-mat-button{padding:5px 3px;font-size:10px}
+      .hand-meta>.auction-winner,.hand-meta>.mat-pending,.hand-meta>.mat-uses{grid-column:1/-1}
+      .mat-upgrade-lanes{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:0}
+      .mat-upgrade-lane{padding:4px;min-height:40px}.mat-upgrade-lane h4{font-size:10px}
+      .auction-panel{width:100%;padding:8px}
+      .auction-panel-heading{flex-wrap:nowrap;gap:8px}.auction-panel h3{font-size:17px}
+      .auction-panel .bid-wallet{width:180px;max-width:56%}
+      .auction-table{font-size:12px;margin:4px 0 7px}.auction-table th{width:44%}
+      .auction-panel .btn{min-height:40px;font-size:13px;padding:7px 4px}.auction-panel-buttons{gap:6px}
+    }
     body.playing,.playing main,.playing .physical-board,.playing .board-art-wrap{background:#c7afa0 url('assets/board/fondo-colonna-destra.png') center/cover no-repeat}
     .playing .physical-board{box-shadow:0 8px 28px #0004}
     .board-hud{background:#173b34ed;border-radius:9px}
@@ -969,6 +985,14 @@ function fitGameContents(){
   if(side){
     side.style.zoom=1;side.style.width=Math.max(1,side.parentElement.clientWidth-22)+'px';
     side.style.zoom=Math.min(1,(side.parentElement.clientHeight-24)/side.scrollHeight);
+    if(matchMedia('(max-width:700px) and (orientation:portrait)').matches){
+      // Preserve the full panel width while fitting short phone screens.
+      for(let i=0;i<3;i++){
+        side.style.width=(side.parentElement.clientWidth-22)/Number(side.style.zoom)+'px';
+        side.style.zoom=Math.min(Number(side.style.zoom),(side.parentElement.clientHeight-24)/side.scrollHeight);
+      }
+      side.style.width=(side.parentElement.clientWidth-22)/Number(side.style.zoom)+'px';
+    }
   }
   document.querySelectorAll('.lot-tokens,.bank-tray,.mat-cesta').forEach(box=>{
     const tokens=[...box.children];if(!tokens.length)return;
