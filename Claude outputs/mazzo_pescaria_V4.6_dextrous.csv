@@ -1,0 +1,789 @@
+Copies,Nickname,card_background,card_background style,immagine di fondo,immagine di fondo style,img_pergamena_titolo,img_scudo,valore asta,titolo,titolo style,img_moneta,miglioria,miglioria style,pesce1,pesce1 style,pesce2,pesce2 style,categoria miglioria,valore guadagno,valore guadagno style,pesce3,pesce3 style,img_pergamena_miglioria,img_pergamena_pesci,spiega miglioria,spiega miglioria style,spiega miglioria,spiega miglioria style,img_pergamena guadagno,img_pergamena miglioria
+1,,,,1_bacaro_risorto.png,"{backgroundSize:168%}
+{backgroundPositionY:100%}
+{backgroundPositionX:29%}",,,3,Bacaro Risorto,,moneta.png,M_banco ampliato.png,,r_sardina.png,,r_sardina.png,,F_pescherecci.png,4,,,{display:none},,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,2_bacaro_laguna.JPG,,,,2,Bacaro della Laguna,,moneta.png,M_ecocapitano.png,,r_branzino.png,,,{display:none},F_aste.png,3,,,{display:none},,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,3_perla_nera.png,,,,3,La Perla Nera,,moneta.png,M_arte venditore.png,,r_mollusco.png,,,{display:none},F_bilancia.png,4,,,{display:none},,,"Mercante:
+/
+ogni carta mercato ti rende 2",,"Mercante:
+/
+ogni carta mercato ti rende 2",,,
+1,,,,4_osteria_pugni.JPG,,,,4,Osteria ai Pugni,,moneta.png,M_contrattazione.png,,r_gambero.png,,,{display:none},F_mercato.png,4,,,{display:none},,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,5_tre_marie.png,"
+{backgroundSize:184%}
+{backgroundPositionX:71%}
+{backgroundPositionY:79%}",,,3,Le Tre Marie,,moneta.png,M_banco ampliato.png,,r_branzino.png,,r_branzino.png,,F_pescherecci.png,6,,,{display:none},,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,6_pescheria.png,"{backgroundSize:164%}
+{backgroundPositionY:100%}
+{backgroundPositionX:43%}",,,2,Osteria Pescaria,,moneta.png,M_nuovi clienti.png,,r_sardina.png,,r_branzino.png,,F_aste.png,7,,,{display:none},,,"Fortuna:
+/
+Asta persa, cliente trovato",,"Fortuna:
+/
+Asta persa, cliente trovato",,,
+1,,,,7_famiglia_badoer.png,"{backgroundSize:173%}
+{backgroundPositionY:0%}
+{backgroundPositionX:53%}",,,3,Famiglia Badoer,,moneta.png,M_ecocapitano.png,,r_polpo.png,,,{display:none},F_aste.png,5,,,{display:none},,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,8_ai_forni.png,"{backgroundSize:150%}
+{backgroundPositionY:1%}
+{backgroundPositionX:45%}",,,4,Osteria Ai Forni,,moneta.png,M_fiuto.png,,r_gambero.png,,r_gambero.png,,F_pescherecci.png,8,,,{display:none},,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,{backgroundSize:135%},9_traghetto.png,"{backgroundSize:163%}
+{backgroundPositionY:100%}
+{backgroundPositionX:68%}",,,2,Al Traghetto,,moneta.png,M_nuovi clienti.png,,r_sardina.png,,r_sardina.png,,F_aste.png,6,,r_sardina.png,,,,"Fortuna:
+/
+Asta persa, cliente trovato",,"Fortuna:
+/
+Asta persa, cliente trovato",,,
+1,,,,"10_do_mori.png,38,77,175","{backgroundPositionX:36%}
+{backgroundSize:183%}
+{backgroundRepeat:repeat}
+{backgroundPositionY:100%}",,,2,Cantina do Mori,,moneta.png,M_nuovi clienti.png,,r_mollusco.png,,r_sardina.png,,F_aste.png,8,,,{display:none},,,"Fortuna:
+/
+Asta persa, cliente trovato",,"Fortuna:
+/
+Asta persa, cliente trovato",,,
+1,,,,11_da_lele.png,"{backgroundPositionY:100%}
+{backgroundPositionX:43%}",,,3,Bacaro da Lele,,moneta.png,M_banco ampliato.png,,r_gambero.png,,r_branzino.png,,F_pescherecci.png,9,,,{display:none},,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,12_luna_piena.png,"{backgroundSize:203%}
+{backgroundPositionY:100%}
+{backgroundPositionX:25%}",,,4,Osteria Luna Piena,,moneta.png,M_favorito.png,,r_polpo.png,,r_sardina.png,,F_mercato.png,9,,,{display:none},,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,
+1,,,,"13_sole_splendente.png,50,50,157","{backgroundSize:209%}
+{backgroundPositionY:100%}
+{backgroundPositionX:12%}",,,4,Al Sole Splendente,,moneta.png,M_arte venditore.png,,r_branzino.png,,r_branzino.png,,F_bilancia.png,12,,r_mollusco.png,,,,"Mercante:
+/
+ogni carta mercato ti rende 2",,"Mercante:
+/
+ogni carta mercato ti rende 2",,,
+1,,,,"14_tiziano.png,38,50,156","{backgroundSize:179%}
+{backgroundPositionY:100%}",,,5,Osteria da Tiziano,,moneta.png,M_favorito.png,,r_branzino.png,,r_mollusco.png,,F_mercato.png,15,,r_gambero.png,,,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,
+1,,,,"15 famiglia tiepolo.JPG,50,59,contain","{backgroundSize:177%}
+{backgroundPositionY:100%}",,,5,Famiglia Tiepolo,,moneta.png,M_ecocapitano.png,,r_mollusco.png,,r_mollusco.png,,F_aste.png,13,,r_branzino.png,,,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,"16_mistero.png,40,100,155","{backgroundPositionX:57%}
+{backgroundSize:239%}
+{backgroundPositionY:100%}",,,4,Cantina del Mistero,,moneta.png,M_fiuto.png,,r_sardina.png,,r_sardina.png,,F_pescherecci.png,10,,r_gambero.png,,,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,,"17_angelo.png,50,50,162","{backgroundPositionX:63%}
+{backgroundSize:180%}
+{backgroundPositionY:63%}",,,3,Osteria dell'Angelo,,moneta.png,M_fiuto.png,,r_gambero.png,,r_sardina.png,,F_pescherecci.png,10,,r_sardina.png,,,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,,18_riva.JPG,,,,2,Bacaro della Riva,,moneta.png,M_amico pescatori.png,,r_sardina.png,,,{display:none},F_bilancia.png,2,,,{display:none},,,"Mercante:
+/
+ogni carta ancora ti rende 2",,"Mercante:
+/
+ogni carta ancora ti rende 2",,,
+1,,,,"19_volo.png,48,100,210","{backgroundPositionX:42%}
+{backgroundSize:193%}
+{backgroundPositionY:100%}",,,3,Bacaro Al Volo,,moneta.png,M_capitano aste.png,,r_polpo.png,,r_polpo.png,,F_bilancia.png,10,,,{display:none},,,"Mercante:
+/
+ogni carta asta ti rende 2",,"Mercante:
+/
+ogni carta asta ti rende 2",,,
+1,,,,"20_murano.png,50,100,158","{backgroundSize:205%}
+{backgroundPositionY:100%}",,,4,Vecia Murano,,moneta.png,M_nuovi clienti.png,,r_gambero.png,,r_mollusco.png,,F_aste.png,10,,,{display:none},,,"Fortuna:
+/
+Asta persa, cliente trovato",,"Fortuna:
+/
+Asta persa, cliente trovato",,,
+1,,,,"21_nono_giudecca.png,50,56,156","{backgroundPositionX:47%}
+{backgroundSize:150%}
+{backgroundPositionY:0%}",,,2,Il Nono dea Gnecca,,moneta.png,M_capitano aste.png,,r_branzino.png,,r_branzino.png,,F_bilancia.png,6,,,{display:none},,,"Mercante:
+/
+ogni carta asta ti rende 2",,"Mercante:
+/
+ogni carta asta ti rende 2",,,
+1,,,,"22_laguna_segreta.png,50,100,156","{backgroundSize:190%}
+{backgroundPositionY:100%}",,,4,Laguna Segreta,,moneta.png,M_amico pescatori.png,,r_polpo.png,,r_gambero.png,,F_bilancia.png,11,,,{display:none},,,"Mercante:
+/
+ogni carta ancora ti rende 2",,"Mercante:
+/
+ogni carta ancora ti rende 2",,,
+1,,,,"23_fenice.png,37,100,164","{backgroundSize:246%}
+{backgroundPositionY:100%}",,,3,Ristorante la Fenice,,moneta.png,M_contrattazione.png,,r_mollusco.png,,r_mollusco.png,,F_mercato.png,8,,,{display:none},,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,"24_tecia.png,47,99,156","{backgroundPositionX:25%}
+{backgroundSize:199%}
+{backgroundPositionY:100%}",,,4,Alla Tecia,,moneta.png,M_favorito.png,,r_branzino.png,,r_mollusco.png,,F_mercato.png,13,,r_sardina.png,,,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,
+1,,,,"25_marisa.png,50,50,160","{backgroundSize:173%}
+{backgroundPositionY:100%}",,,2,Osteria Da Marisa,,moneta.png,M_fiuto.png,,r_sardina.png,,,{display:none},F_pescherecci.png,2,,,{display:none},,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,,"26_sestiere.png,51,94,178","{backgroundPositionX:30%}
+{backgroundSize:182%}
+{backgroundPositionY:100%}",,,5,Osteria del Sestiere,,moneta.png,M_capitano aste.png,,r_branzino.png,,r_branzino.png,,F_bilancia.png,10,,r_sardina.png,,,,"Mercante:
+/
+ogni carta asta ti rende 2",,"Mercante:
+/
+ogni carta asta ti rende 2",,,
+1,,,,"27_pirata.png,50,100,156",,,,5,Bacaro del Pirata,,moneta.png,M_capitano aste.png,,r_polpo.png,,,{display:none},F_bilancia.png,5,,,{display:none},,,"Mercante:
+/
+ogni carta asta ti rende 2",,"Mercante:
+/
+ogni carta asta ti rende 2",,,
+1,,,,"28_campiello segreto.JPG,100,50,157","{backgroundPositionX:88%}
+{backgroundSize:193%}
+{backgroundPositionY:100%}",,,7,Campiello Segreto,,moneta.png,M_amico pescatori.png,,r_sardina.png,,r_gambero.png,,F_bilancia.png,8,,,{display:none},,,"Mercante:
+/
+ogni carta ancora ti rende 2",,"Mercante:
+/
+ogni carta ancora ti rende 2",,,
+1,,,,"29_sbarco_mori.png,97,86,168","{backgroundSize:178%}
+{backgroundPositionY:100%}",,,5,Lo Sbarco dei Mori,,moneta.png,M_amico pescatori.png,,r_branzino.png,,r_branzino.png,,F_bilancia.png,9,,r_branzino.png,,,,"Mercante:
+/
+ogni carta ancora ti rende 2",,"Mercante:
+/
+ogni carta ancora ti rende 2",,,
+1,,,,"30_ballo.png,40,100,161","{backgroundPositionX:31%}
+{backgroundSize:196%}
+{backgroundPositionY:100%}",,,6,Osteria del Ballo,,moneta.png,M_amico pescatori.png,,r_gambero.png,,r_branzino.png,,F_bilancia.png,13,,r_sardina.png,,,,"Mercante:
+/
+ogni carta ancora ti rende 2",,"Mercante:
+/
+ogni carta ancora ti rende 2",,,
+1,,,,"31_bottega.png,41,86,156","{backgroundSize:127%}
+{backgroundPositionY:100%}",,,7,La Bottega Oscura,,moneta.png,M_capitano aste.png,,r_mollusco.png,,r_mollusco.png,,F_bilancia.png,14,,r_gambero.png,,,,"Mercante:
+/
+ogni carta asta ti rende 2",,"Mercante:
+/
+ogni carta asta ti rende 2",,,
+1,,,,"32_stella_cadente.png,50,50,155","{backgroundPositionX:67%}
+{backgroundSize:165%}
+{backgroundPositionY:0%}",,,4,La Stella Cadente,,moneta.png,M_nuovi clienti.png,,r_branzino.png,,,{display:none},F_aste.png,3,,,{display:none},,,"Fortuna:
+/
+Asta persa, cliente trovato",,"Fortuna:
+/
+Asta persa, cliente trovato",,,
+1,,,,"33_famiglia_dolfin.png,50,50,169",,,,5,Famiglia Dolfin,,moneta.png,M_banco ampliato.png,,r_gambero.png,,,{display:none},F_pescherecci.png,4,,,{display:none},,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,"34_sapore.png,72,50,156","{backgroundSize:180%}
+{backgroundPositionY:100%}",,,6,Osteria del Sapore,,moneta.png,M_ecocapitano.png,,r_sardina.png,,r_mollusco.png,,F_aste.png,8,,,{display:none},,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,35_vecchio_calice.png,,,,5,Trattoria Al Vecio Calice,,moneta.png,M_ecocapitano.png,,r_polpo.png,,,{display:none},F_aste.png,5,,,{display:none},,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,"36_regina.png,46,50",,,,6,Ristorante della Regina,,moneta.png,M_ecocapitano.png,,r_sardina.png,,r_sardina.png,,F_aste.png,9,,r_branzino.png,,,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,"37_ponte_diavolo.png,39,0,173","{backgroundPositionX:22%}
+{backgroundSize:163%}
+{backgroundPositionY:0%}",,,7,Al Ponte del Diavolo,,moneta.png,M_contrattazione.png,,r_gambero.png,,r_branzino.png,,F_mercato.png,12,,r_branzino.png,,,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,38_Rialto.JPG,,,,5,Al Ponte di Rialto,,moneta.png,M_fiuto.png,,r_polpo.png,,r_branzino.png,,F_pescherecci.png,10,,,{display:none},,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,,"39_pansa.png,50,50,160","{backgroundSize:193%}
+{backgroundPositionY:100%}",,,6,Trattoria alla Pansa,,moneta.png,M_ecocapitano.png,,r_gambero.png,,r_gambero.png,,F_aste.png,12,,r_sardina.png,,,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,"40_gondolieri.png,50,50,175","{backgroundSize:183%}
+{backgroundPositionY:100%}",,,6,Ai Gondolieri,,moneta.png,M_capitano aste.png,,r_branzino.png,,r_mollusco.png,,F_bilancia.png,9,,,{display:none},,,"Mercante:
+/
+ogni carta asta ti rende 2",,"Mercante:
+/
+ogni carta asta ti rende 2",,,
+1,,,,"41_pescatore_allegro.png,42,100,157","{backgroundPositionX:83%}
+{backgroundSize:223%}
+{backgroundPositionY:100%}",,,5,Il Pescatore Allegro,,moneta.png,M_contrattazione.png,,r_sardina.png,,r_sardina.png,,F_mercato.png,9,,r_branzino.png,,,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,"42_fiore.png,33,50,177","{backgroundPositionX:34%}
+{backgroundSize:190%}
+{backgroundPositionY:100%}",,,6,Ristorante Da Fiore,,moneta.png,M_contrattazione.png,,r_polpo.png,,r_mollusco.png,,F_mercato.png,15,,r_sardina.png,,,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,43_Magna e Bevi.png,,,,5,Al Magna e Bevi,,moneta.png,M_favorito.png,,r_branzino.png,,,{display:none},F_mercato.png,3,,,{display:none},,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,
+1,,,,"44_nascosto.png,56,100,160","{backgroundSize:228%}
+{backgroundPositionY:100%}",,,5,Bacaro Nascosto,,moneta.png,M_favorito.png,,r_mollusco.png,,r_mollusco.png,,F_mercato.png,8,,,{display:none},,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,
+1,,,,"45_bilancia.png,50,50,159","{backgroundSize:170%}
+{backgroundPositionY:100%}",,,6,Osteria della Bilancia,,moneta.png,M_banco ampliato.png,,r_gambero.png,,r_sardina.png,,F_pescherecci.png,8,,,{display:none},,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,46_zattere.png,,,,6,Il Bacaro delle Zattere,,moneta.png,M_capitano aste.png,,r_polpo.png,,,{display:none},F_bilancia.png,5,,,{display:none},,,"Mercante:
+/
+ogni carta asta ti rende 2",,"Mercante:
+/
+ogni carta asta ti rende 2",,,
+1,,,,47_pesce_fritto.png,,,,5,Osteria del Pesce Fritto,,moneta.png,M_banco ampliato.png,,r_gambero.png,,r_branzino.png,,F_pescherecci.png,13,,r_sardina.png,,,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,48_vedova.JPG,,,,6,Osteria alla Vedova Nera,,moneta.png,M_contrattazione.png,,r_mollusco.png,,r_mollusco.png,,F_mercato.png,14,,r_gambero.png,,,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,"49_leone.png,37,50,166","{backgroundPositionX:33%}
+{backgroundSize:198%}
+{backgroundPositionY:100%}",,,6,Locanda del Leone,,moneta.png,M_arte venditore.png,,r_branzino.png,,r_sardina.png,,F_bilancia.png,7,,,{display:none},,,"Mercante:
+/
+ogni carta mercato ti rende 2",,"Mercante:
+/
+ogni carta mercato ti rende 2",,,
+1,,,,"50_gondola_argento.JPG,59,50,158","{backgroundPositionX:93%}
+{backgroundSize:161%}
+{backgroundPositionY:100%}",,,5,La Gondola d'Argento,,moneta.png,M_banco ampliato.png,,r_gambero.png,,r_gambero.png,,F_pescherecci.png,13,,r_branzino.png,,,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,51_arco_sconto.png,,,,6,All'Arco Sconto,,moneta.png,M_favorito.png,,r_polpo.png,,r_sardina.png,,F_mercato.png,9,,,{display:none},,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,
+1,,,,"52_ponte_misterioso.png,22,50",,,,6,Al Ponte Misterioso,,moneta.png,M_ecocapitano.png,,r_gambero.png,,,{display:none},F_aste.png,4,,,{display:none},,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,"53_antica_sonada.png,50,50,157","{backgroundSize:198%}
+{backgroundPositionY:100%}",,,5,All'Antica Sonada,,moneta.png,M_arte venditore.png,,r_branzino.png,,r_branzino.png,,F_bilancia.png,12,,r_mollusco.png,,,,"Mercante:
+/
+ogni carta mercato ti rende 2",,"Mercante:
+/
+ogni carta mercato ti rende 2",,,
+1,,,,"54_cicheto.png,70,50,167",,,,6,Osteria del Cicheto,,moneta.png,M_fiuto.png,,r_branzino.png,,r_mollusco.png,,F_pescherecci.png,15,,r_gambero.png,,,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,,"55_al bucaniere.png,20,50,158","{backgroundSize:186%}
+{backgroundPositionY:100%}",,,8,Al Bucaniere,,moneta.png,M_ecocapitano.png,,r_polpo.png,,r_mollusco.png,,F_aste.png,17,,r_gambero.png,,,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,56_rigattier.png,,,,5,Al Rigattier,,moneta.png,M_arte venditore.png,,r_sardina.png,,r_gambero.png,,F_bilancia.png,13,,r_branzino.png,,,,"Mercante:
+/
+ogni carta mercato ti rende 2",,"Mercante:
+/
+ogni carta mercato ti rende 2",,,
+1,,,,"57_porto_antico.png,50,69,166","{backgroundSize:177%}
+{backgroundPositionY:100%}",,,5,Osteria del Porto Antico,,moneta.png,M_fiuto.png,,r_sardina.png,,r_sardina.png,,F_pescherecci.png,4,,,{display:none},,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,,"58_calle sconta.png,50,50,191","{backgroundSize:126%}
+{backgroundPositionX:23%}
+{backgroundPositionY:100%}",,,7,Alla Calle Sconta,,moneta.png,M_contrattazione.png,,r_polpo.png,,r_branzino.png,,F_mercato.png,10,,,{display:none},,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,"59_serenada.png,50,50,187","{backgroundSize:121%}
+{backgroundPositionX:0%}
+{backgroundPositionY:100%}",,,5,Bacaro della Serenata,,moneta.png,M_contrattazione.png,,r_branzino.png,,r_branzino.png,,F_mercato.png,9,,r_branzino.png,,,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,"60_vaporetto.png,91,50,175",{backgroundSize:122%},,,6,Al Vecio Vaporetto,,moneta.png,M_fiuto.png,,r_gambero.png,,r_mollusco.png,,F_pescherecci.png,10,,,{display:none},,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,,"61_al Balo.png,45,50,158","{backgroundSize:139%}
+{backgroundPositionY:100%}",,,7,Bacaro al Balo,,moneta.png,M_arte venditore.png,,r_branzino.png,,r_mollusco.png,,F_bilancia.png,15,,r_gambero.png,,,,"Mercante:
+/
+ogni carta mercato ti rende 2",,"Mercante:
+/
+ogni carta mercato ti rende 2",,,
+1,,,,"62_alla perla.png,50,50,163","{backgroundSize:131%}
+{backgroundPositionX:4%}",,,5,Osteria alla Perla,,moneta.png,M_favorito.png,,r_mollusco.png,,r_mollusco.png,,F_mercato.png,13,,r_branzino.png,,,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,
+1,,,,"63_turista_perduto.png,50,50,178","{backgroundSize:141%}
+{backgroundPositionX:32%}
+{backgroundPositionY:100%}",,,6,Al Turista Perduto,,moneta.png,M_favorito.png,,r_polpo.png,,r_sardina.png,,F_mercato.png,14,,r_branzino.png,,,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,
+1,,,,"64_nono_scantabauchi.png,50,50,162","{backgroundSize:131%}
+{backgroundPositionX:13%}
+{backgroundPositionY:100%}",,,7,Al Nono Scantabauchi,,moneta.png,M_contrattazione.png,,r_gambero.png,,r_sardina.png,,F_mercato.png,10,,r_sardina.png,,,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,"65_Osteria alla Bolla.png,50,25,184","{backgroundSize:124%}
+{backgroundPositionX:0%}",,,4,Osteria alla Bolla,,moneta.png,M_nuovi clienti.png,,r_branzino.png,,,{display:none},F_aste.png,3,,,{display:none},,,"Fortuna:
+/
+Asta persa, cliente trovato",,"Fortuna:
+/
+Asta persa, cliente trovato",,,
+1,,,,"66_briscola.png,66,100,174","{backgroundSize:152%}
+{backgroundPositionX:75%}
+{backgroundPositionY:100%}",,,6,Osteria alla Briscola,,moneta.png,M_fiuto.png,,r_gambero.png,,r_mollusco.png,,F_pescherecci.png,14,,r_sardina.png,,,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,,"67_botti.png,50,50,169","{backgroundSize:150%}
+{backgroundPositionX:29%}
+{backgroundPositionY:100%}",,,5,Bacaro Ai Botti,,moneta.png,M_amico pescatori.png,,r_polpo.png,,,{display:none},F_bilancia.png,5,,,{display:none},,,"Mercante:
+/
+ogni carta ancora ti rende 2",,"Mercante:
+/
+ogni carta ancora ti rende 2",,,
+1,,,,"68_rete.png,40,50,165","{backgroundSize:119%}
+{backgroundPositionX:0%}
+{backgroundPositionY:100%}",,,5,Alla Rete,,moneta.png,M_ecocapitano.png,,r_gambero.png,{filter:brightness(1)},r_gambero.png,,F_aste.png,8,,,{display:none},,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,"69_vapore.png,50,50,177","{backgroundSize:139%}
+{backgroundPositionX:35%}
+{backgroundPositionY:100%}",,,5,Bacaro Al Vapore,,moneta.png,M_banco ampliato.png,,r_mollusco.png,,,{display:none},F_pescherecci.png,4,,,{display:none},,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,"70_gatto nero.png,50,50,179","{backgroundSize:149%}
+{backgroundPositionX:0%}
+{backgroundPositionY:100%}",,,7,Bacaro Al Gatto Nero,,moneta.png,M_ecocapitano.png,,r_sardina.png,,r_branzino.png,,F_aste.png,13,,r_gambero.png,,,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,"71_frasca.png,50,50,174","{backgroundSize:127%}
+{backgroundPositionX:28%}
+{backgroundPositionY:100%}",,,8,Ristorante alla Frasca,,moneta.png,M_nuovi clienti.png,,r_polpo.png,,r_mollusco.png,,F_aste.png,11,,,{display:none},,,"Fortuna:
+/
+Asta persa, cliente trovato",,"Fortuna:
+/
+Asta persa, cliente trovato",,,
+1,,,,"72_granchio.png,50,50,157","{backgroundSize:125%}
+{backgroundPositionY:100%}",,,9,Il Nobile Granchio,,moneta.png,M_capitano aste.png,,r_gambero.png,,"r_branzino.png,53,50",,F_bilancia.png,13,,r_sardina.png,,,,"Mercante:
+/
+ogni carta asta ti rende 2",,"Mercante:
+/
+ogni carta asta ti rende 2",,,
+1,,,,"73_pasta.png,71,100,176","{backgroundSize:115%}
+{backgroundPositionX:62%}
+{backgroundPositionY:0%}",,,9,Trattoria Pastasutta,,moneta.png,M_ecocapitano.png,,r_polpo.png,,r_branzino.png,,F_aste.png,16,,r_mollusco.png,,,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,"74_capitano.png,50,35,167","{backgroundSize:118%}
+{backgroundPositionX:0%}
+{backgroundPositionY:100%}",,,8,Trattoria del Capitano,,moneta.png,M_contrattazione.png,,r_polpo.png,,r_polpo.png,,F_mercato.png,10,,,{display:none},,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,"75_gondolier.png,50,50,164","{backgroundSize:112%}
+{backgroundPositionY:100%}",,,9,Ristorante Al Gondoliere,,moneta.png,M_amico pescatori.png,,r_gambero.png,,r_mollusco.png,,F_bilancia.png,14,,r_sardina.png,,,,"Mercante:
+/
+ogni carta ancora ti rende 2",,"Mercante:
+/
+ogni carta ancora ti rende 2",,,
+1,,,,"76_squero.png,50,50,161","{backgroundSize:116%}
+{backgroundPositionY:100%}",,,7,Osteria dello Squero,,moneta.png,M_nuovi clienti.png,,r_branzino.png,,,{display:none},F_aste.png,3,,,{display:none},,,"Fortuna:
+/
+Asta persa, cliente trovato",,"Fortuna:
+/
+Asta persa, cliente trovato",,,
+1,,,,"77_vele.png,50,50,157","{backgroundSize:127%}
+{backgroundPositionY:0%}",,,8,Locanda Alle Vele,,moneta.png,M_capitano aste.png,,r_gambero.png,,r_gambero.png,,F_bilancia.png,12,,r_sardina.png,,,,"Mercante:
+/
+ogni carta asta ti rende 2",,"Mercante:
+/
+ogni carta asta ti rende 2",,,
+1,,,,"78_risata.png,50,50,177","{backgroundSize:142%}
+{backgroundPositionX:35%}
+{backgroundPositionY:100%}",,,9,Locanda La Risata,,moneta.png,M_banco ampliato.png,,r_polpo.png,,r_branzino.png,,F_pescherecci.png,10,,,{display:none},,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,"79_do forni.png,30,50,182","{backgroundSize:125%}
+{backgroundPositionX:45%}
+{backgroundPositionY:100%}",,,10,Ristorante Do Forni,,moneta.png,M_fiuto.png,,r_gambero.png,,r_mollusco.png,,F_pescherecci.png,15,,r_branzino.png,,,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,,"80_ninfee.png,50,50,164",{backgroundSize:127%},,,6,Osteria Ninfea,,moneta.png,M_banco ampliato.png,,r_mollusco.png,,,{display:none},F_pescherecci.png,4,,,{display:none},,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,81_tesoro.png,,,,9,Trattoria Al Tesoro,,moneta.png,M_favorito.png,,r_sardina.png,,r_gambero.png,,F_mercato.png,14,,r_mollusco.png,,,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,
+1,,,,82_vin bon.png,"{backgroundSize:158%}
+{backgroundPositionX:73%}
+{backgroundPositionY:100%}",,,10,Trattoria Al Vin Bon,,moneta.png,M_contrattazione.png,,r_polpo.png,,r_branzino.png,,F_mercato.png,16,,r_gambero.png,,,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,"83_foscari.png,50,50,171","{backgroundSize:141%}
+{backgroundPositionY:100%}",,,8,Ristorante Ca' Foscari,,moneta.png,M_favorito.png,,r_branzino.png,,r_branzino.png,,F_mercato.png,12,,r_mollusco.png,,,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,
+1,,,,84_rio.png,"{backgroundSize:155%}
+{backgroundPositionY:100%}",,,7,Trattoria del Rio,,moneta.png,M_banco ampliato.png,,r_branzino.png,,r_sardina.png,,F_pescherecci.png,7,,,{display:none},,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,"85_vecio bacan.png,60,50,172","{backgroundSize:150%}
+{backgroundPositionX:31%}
+{backgroundPositionY:100%}",,,10,Osteria Vecio Bacan,,moneta.png,M_banco ampliato.png,,r_mollusco.png,,r_mollusco.png,,F_pescherecci.png,14,,r_gambero.png,,,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,"86_pie del ponte.png,51,50,159","{backgroundSize:139%}
+{backgroundPositionX:30%}
+{backgroundPositionY:100%}",,,9,Ai Pie del Ponte,,moneta.png,M_ecocapitano.png,,r_polpo.png,,r_mollusco.png,,F_aste.png,17,,r_gambero.png,,,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,"87_morosini.png,43,50",{backgroundPositionX:0%},,,9,Ristorante dei Morosini,,moneta.png,M_ecocapitano.png,,r_sardina.png,,r_sardina.png,,F_aste.png,9,,r_branzino.png,,,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,88_Botte Bona.png,,,,8,La Botte Bona,,moneta.png,M_nuovi clienti.png,,r_polpo.png,,,{display:none},F_aste.png,5,,,{display:none},,,"Fortuna:
+/
+Asta persa, cliente trovato",,"Fortuna:
+/
+Asta persa, cliente trovato",,,
+1,,,,"89_al tramonto.png,50,50,171","{backgroundSize:120%}
+{backgroundPositionX:12%}
+{backgroundPositionY:100%}",,,8,Ristorante Al Tramonto,,moneta.png,M_favorito.png,,r_mollusco.png,,r_sardina.png,,F_mercato.png,8,,,{display:none},,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,
+1,,,,"90_gatto rosso.png,50,100,166","{backgroundSize:120%}
+{backgroundPositionX:52%}
+{backgroundPositionY:100%}",,,7,Trattoria Il Gatto Rosso,,moneta.png,M_contrattazione.png,,r_branzino.png,,r_branzino.png,,F_mercato.png,6,,,{display:none},,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,"91_grimani.png,44,50,163","{backgroundSize:117%}
+{backgroundPositionX:0%}
+{backgroundPositionY:100%}",,,10,Famiglia Contarini,,moneta.png,M_fiuto.png,,r_polpo.png,,r_mollusco.png,,F_pescherecci.png,11,,,{display:none},,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,,"92_dandolo.png,50,50,167","{backgroundSize:119%}
+{backgroundPositionX:0%}",,,8,Famiglia Dandolo,,moneta.png,M_arte venditore.png,,r_gambero.png,,r_branzino.png,,F_bilancia.png,13,,r_sardina.png,,,,"Mercante:
+/
+ogni carta mercato ti rende 2",,"Mercante:
+/
+ogni carta mercato ti rende 2",,,
+1,,,,93_corner.png,{backgroundPositionX:0%},,,9,Famiglia Corner,,moneta.png,M_arte venditore.png,,r_polpo.png,,r_branzino.png,,F_bilancia.png,10,,,{display:none},,,"Mercante:
+/
+ogni carta mercato ti rende 2",,"Mercante:
+/
+ogni carta mercato ti rende 2",,,
+1,,,,"94_zeno.png,21,50,174","{backgroundSize:116%}
+{backgroundPositionX:31%}",,,10,Famiglia Zeno,,moneta.png,M_ecocapitano.png,,r_gambero.png,,r_branzino.png,,F_aste.png,9,,,{display:none},,,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,"Esperienza:
+/
++1 all'asta
+/
+una volta al
+/
+giorno",,,
+1,,,,95_querini.png,,,,6,Famiglia Querini,,moneta.png,M_banco ampliato.png,,r_mollusco.png,,,{display:none},F_pescherecci.png,4,,,{display:none},,,"Banco più
+/
+grande:
+/
++1 pesce",,"Banco più
+/
+grande:
+/
++1 pesce",,,
+1,,,,96_barbarigo.png,,,,9,Famiglia Barbarigo,,moneta.png,M_nuovi clienti.png,,r_sardina.png,,r_gambero.png,,F_aste.png,14,,r_mollusco.png,,,,"Fortuna:
+/
+Asta persa, cliente trovato",,"Fortuna:
+/
+Asta persa, cliente trovato",,,
+1,,,,"97_grimani.png,96,50",,,,10,Famiglia Grimani,,moneta.png,M_amico pescatori.png,,r_polpo.png,,r_branzino.png,,F_bilancia.png,16,,r_gambero.png,,,,"Mercante:
+/
+ogni carta ancora ti rende 2",,"Mercante:
+/
+ogni carta ancora ti rende 2",,,
+1,,,,"98_Barbaro.png,37,50",,,,8,Famiglia Barbaro,,moneta.png,M_fiuto.png,,r_branzino.png,,r_branzino.png,,F_pescherecci.png,12,,r_mollusco.png,,,,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,"Amici:
+/
+un pescatore ti tiene un pesce da parte",,,
+1,,,,99_loredan.png,,,,7,Famiglia Loredan,,moneta.png,M_contrattazione.png,,r_branzino.png,,r_sardina.png,,F_mercato.png,7,,,{display:none},,,"Sottobanco:
+/
+scambi due pesci uguali per uno",,"Sottobanco:
+/
+scambi due pesci uguali per uno",,,
+1,,,,"100_mocenigo.png,49,50",{backgroundPositionX:27%},,,10,Famiglia Mocenigo,,moneta.png,M_favorito.png,,r_mollusco.png,,r_mollusco.png,,F_mercato.png,14,,r_gambero.png,,,,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,"La Congrega:
+/
+pagano di più il tuo pesce preferito",,,

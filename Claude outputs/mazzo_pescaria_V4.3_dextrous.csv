@@ -1,0 +1,199 @@
+Copies,Nickname,card_background,card_background style,img_pergamena_titolo,img_scudo,valore asta,titolo,titolo style,img_moneta,miglioria,miglioria style,pesce1,pesce1 style,pesce2,pesce2 style,categoria miglioria,valore guadagno,valore guadagno style,pesce3,pesce3 style,img_pergamena_miglioria,img_pergamena pesce1,img_pergamena pesce2,img_pergamena pesce2 style,img_pergamena pesce3,img_pergamena pesce3 style,img_pergamena guadagno,img_pergamena miglioria
+1,,"1_bacaro_risorto.png,8,100,168",{filter:contrast(1.1) saturate(1.2)},,,3,Bacaro Risorto,,moneta.png,M_banco ampliato.png,,r_sardina.png,,r_sardina.png,,F_pescherecci.png,4,,,{display:none},,,,,,{display:none},,
+1,,2_bacaro_laguna.JPG,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,2,Bacaro della Laguna,,moneta.png,M_ecocapitano.png,,r_branzino.png,,,{display:none},F_aste.png,3,,,{display:none},,,,{display:none},,{display:none},,
+1,,3_perla_nera.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,3,La Perla Nera,,moneta.png,M_arte venditore.png,,r_mollusco.png,,,{display:none},F_bilancia.png,4,,,{display:none},,,,{display:none},,{display:none},,
+1,,4_osteria_pugni.JPG,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,4,Osteria ai Pugni,,moneta.png,M_contrattazione.png,,r_gambero.png,,,{display:none},F_mercato.png,4,,,{display:none},,,,{display:none},,{display:none},,
+1,,5_tre_marie.png,"{filter:brightness(1) contrast(1.1) saturate(1.2)}
+{backgroundSize:184%}
+{backgroundPositionX:71%}
+{backgroundPositionY:79%}",,,3,Le Tre Marie,,moneta.png,M_banco ampliato.png,,r_branzino.png,,r_branzino.png,,F_pescherecci.png,6,,,{display:none},,,,,,{display:none},,
+1,,6_pescheria.png,"{filter:contrast(1.1) saturate(1.2)}
+{backgroundPositionX:39%}
+{backgroundSize:177%}
+{backgroundPositionY:100%}",,,2,Osteria Pescheria,,moneta.png,M_nuovi clienti.png,,r_sardina.png,,r_branzino.png,,F_aste.png,6,,,{display:none},,,,,,{display:none},,
+1,,7_famiglia_badoer.png,"{backgroundPositionX:36%}
+{backgroundSize:173%}
+{backgroundPositionY:22%}",,,3,Famiglia Badoer,,moneta.png,M_ecocapitano.png,,r_polpo.png,,,{display:none},F_aste.png,5,,,{display:none},,,,{display:none},,{display:none},,
+1,,8_ai_forni.png,"{backgroundPositionX:49%}
+{backgroundSize:216%}
+{backgroundPositionY:100%}",,,4,Osteria Ai Forni,,moneta.png,M_fiuto.png,,r_gambero.png,,r_gambero.png,,F_pescherecci.png,8,,,{display:none},,,,,,{display:none},,
+1,,9_traghetto.png,"{backgroundPositionX:75%}
+{backgroundSize:226%}
+{backgroundPositionY:100%}",,,2,Al Traghetto,,moneta.png,M_nuovi clienti.png,,r_sardina.png,,r_sardina.png,,F_aste.png,6,,r_sardina.png,,,,,,,,,
+1,,10_do_mori.png,"{backgroundPositionX:36%}
+{backgroundSize:183%}
+{backgroundRepeat:repeat}
+{backgroundPositionY:100%}",,,2,Cantina do Mori,,moneta.png,M_nuovi clienti.png,,r_mollusco.png,,r_sardina.png,,F_aste.png,7,,,{display:none},,,,,,{display:none},,
+1,,11_da_lele.png,"{backgroundPositionX:43%}
+{backgroundSize:177%}
+{backgroundPositionY:100%}",,,3,Bacaro da Lele,,moneta.png,M_banco ampliato.png,,r_gambero.png,,r_branzino.png,,F_pescherecci.png,8,,,{display:none},,,,,,{display:none},,
+1,,12_luna_piena.png,"{backgroundPositionX:77%}
+{backgroundSize:187%}
+{backgroundPositionY:100%}",,,4,Osteria Luna Piena,,moneta.png,M_favorito.png,,r_polpo.png,,r_sardina.png,,F_mercato.png,8,,,{display:none},,,,,,{display:none},,
+1,,13_sole_splendente.png,"{backgroundPositionX:12%}
+{backgroundSize:172%}
+{backgroundPositionY:100%}",,,4,Al Sole Splendente,,moneta.png,M_arte venditore.png,,r_branzino.png,,r_branzino.png,,F_bilancia.png,12,,r_mollusco.png,,,,,,,,,
+1,,14_tiziano.png,"{backgroundSize:179%}
+{backgroundPositionY:100%}",,,5,Osteria da Tiziano,,moneta.png,M_favorito.png,,r_branzino.png,,r_mollusco.png,,F_mercato.png,17,,r_gambero.png,,,,,,,,,
+1,,15 famiglia tiepolo.JPG,"{backgroundSize:177%}
+{backgroundPositionY:100%}",,,5,Famiglia Tiepolo,,moneta.png,M_ecocapitano.png,,r_mollusco.png,,r_mollusco.png,,F_aste.png,13,,r_branzino.png,,,,,,,,,
+1,,16_mistero.png,"{backgroundPositionX:57%}
+{backgroundSize:239%}
+{backgroundPositionY:100%}",,,4,Cantina del Mistero,,moneta.png,M_fiuto.png,,r_sardina.png,,r_sardina.png,,F_pescherecci.png,10,,r_gambero.png,,,,,,,,,
+1,,17_angelo.png,"{backgroundPositionX:63%}
+{backgroundSize:180%}
+{backgroundPositionY:63%}",,,3,Osteria dell'Angelo,,moneta.png,M_fiuto.png,,r_gambero.png,,r_sardina.png,,F_pescherecci.png,10,,r_sardina.png,,,,,,,,,
+1,,18_riva.JPG,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,2,Bacaro della Riva,,moneta.png,M_amico pescatori.png,,r_sardina.png,,,{display:none},F_bilancia.png,2,,,{display:none},,,,{display:none},,{display:none},,
+1,,19_volo.png,"{backgroundPositionX:42%}
+{backgroundSize:193%}
+{backgroundPositionY:100%}",,,3,Bacaro Al Volo,,moneta.png,M_maestro bilancia.png,,r_polpo.png,,r_polpo.png,,F_bilancia.png,10,,,{display:none},,,,,,{display:none},,
+1,,20_murano.png,"{backgroundSize:205%}
+{backgroundPositionY:100%}",,,4,Vecia Murano,,moneta.png,M_nuovi clienti.png,,r_gambero.png,,r_mollusco.png,,F_aste.png,10,,,{display:none},,,,,,{display:none},,
+1,,21_nono_giudecca.png,"{backgroundPositionX:47%}
+{backgroundSize:150%}
+{backgroundPositionY:0%}",,,2,Il Nono dea Gnecca,,moneta.png,M_capitano aste.png,,r_branzino.png,,r_branzino.png,,F_bilancia.png,6,,,{display:none},,,,,,{display:none},,
+1,,22_laguna_segreta.png,"{backgroundSize:190%}
+{backgroundPositionY:100%}",,,4,Laguna Segreta,,moneta.png,M_maestro bilancia.png,,r_polpo.png,,r_gambero.png,,F_bilancia.png,11,,,{display:none},,,,,,{display:none},,
+1,,23_fenice.png,"{backgroundSize:246%}
+{backgroundPositionY:100%}",,,3,Ristorante la Fenice,,moneta.png,M_contrattazione.png,,r_mollusco.png,,r_mollusco.png,,F_mercato.png,8,,,{display:none},,,,,,{display:none},,
+1,,24_tecia.png,"{backgroundPositionX:25%}
+{backgroundSize:199%}
+{backgroundPositionY:100%}",,,4,Alla Tecia,,moneta.png,M_favorito.png,,r_branzino.png,,r_mollusco.png,,F_mercato.png,11,,r_sardina.png,,,,,,,,,
+1,,25_marisa.png,"{backgroundSize:173%}
+{backgroundPositionY:100%}",,,2,Osteria Da Marisa,,moneta.png,M_fiuto.png,,r_sardina.png,,,{display:none},F_pescherecci.png,2,,,{display:none},,,,{display:none},,{display:none},,
+1,,26_sestiere.png,"{backgroundPositionX:30%}
+{backgroundSize:182%}
+{backgroundPositionY:100%}",,,5,Osteria del Sestiere,,moneta.png,M_capitano aste.png,,r_branzino.png,,r_branzino.png,,F_bilancia.png,10,,r_sardina.png,,,,,,,,,
+1,,27_pirata.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,5,Bacaro del Pirata,,moneta.png,M_capitano aste.png,,r_polpo.png,,,{display:none},F_bilancia.png,5,,,{display:none},,,,{display:none},,{display:none},,
+1,,28_campiello segreto.JPG,"{backgroundPositionX:88%}
+{backgroundSize:193%}
+{backgroundPositionY:100%}",,,7,Campiello Segreto,,moneta.png,M_amico pescatori.png,,r_sardina.png,,r_gambero.png,,F_bilancia.png,7,,,{display:none},,,,,,{display:none},,
+1,,29_sbarco_mori.png,"{backgroundSize:178%}
+{backgroundPositionY:100%}",,,5,Lo Sbarco dei Mori,,moneta.png,M_amico pescatori.png,,r_branzino.png,,r_branzino.png,,F_bilancia.png,9,,r_branzino.png,,,,,,,,,
+1,,30_ballo.png,"{backgroundPositionX:31%}
+{backgroundSize:196%}
+{backgroundPositionY:100%}",,,6,Osteria del Ballo,,moneta.png,M_amico pescatori.png,,r_gambero.png,,r_branzino.png,,F_bilancia.png,11,,r_sardina.png,,,,,,,,,
+1,,31_bottega.png,"{backgroundPositionX:37%}
+{backgroundSize:166%}
+{backgroundPositionY:100%}",,,7,La Bottega Oscura,,moneta.png,M_capitano aste.png,,r_mollusco.png,,r_mollusco.png,,F_bilancia.png,14,,r_gambero.png,,,,,,,,,
+1,,32_stella_cadente.png,"{backgroundPositionX:67%}
+{backgroundSize:165%}
+{backgroundPositionY:0%}",,,4,La Stella Cadente,,moneta.png,M_nuovi clienti.png,,r_branzino.png,,,{display:none},F_aste.png,3,,,{display:none},,,,{display:none},,{display:none},,
+1,,33_famiglia_dolfin.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,5,Famiglia Dolfin,,moneta.png,M_banco ampliato.png,,r_gambero.png,,,{display:none},F_pescherecci.png,4,,,{display:none},,,,{display:none},,{display:none},,
+1,,34_sapore.png,"{backgroundSize:180%}
+{backgroundPositionY:100%}",,,6,Osteria del Sapore,,moneta.png,M_ecocapitano.png,,r_sardina.png,,r_mollusco.png,,F_aste.png,7,,,{display:none},,,,,,{display:none},,
+1,,35_vecchio_calice.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,5,Trattoria Al Vecio Calice,,moneta.png,M_ecocapitano.png,,r_polpo.png,,,{display:none},F_aste.png,5,,,{display:none},,,,{display:none},,{display:none},,
+1,,36_regina.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,6,Ristorante della Regina,,moneta.png,M_ecocapitano.png,,r_sardina.png,,r_sardina.png,,F_aste.png,10,,r_branzino.png,,,,,,,,,
+1,,37_ponte_diavolo.png,"{backgroundPositionX:22%}
+{backgroundSize:163%}
+{backgroundPositionY:0%}",,,7,Al Ponte del Diavolo,,moneta.png,M_contrattazione.png,,r_gambero.png,,r_branzino.png,,F_mercato.png,11,,r_branzino.png,,,,,,,,,
+1,,38_Rialto.JPG,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,5,Al Ponte di Rialto,,moneta.png,M_fiuto.png,,r_polpo.png,,r_branzino.png,,F_pescherecci.png,10,,,{display:none},,,,,,{display:none},,
+1,,39_pansa.png,"{backgroundSize:193%}
+{backgroundPositionY:100%}",,,6,Trattoria alla Pansa,,moneta.png,M_ecocapitano.png,,r_gambero.png,,r_gambero.png,,F_aste.png,11,,r_sardina.png,,,,,,,,,
+1,,40_gondolieri.png,"{backgroundSize:183%}
+{backgroundPositionY:100%}",,,6,Ai Gondolieri,,moneta.png,M_capitano aste.png,,r_branzino.png,,r_mollusco.png,,F_bilancia.png,8,,,{display:none},,,,,,{display:none},,
+1,,41_pescatore_allegro.png,"{backgroundPositionX:83%}
+{backgroundSize:223%}
+{backgroundPositionY:100%}",,,5,Il Pescatore Allegro,,moneta.png,M_contrattazione.png,,r_sardina.png,,r_sardina.png,,F_mercato.png,12,,r_branzino.png,,,,,,,,,
+1,,42_fiore.png,"{backgroundPositionX:34%}
+{backgroundSize:190%}
+{backgroundPositionY:100%}",,,6,Ristorante Da Fiore,,moneta.png,M_contrattazione.png,,r_polpo.png,,r_mollusco.png,,F_mercato.png,14,,r_sardina.png,,,,,,,,,
+1,,43_Magna e Bevi.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,5,Al Magna e Bevi,,moneta.png,M_favorito.png,,r_branzino.png,,,{display:none},F_mercato.png,3,,,{display:none},,,,{display:none},,{display:none},,
+1,,44_nascosto.png,"{backgroundSize:228%}
+{backgroundPositionY:100%}",,,5,Bacaro Nascosto,,moneta.png,M_favorito.png,,r_mollusco.png,,r_mollusco.png,,F_mercato.png,8,,,{display:none},,,,,,{display:none},,
+1,,45_bilancia.png,"{backgroundSize:170%}
+{backgroundPositionY:100%}",,,6,Osteria della Bilancia,,moneta.png,M_banco ampliato.png,,r_gambero.png,,r_sardina.png,,F_pescherecci.png,7,,,{display:none},,,,,,{display:none},,
+1,,46_zattere.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,6,Il Bacaro delle Zattere,,moneta.png,M_maestro bilancia.png,,r_polpo.png,,,{display:none},F_bilancia.png,5,,,{display:none},,,,{display:none},,{display:none},,
+1,,47_pesce_fritto.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,5,Osteria del Pesce Fritto,,moneta.png,M_banco ampliato.png,,r_gambero.png,,r_branzino.png,,F_pescherecci.png,11,,r_sardina.png,,,,,,,,,
+1,,48_vedova.JPG,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,6,Osteria alla Vedova Nera,,moneta.png,M_contrattazione.png,,r_mollusco.png,,r_mollusco.png,,F_mercato.png,14,,r_gambero.png,,,,,,,,,
+1,,49_leone.png,"{backgroundPositionX:33%}
+{backgroundSize:198%}
+{backgroundPositionY:100%}",,,6,Locanda del Leone,,moneta.png,M_arte venditore.png,,r_branzino.png,,r_sardina.png,,F_bilancia.png,6,,,{display:none},,,,,,{display:none},,
+1,,50_gondola_argento.JPG,"{backgroundPositionX:93%}
+{backgroundSize:161%}
+{backgroundPositionY:100%}",,,5,La Gondola d'Argento,,moneta.png,M_banco ampliato.png,,r_gambero.png,,r_gambero.png,,F_pescherecci.png,11,,r_branzino.png,,,,,,,,,
+1,,51_arco_sconto.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,6,All'Arco Sconto,,moneta.png,M_favorito.png,,r_polpo.png,,r_sardina.png,,F_mercato.png,8,,,{display:none},,,,,,{display:none},,
+1,,52_ponte_misterioso.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,6,Osteria del Ponte Misterioso,,moneta.png,M_ecocapitano.png,,r_gambero.png,,,{display:none},F_aste.png,4,,,{display:none},,,,{display:none},,{display:none},,
+1,,53_antica_sonada.png,"{backgroundSize:198%}
+{backgroundPositionY:100%}",,,5,All'Antica Sonada,,moneta.png,M_maestro bilancia.png,,r_branzino.png,,r_branzino.png,,F_bilancia.png,12,,r_mollusco.png,,,,,,,,,
+1,,54_cicheto.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,6,Osteria del Cicheto,,moneta.png,M_fiuto.png,,r_branzino.png,,r_mollusco.png,,F_pescherecci.png,17,,r_gambero.png,,,,,,,,,
+1,,55_al bucaniere.png,"{backgroundSize:186%}
+{backgroundPositionY:100%}",,,8,Al Bucaniere,,moneta.png,M_ecocapitano.png,,r_polpo.png,,r_mollusco.png,,F_aste.png,18,,r_gambero.png,,,,,,,,,
+1,,56_rigattier.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,5,Al Rigattier,,moneta.png,M_arte venditore.png,,r_sardina.png,,r_gambero.png,,F_bilancia.png,11,,r_branzino.png,,,,,,,,,
+1,,57_porto_antico.png,"{backgroundSize:177%}
+{backgroundPositionY:100%}",,,5,Osteria del Porto Antico,,moneta.png,M_fiuto.png,,r_sardina.png,,r_sardina.png,,F_pescherecci.png,4,,,{display:none},,,,,,{display:none},,
+1,,58_calle sconta.png,"{backgroundSize:183%}
+{backgroundPositionY:100%}",,,7,Alla Calle Sconta,,moneta.png,M_contrattazione.png,,r_polpo.png,,r_branzino.png,,F_mercato.png,10,,,{display:none},,,,,,{display:none},,
+1,,59_serenada.png,"{backgroundSize:158%}
+{backgroundPositionY:100%}",,,5,Bacaro della Serenata,,moneta.png,M_contrattazione.png,,r_branzino.png,,r_branzino.png,,F_mercato.png,9,,r_branzino.png,,,,,,,,,
+1,,60_vaporetto.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,6,Al Vecio Vaporetto,,moneta.png,M_fiuto.png,,r_gambero.png,,r_mollusco.png,,F_pescherecci.png,10,,,{display:none},,,,,,{display:none},,
+1,,61_al Balo.png,"{backgroundSize:174%}
+{backgroundPositionY:100%}",,,7,Bacaro al Balo,,moneta.png,M_arte venditore.png,,r_branzino.png,,r_mollusco.png,,F_bilancia.png,17,,r_gambero.png,,,,,,,,,
+1,,62_alla perla.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,5,Osteria alla Perla,,moneta.png,M_favorito.png,,r_mollusco.png,,r_mollusco.png,,F_mercato.png,13,,r_branzino.png,,,,,,,,,
+1,,63_turista_perduto.png,"{backgroundSize:189%}
+{backgroundPositionY:100%}",,,6,Al Turista Perduto,,moneta.png,M_favorito.png,,r_polpo.png,,r_sardina.png,,F_mercato.png,12,,r_branzino.png,,,,,,,,,
+1,,64_nono_scantabauchi.png,"{backgroundSize:187%}
+{backgroundPositionY:100%}",,,7,Al Nono Scantabauchi,,moneta.png,M_contrattazione.png,,r_gambero.png,,r_sardina.png,,F_mercato.png,10,,r_sardina.png,,,,,,,,,
+1,,65_Osteria alla Bolla.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,4,Osteria alla Bolla,,moneta.png,M_nuovi clienti.png,,r_branzino.png,,,{display:none},F_aste.png,3,,,{display:none},,,,{display:none},,{display:none},,
+1,,66_briscola.png,"{backgroundPositionX:26%}
+{backgroundSize:198%}
+{backgroundPositionY:100%}",,,6,Osteria alla Briscola,,moneta.png,M_fiuto.png,,r_gambero.png,,r_mollusco.png,,F_pescherecci.png,14,,r_sardina.png,,,,,,,,,
+1,,67_botti.png,"{backgroundSize:173%}
+{backgroundPositionY:100%}",,,5,Bacaro Ai Botti,,moneta.png,M_amico pescatori.png,,r_polpo.png,,,{display:none},F_bilancia.png,5,,,{display:none},,,,{display:none},,{display:none},,
+1,,68_rete.png,"{backgroundSize:159%}
+{backgroundPositionY:100%}",,,5,Alla Rete,,moneta.png,M_ecocapitano.png,,r_gambero.png,,r_gambero.png,,F_aste.png,8,,,{display:none},,,,,,{display:none},,
+1,,69_vapore.png,"{backgroundSize:180%}
+{backgroundPositionY:100%}",,,5,Bacaro Al Vapore,,moneta.png,M_banco ampliato.png,,r_mollusco.png,,,{display:none},F_pescherecci.png,4,,,{display:none},,,,{display:none},,{display:none},,
+1,,70_gatto nero.png,"{backgroundPositionX:16%}
+{backgroundSize:199%}
+{backgroundPositionY:100%}",,,7,Bacaro Al Gatto Nero,,moneta.png,M_ecocapitano.png,,r_sardina.png,,r_branzino.png,,F_aste.png,12,,r_gambero.png,,,,,,,,,
+1,,71_frasca.png,"{backgroundPositionX:28%}
+{backgroundSize:164%}
+{backgroundPositionY:100%}",,,8,Ristorante alla Frasca,,moneta.png,M_nuovi clienti.png,,r_polpo.png,,r_mollusco.png,,F_aste.png,11,,,{display:none},,,,,,{display:none},,
+1,,72_granchio.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,9,Il Nobile Granchio,,moneta.png,M_capitano aste.png,,r_gambero.png,,r_branzino.png,,F_bilancia.png,11,,r_sardina.png,,,,,,,,,
+1,,73_pasta.png,"{backgroundPositionX:62%}
+{backgroundSize:180%}
+{backgroundPositionY:100%}",,,9,Trattoria Pastasutta,,moneta.png,M_ecocapitano.png,,r_polpo.png,,r_branzino.png,,F_aste.png,18,,r_mollusco.png,,,,,,,,,
+1,,74_capitano.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,8,Trattoria del Capitano,,moneta.png,M_contrattazione.png,,r_polpo.png,,r_polpo.png,,F_mercato.png,10,,,{display:none},,,,,,{display:none},,
+1,,75_gondolier.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,9,Ristorante Al Gondoliere,,moneta.png,M_amico pescatori.png,,r_gambero.png,,r_mollusco.png,,F_bilancia.png,14,,r_sardina.png,,,,,,,,,
+1,,76_squero.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,7,Osteria dello Squero,,moneta.png,M_nuovi clienti.png,,r_branzino.png,,,{display:none},F_aste.png,3,,,{display:none},,,,{display:none},,{display:none},,
+1,,77_vele.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,8,Locanda Alle Vele,,moneta.png,M_maestro bilancia.png,,r_gambero.png,,r_gambero.png,,F_bilancia.png,11,,r_sardina.png,,,,,,,,,
+1,,78_risata.png,"{backgroundPositionX:0%}
+{backgroundSize:172%}
+{backgroundPositionY:100%}",,,9,Locanda La Risata,,moneta.png,M_banco ampliato.png,,r_polpo.png,,r_branzino.png,,F_pescherecci.png,10,,,{display:none},,,,,,{display:none},,
+1,,79_do forni.png,"{backgroundSize:191%}
+{backgroundPositionY:100%}",,,10,Ristorante Do Forni,,moneta.png,M_fiuto.png,,r_gambero.png,,r_mollusco.png,,F_pescherecci.png,17,,r_branzino.png,,,,,,,,,
+1,,80_ninfee.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,6,Osteria Ninfea,,moneta.png,M_banco ampliato.png,,r_mollusco.png,,,{display:none},F_pescherecci.png,4,,,{display:none},,,,{display:none},,{display:none},,
+1,,81_tesoro.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,9,Trattoria Al Tesoro,,moneta.png,M_favorito.png,,r_sardina.png,,r_gambero.png,,F_mercato.png,14,,r_mollusco.png,,,,,,,,,
+1,,82_vin bon.png,"{backgroundPositionX:79%}
+{backgroundSize:178%}
+{backgroundPositionY:100%}",,,10,Trattoria Al Vin Bon,,moneta.png,M_contrattazione.png,,r_polpo.png,,r_branzino.png,,F_mercato.png,12,,r_gambero.png,,,,,,,,,
+1,,83_foscari.png,"{backgroundSize:178%}
+{backgroundPositionY:100%}",,,8,Ristorante Ca' Foscari,,moneta.png,M_favorito.png,,r_branzino.png,,r_branzino.png,,F_mercato.png,12,,r_mollusco.png,,,,,,,,,
+1,,84_rio.png,"{backgroundSize:185%}
+{backgroundPositionY:100%}",,,7,Trattoria del Rio,,moneta.png,M_banco ampliato.png,,r_branzino.png,,r_sardina.png,,F_pescherecci.png,6,,,{display:none},,,,,,{display:none},,
+1,,85_vecio bacan.png,"{backgroundPositionX:31%}
+{backgroundSize:203%}
+{backgroundPositionY:100%}",,,10,Osteria Vecio Bacan,,moneta.png,M_banco ampliato.png,,r_mollusco.png,,r_mollusco.png,,F_pescherecci.png,14,,r_gambero.png,,,,,,,,,
+1,,86_pie del ponte.png,"{backgroundSize:178%}
+{backgroundPositionY:100%}",,,9,Ai Pie del Ponte,,moneta.png,M_ecocapitano.png,,r_polpo.png,,r_mollusco.png,,F_aste.png,18,,r_gambero.png,,,,,,,,,
+1,,87_morosini.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,9,Ristorante dei Morosini,,moneta.png,M_ecocapitano.png,,r_sardina.png,,r_sardina.png,,F_aste.png,12,,r_branzino.png,,,,,,,,,
+1,,88_Botte Bona.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,8,La Botte Bona,,moneta.png,M_nuovi clienti.png,,r_polpo.png,,,{display:none},F_aste.png,5,,,{display:none},,,,{display:none},,{display:none},,
+1,,89_al tramonto.png,"{backgroundPositionX:100%}
+{backgroundSize:178%}
+{backgroundPositionY:100%}",,,8,Ristorante Al Tramonto,,moneta.png,M_favorito.png,,r_mollusco.png,,r_sardina.png,,F_mercato.png,7,,,{display:none},,,,,,{display:none},,
+1,,90_gatto rosso.png,"{backgroundPositionX:52%}
+{backgroundSize:202%}
+{backgroundPositionY:100%}",,,7,Trattoria Il Gatto Rosso,,moneta.png,M_contrattazione.png,,r_branzino.png,,r_branzino.png,,F_mercato.png,6,,,{display:none},,,,,,{display:none},,
+1,,91_grimani.png,"{backgroundPositionX:0%}
+{backgroundSize:161%}
+{backgroundPositionY:100%}",,,10,Famiglia Contarini,,moneta.png,M_fiuto.png,,r_polpo.png,,r_mollusco.png,,F_pescherecci.png,11,,,{display:none},,,,,,{display:none},,
+1,,92_dandolo.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,8,Famiglia Dandolo,,moneta.png,M_maestro bilancia.png,,r_gambero.png,,r_branzino.png,,F_bilancia.png,11,,r_sardina.png,,,,,,,,,
+1,,93_corner.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,9,Famiglia Corner,,moneta.png,M_arte venditore.png,,r_polpo.png,,r_branzino.png,,F_bilancia.png,10,,,{display:none},,,,,,{display:none},,
+1,,94_zeno.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,10,Famiglia Zeno,,moneta.png,M_ecocapitano.png,,r_gambero.png,,r_branzino.png,,F_aste.png,8,,,{display:none},,,,,,{display:none},,
+1,,95_querini.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,6,Famiglia Querini,,moneta.png,M_banco ampliato.png,,r_mollusco.png,,,{display:none},F_pescherecci.png,4,,,{display:none},,,,{display:none},,{display:none},,
+1,,96_barbarigo.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,9,Famiglia Barbarigo,,moneta.png,M_nuovi clienti.png,,r_sardina.png,,r_gambero.png,,F_aste.png,14,,r_mollusco.png,,,,,,,,,
+1,,97_grimani.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,10,Famiglia Grimani,,moneta.png,M_amico pescatori.png,,r_polpo.png,,r_branzino.png,,F_bilancia.png,12,,r_gambero.png,,,,,,,,,
+1,,98_Barbaro.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,8,Famiglia Barbaro,,moneta.png,M_fiuto.png,,r_branzino.png,,r_branzino.png,,F_pescherecci.png,12,,r_mollusco.png,,,,,,,,,
+1,,99_loredan.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,7,Famiglia Loredan,,moneta.png,M_contrattazione.png,,r_branzino.png,,r_sardina.png,,F_mercato.png,6,,,{display:none},,,,,,{display:none},,
+1,,100_mocenigo.png,{filter:brightness(1) contrast(1.1) saturate(1.2)},,,10,Famiglia Mocenigo,,moneta.png,M_favorito.png,,r_mollusco.png,,r_mollusco.png,,F_mercato.png,14,,r_gambero.png,,,,,,,,,
