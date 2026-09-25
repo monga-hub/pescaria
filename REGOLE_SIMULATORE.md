@@ -36,3 +36,11 @@ Carte Fortuna con valore d'asta alzato di 2: #6, #9, #10 → 4 · #20, #32, #65 
 - `index.html` lo modifica l'IA della grafica. Le modifiche di regole arrivano come **patch piccole** (`Claude outputs/patch_*.py`) che toccano solo funzioni di logica e si applicano sul file così com'è.
 - Prima di applicare una patch di regole: il lavoro grafico deve essere salvato (commit), così si può sempre tornare indietro.
 - Dopo ogni modifica, di chiunque: `node tests/regole-v5.cjs` e `node tests/auction-upgrades.cjs` devono passare.
+
+## Variante Solitario e Automa (Congrega dei Mercanti)
+Attiva dal setup con 1 o 2 giocatori (pulsanti «Congrega dei Mercanti»: No / Apprendista / Mercante / Maestro / Doge).
+- La Congrega è un giocatore in più (conta per i 6 pesci del mattino), 12 Ducati, nessuna miglioria, nessun contratto, niente draft.
+- Mazzo di 12 carte, rimescolato ogni giornata: 3 Passa · 3 Offerta +0 (2 pesci) · 3 +2 (3) · 2 +4 (3) · 1 +6 (4).
+- A ogni asta gira una carta: Passa, oppure prima carta del mazzo Clienti coperta + N Ducati sopra. Se vince compra a 1 i pesci indicati; se perde non compra.
+- Mercato: vende tutto il pesce del Banco alla banca. Prezzi (Polpo/Gambero/Mollusco/Branzino/Sardina): Apprendista 5/4/4/3/2 · Mercante 6/5/5/3/2 · Maestro 6/5/5/4/3 · Doge 7/6/6/5/4.
+- Test: `node tests/congrega.cjs`.

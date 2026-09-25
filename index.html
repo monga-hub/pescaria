@@ -357,6 +357,10 @@ const ICON={Polpi:'🐙',Gamberi:'🦐',Molluschi:'🐚',Branzini:'🐟',Sardine
 const COLORS=['#dc654b','#247d94','#d5a33a','#a9433c','#4f9564'];
 const PLAYER_MATS=[['arancione','Oranzio'],['blu','Berry'],['giallo','Giulio'],['rosso','Carlo'],['verde','Olivia']];
 const BOTNAMES=['Lucia','Dario','Bianca','Enrico'];
+// ---- Variante Solitario e Automa: la Congrega dei Mercanti ----
+// Carte Congrega: bid=Ducati sopra l'offerta (null = Passa), fish=pesci comprati a 1 se vince. Se perde non compra.
+const CONGREGA_DECK=[{bid:null},{bid:null},{bid:null},{bid:0,fish:2},{bid:0,fish:2},{bid:0,fish:2},{bid:2,fish:3},{bid:2,fish:3},{bid:2,fish:3},{bid:4,fish:3},{bid:4,fish:3},{bid:6,fish:4}];
+const CONGREGA_LEVELS={apprendista:['Apprendista',{Polpi:5,Gamberi:4,Molluschi:4,Branzini:3,Sardine:2}],mercante:['Mercante',{Polpi:6,Gamberi:5,Molluschi:5,Branzini:3,Sardine:2}],maestro:['Maestro',{Polpi:6,Gamberi:5,Molluschi:5,Branzini:4,Sardine:3}],doge:['Doge',{Polpi:7,Gamberi:6,Molluschi:6,Branzini:5,Sardine:4}]};
 const PHASES=[['rete','1 · Pesca del Mattino'],['asta','2 · Aste'],['pubblico','3 · Mercato'],['bilancia','4 · Fine Giornata']];
 const PHASE_SHORT=['Pesca','Aste','Mercato','Fine Giornata'];
 const CATS={A:{icon:'⚓',name:'Ancora',phase:'rete',suit:'anchor'},E:{icon:'🔨',name:'Asta',phase:'asta',suit:'hammer'},C:{icon:'💰',name:'Mercato',phase:'pubblico',suit:'coin'},B:{icon:'⚖',name:'Bilancia',phase:'bilancia',suit:'scale'}};
@@ -539,11 +543,11 @@ function completeContract(p,card){
 }
 
 // ---------------- Setup ----------------
-let setupCount=4,setupDifficulty='normal';
+let setupCount=4,setupDifficulty='normal',setupCongrega='no';
 const setupRoster=PLAYER_MATS.map((_,id)=>({name:id?BOTNAMES[id-1]:'Daniele',human:id===0,character:id}));
 window.renderSetupPlayers=function(){
   const n=setupCount,host=$('setupPlayers');host.style.setProperty('--players',n);
-  $('setupOptions').innerHTML=`<div class="setup-choice"><span class="setup-choice-label">Giocatori</span><div class="setup-buttons setup-count" role="group" aria-label="Numero di giocatori">${[1,2,3,4,5].map(count=>`<button type="button" aria-pressed="${n===count}" onclick="setSetupCount(${count})">${count}</button>`).join('')}</div></div><div class="setup-choice"><span class="setup-choice-label">Difficoltà AI</span><div class="setup-buttons" role="group" aria-label="Difficoltà AI">${[['easy','Tranquilla'],['normal','Normale'],['hard','Esperta']].map(([key,label])=>`<button type="button" aria-pressed="${setupDifficulty===key}" onclick="setSetupDifficulty('${key}')">${label}</button>`).join('')}</div></div>`;
+  $('setupOptions').innerHTML=`<div class="setup-choice"><span class="setup-choice-label">Giocatori</span><div class="setup-buttons setup-count" role="group" aria-label="Numero di giocatori">${[1,2,3,4,5].map(count=>`<button type="button" aria-pressed="${n===count}" onclick="setSetupCount(${count})">${count}</button>`).join('')}</div></div><div class="setup-choice"><span class="setup-choice-label">Difficoltà AI</span><div class="setup-buttons" role="group" aria-label="Difficoltà AI">${[['easy','Tranquilla'],['normal','Normale'],['hard','Esperta']].map(([key,label])=>`<button type="button" aria-pressed="${setupDifficulty===key}" onclick="setSetupDifficulty('${key}')">${label}</button>`).join('')}</div></div>${n<=2?`<div class="setup-choice"><span class="setup-choice-label">Congrega dei Mercanti</span><div class="setup-buttons" role="group" aria-label="Congrega dei Mercanti">${[['no','No'],...Object.entries(CONGREGA_LEVELS).map(([k,v])=>[k,v[0]])].map(([key,label])=>`<button type="button" aria-pressed="${setupCongrega===key}" onclick="setSetupCongrega('${key}')">${label}</button>`).join('')}</div></div>`:''}`;
   host.innerHTML=setupRoster.slice(0,n).map((p,id)=>`<fieldset class="setup-player" style="--player:${COLORS[p.character]}">
     <legend>Mercante ${id+1}</legend><img src="assets/players/ritratto-${PLAYER_MATS[p.character][0]}.png" alt="${PLAYER_MATS[p.character][1]}">
     <div class="setup-player-fields">
@@ -555,6 +559,7 @@ window.renderSetupPlayers=function(){
 };
 window.setSetupCount=count=>{setupCount=count;renderSetupPlayers()};
 window.setSetupDifficulty=difficulty=>{setupDifficulty=difficulty;renderSetupPlayers()};
+window.setSetupCongrega=v=>{setupCongrega=v;renderSetupPlayers()};
 window.setSetupName=(id,name)=>{setupRoster[id].name=name};
 window.setSetupHuman=(id,value)=>{setupRoster[id].human=value==='human';renderSetupPlayers()};
 window.setSetupCharacter=function(id,character){
@@ -565,7 +570,9 @@ window.newGame=function(){
   const n=setupCount,roster=setupRoster.slice(0,n).map(p=>({...p,name:p.name.trim()}));
   const missing=roster.findIndex(p=>!p.name);if(missing>=0){const input=$('setupPlayers').querySelectorAll('input')[missing];input.value='';input.reportValidity();return}
   document.body.classList.add('playing');$('setup').classList.add('hidden');$('end').classList.add('hidden');$('game').classList.remove('hidden');
-  startGame({n,roster,difficulty:setupDifficulty,humanBot:false});render();
+  let total=n,congrega=null;
+  if(n<=2&&setupCongrega!=='no'){const used=new Set(roster.map(p=>p.character));const ch=PLAYER_MATS.findIndex((_,i)=>!used.has(i));roster.push({name:'Congrega',human:false,character:ch,congrega:true});total=n+1;congrega=setupCongrega}
+  startGame({n:total,roster,difficulty:setupDifficulty,humanBot:false,congrega});render();
 };
 const activePlayer=()=>G.players[G.activePlayer??0];
 const humanPlayers=()=>G.players.filter(p=>p.human);
@@ -575,10 +582,12 @@ function setActivePlayer(id){
   G.activePlayer=id;G.viewedPlayer=id;G.selectedBid=null;G.bidCash=0;G.bidInfl=0;
 }
 window.acceptHandoff=function(){G.handoff=false;render()};
-function startGame({n,name,seed=Math.floor(Math.random()*4294967295)+1,difficulty,humanBot,roster}){
+function startGame({n,name,seed=Math.floor(Math.random()*4294967295)+1,difficulty,humanBot,roster,congrega}){
   if(roster&&(roster.length!==n||new Set(roster.map(p=>p.character)).size!==n||roster.some(p=>!PLAYER_MATS[p.character]||!p.name.trim())))throw new Error("Configurazione giocatori non valida");
   const rng=new RNG(seed),bag=[];for(const f of FISH)for(let i=0;i<BAG[f];i++)bag.push(f);
   G={rng,seed,day:1,phase:'rete',difficulty,humanBot,players:Array.from({length:n},(_,id)=>({id,name:roster?roster[id].name:(id?BOTNAMES[id-1]:name),human:roster?roster[id].human:id===0&&!humanBot,character:roster?roster[id].character:id,coins:START_COINS,banco:inv(),cesta:inv(),hand:[],installed:[],pending:[],kept:[],keptIds:new Set(),fortunaLeft:0,influence:0,subsLeft:0,orders:0,wasted:0,bilanciaTot:0,passedAll:false,today:{contracts:[],income:0,bilancia:[]}})),bag:rng.shuffle(bag),deck:rng.shuffle(CARDS.map(c=>({...c}))),discard:[],captain:rng.int(n),market:inv(),log:[],selectedBid:null,bidCash:0,bidInfl:0,overlay:null};
+  G.congregaLevel=congrega||null;if(roster)roster.forEach((r,i)=>{if(r.congrega)G.players[i].congrega=true});
+  if(!roster&&congrega){const c=G.players[n-1];c.congrega=true;c.human=false;c.name='Congrega'}
   G.activePlayer=G.players.find(p=>p.human)?.id??0;G.viewedPlayer=G.activePlayer;
   log('Partita',`${G.players[G.captain].name} ha mangiato pesce più di recente: è il primo Capitano.`);
   startDay();
@@ -589,6 +598,7 @@ window.restartGame=function(){if(G&&!G.finished&&!confirm('Abbandonare la partit
 function startDay(){
   for(const p of G.players){p.influence=0;p.subsLeft=copies(p,'Contrattazione Sottobanco');p.fortunaLeft=copies(p,'Nuovi Clienti');p.passedAll=false;p.today={contracts:[],income:0,bilancia:[]}}
   G.phase='rete';G.market=inv();
+  if(G.congregaLevel)G.congregaDeck=G.rng.shuffle(CONGREGA_DECK.map(c=>({...c})));
   const n=G.players.length===1?6:6*G.players.length;let drawn=0;
   for(let i=0;i<n;i++){const f=drawFish();if(!f)break;G.market[f]++;drawn++}
   log('Pesca',`Giorno ${G.day}: ${G.players[G.captain].name} (Capitano) estrae ${drawn} pesci per il mercato.`);
@@ -604,7 +614,7 @@ function startDay(){
 window.beginDraft=function(){if(!G||G.phase!=='rete')return;G.overlay=null;startDraft();render()};
 
 function startDraft(){
-  G.phase='draft';G.draftRound=1;G.drafted=G.players.map(()=>[]);G.draftChoices={};G.draftPacks=G.players.map(()=>Array.from({length:HAND},drawCard).filter(Boolean));
+  G.phase='draft';G.draftRound=1;G.drafted=G.players.map(()=>[]);G.draftChoices={};G.draftPacks=G.players.map(p=>p.congrega?[]:Array.from({length:HAND},drawCard).filter(Boolean));
   log('Draft','Inizia il draft: pacchetti di 5 carte, si passa a sinistra.');
   if(humanPlayers().length)setActivePlayer(humanPlayers()[0].id);
   else while(G.phase==='draft')draftStep(null);
@@ -613,13 +623,14 @@ function draftStep(humanId){
   if(humanId!=null)G.draftChoices[activePlayer().id]=humanId;
   const waiting=humanPlayers().find(p=>G.draftChoices[p.id]==null);
   if(waiting){setActivePlayer(waiting.id);return false}
-  const picks=G.players.map((p,i)=>p.human?G.draftPacks[i].find(c=>c.id===G.draftChoices[i]):botDraft(p,G.draftPacks[i]));
-  if(picks.some(x=>!x))return false;
-  for(const p of G.players){const pack=G.draftPacks[p.id],card=picks[p.id];pack.splice(pack.indexOf(card),1);G.drafted[p.id].push(card)}
+  const picks=G.players.map((p,i)=>p.congrega?null:p.human?G.draftPacks[i].find(c=>c.id===G.draftChoices[i]):botDraft(p,G.draftPacks[i]));
+  if(picks.some((x,i)=>!x&&!G.players[i].congrega))return false;
+  for(const p of G.players){if(p.congrega)continue;const pack=G.draftPacks[p.id],card=picks[p.id];pack.splice(pack.indexOf(card),1);G.drafted[p.id].push(card)}
   G.draftChoices={};
-  if(!G.draftPacks[0].length){finishDraft();return true}
-  const k=G.players.length,passed=Array(k);for(let i=0;i<k;i++)passed[(i+1)%k]=G.draftPacks[i];G.draftPacks=passed;G.draftRound++;
-  if(G.draftPacks[0].length===1){for(const p of humanPlayers())G.draftChoices[p.id]=G.draftPacks[p.id][0].id;return draftStep(null)}
+  const dr=G.players.filter(p=>!p.congrega).map(p=>p.id);
+  if(!G.draftPacks[dr[0]].length){finishDraft();return true}
+  {const old=dr.map(i=>G.draftPacks[i]);dr.forEach((id,k)=>G.draftPacks[id]=old[(k-1+dr.length)%dr.length]);}G.draftRound++;
+  if(G.draftPacks[dr[0]].length===1){for(const p of humanPlayers())G.draftChoices[p.id]=G.draftPacks[p.id][0].id;return draftStep(null)}
   if(humanPlayers().length)setActivePlayer(humanPlayers()[0].id);return true;
 }
 window.pickDraft=function(id){
@@ -700,7 +711,7 @@ function afterAuction(){
 // ---------------- Fase 3 · Mercato ----------------
 function startMarket(){
   G.phase='pubblico';G.overlay=null;log('Mercato','Apre il Mercato: ogni mercante completa i propri contratti.');
-  for(const p of G.players)if(!p.human){botMarket(p);closePlayerMarket(p);keepCards(p,botKeep(p))}
+  for(const p of G.players)if(p.congrega)congregaSell(p);else if(!p.human){botMarket(p);closePlayerMarket(p);keepCards(p,botKeep(p))}
   G.marketQueue=turnOrder().filter(id=>G.players[id].human);nextMarketPlayer();
 }
 function nextMarketPlayer(){
@@ -709,6 +720,12 @@ function nextMarketPlayer(){
 }
 window.serveContract=function(id){if(G.phase!=='pubblico'||G.handoff)return;const p=activePlayer(),c=p.hand.find(x=>x.id===id);if(c&&completeContract(p,c))render()};
 window.finishMarket=function(){if(G.phase!=='pubblico'||G.handoff)return;finishMarket();render()};
+function congregaSell(p){
+  const price=CONGREGA_LEVELS[G.congregaLevel][1];let tot=0;
+  for(const f of FISH){const k=p.banco[f]+p.cesta[f];if(!k)continue;tot+=k*price[f];returnFish(f,k);p.banco[f]=0;p.cesta[f]=0}
+  for(const c of p.hand)discard(c);p.hand=[];p.kept=[];
+  p.coins+=tot;p.congregaSales=(p.congregaSales||0)+tot;log('Congrega',`La Congrega vende il suo pesce alla banca: ${tot} Ducati.`);
+}
 function closePlayerMarket(p){
   const pool=[];for(const f of FISH)for(let i=0;i<p.banco[f]+p.cesta[f];i++)pool.push(f);
   const pri=f=>({Polpi:5,Gamberi:4,Molluschi:4,Branzini:3,Sardine:2})[f];pool.sort((a,b)=>pri(b)-pri(a));
@@ -824,6 +841,7 @@ function needOf(p,f,keepIds){
 function lostFishTypes(p,c){const stock=mix(p.banco,p.cesta);return Object.entries(c.recipe).filter(([g,n])=>{const miss=n-(stock[g]||0);if(miss<=0)return false;const gi=(G.aOrder||FISH).indexOf(g);return (gi>=G.auctionIndex?(G.market[g]||0):0)<miss}).map(([g])=>g)}
 const CARD_AVG=CARDS.reduce((s,c)=>s+c.bid,0)/CARDS.length;
 function botBid(p,f,seen=[]){
+  if(p.congrega)return congregaBid(p);
   if(!p.hand.length||!roomBanco(p))return null;
   const keep=botPlan(p),need=Math.min(needOf(p,f,keep),G.market[f]);
   if(!need)return G.rng.next()<(G.difficulty==='hard'?.05:.12)&&p.hand.length>3?cheapBid(p,keep):null;
@@ -842,8 +860,17 @@ function botBid(p,f,seen=[]){
   if(seen.length&&card.bid+cash+infl*ESP_X<=est)return cheapBid(p,keep);
   return{pid:p.id,card,cash:Math.max(0,cash),infl};
 }
+function congregaBid(p){
+  const c=G.congregaDeck.pop();p.congregaCard=c;
+  if(!c||c.bid===null){log('Congrega','La Congrega passa.');return null}
+  if(!roomBanco(p))return null;
+  const card=drawCard();if(!card)return null;p.hand.push(card);
+  const cash=Math.min(c.bid,p.coins);log('Congrega',`La Congrega offre una carta coperta con ${cash} Ducati sopra.`);
+  return{pid:p.id,card,cash,infl:0};
+}
 function cheapBid(p,keep){const c=p.hand.filter(c=>!keep.has(c.id)).sort((a,b)=>a.bid-b.bid)[0];return c?{pid:p.id,card:c,cash:0,infl:0}:null}
 function botBuy(p,f,price,rank){
+  if(p.congrega){if(rank===0&&p.congregaCard)buy(p,f,p.congregaCard.fish,1);return}
   const keep=botPlan(p);let n=needOf(p,f,keep);
   if(rank===0&&p.coins>6)n=Math.max(n+(G.difficulty==='easy'?0:1),1);
   n=Math.min(n,maxBuy(p,f,price));
