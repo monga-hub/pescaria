@@ -68,8 +68,8 @@ for (let id=0;id<5;id++) assert(playerMatHtml({...matPlayer,id,character:id}).in
 G.phase='asta';G.auctionStage='bid';G.selectedBid=CARDS[0].id;
 winner.hand=[CARDS[0]];G.bidCash=2;G.bidInfl=0;
 const offer = auctionPanelHtml(winner);
-assert(offer.includes('Valore d’asta della carta</th><td><strong>'+CARDS[0].bid+'</strong>'));
-assert(offer.includes('OFFRI '+(CARDS[0].bid+2)));
+assert(!offer.includes('<table'));
+assert(offer.includes('>OFFRI</button>'));
 assert.equal(cardFiles.length, CARDS.length);
 for (const card of CARDS) {
   const file = String(card.id-1).padStart(3,'0')+'.png';
@@ -172,13 +172,23 @@ assert.equal(activePlayer().id,1);assert.equal(G.handoff,true);G.handoff=false;p
 assert.equal(G.players[0].installed[0].favFish,'Polpi');
 assert.equal(G.players[1].installed[0].favFish,'Gamberi');
 assert.equal(G.overlay,'summary');
-// Auction controls remain in the offer panel with a visible coin instruction.
+// Bid controls live on the bank and covered card; the panel only has three actions.
 startGame({n:1,name:'Test',seed:1,difficulty:'normal',humanBot:false});
 G.phase='asta';G.auctionStage='bid';G.overlay=null;G.auctionIndex=0;
 activePlayer().hand=[CARDS[0]];G.selectedBid=CARDS[0].id;G.bidCash=2;
 const offerPanel=auctionPanelHtml(activePlayer());
-assert(offerPanel.includes('OFFRI '+(CARDS[0].bid+2)));
-assert(offerPanel.includes('Aggiungi i Ducati alla tua offerta'));
+assert.equal((offerPanel.match(/<button /g)||[]).length,3);
+assert(!offerPanel.includes('<table'));
+const bankBid=playerMatHtml(activePlayer()),covered=humanArea(activePlayer(),playerColor(activePlayer()));
+assert(bankBid.includes('id="bidCoinSource"'));
+assert(bankBid.includes('10 Ducati disponibili'));
+assert(covered.includes('class="offer-bid-value">'+CARDS[0].bid+'</strong>'));
+assert(covered.includes('+2 Ducati'));
+assert(covered.includes('removeBidCoin(event)'));
+assert(!playerMatHtml({...activePlayer(),id:99}).includes('id="bidCoinSource"'));
+G.handoff=true;
+assert(!playerMatHtml(activePlayer()).includes('id="bidCoinSource"'));
+G.handoff=false;
 // Explicit seeds remain reproducible; ordinary starts obtain a fresh random seed.
 const originalRandom=Math.random;
 for(const value of [0.25,0.75]){

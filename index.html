@@ -251,6 +251,16 @@
     #automaPreview::backdrop{background:#102d2bcc}
     #automaPreview img{display:block;width:auto;max-width:80vw;height:min(70dvh,525px);object-fit:contain;margin:auto}
     #automaPreview form{margin:8px 0 0;text-align:center}
+    .mat-bid-coins{min-width:44px;min-height:44px;padding:0;font:inherit;font-weight:900;cursor:pointer;touch-action:manipulation}
+    .mat-bid-coins:disabled{opacity:1;cursor:default}
+    .mat-bid-coins:not(:disabled){filter:drop-shadow(0 0 5px #fff3a1)}
+    .mat-bid-coins:focus-visible,.offer-card-return:focus-visible,.offer-cash:focus-visible{outline:3px solid #13665d;outline-offset:2px}
+    .offer-card-return{display:block;position:absolute;inset:0;width:100%;height:100%;border:0;padding:0;background:none;border-radius:inherit;cursor:pointer}
+    .offer-card-return img{display:block;width:100%;height:100%;object-fit:contain;border-radius:inherit}
+    .offer-bid-value{position:absolute;inset:12% 12% 32%;display:grid;place-items:center;border-radius:8px;background:#173b34ed;color:#fff4c6;font:900 clamp(20px,4.5cqw,58px)/1 Georgia,serif;text-shadow:0 2px 4px #000;pointer-events:none}
+    .offer-cash{position:absolute;left:5%;bottom:5%;width:90%;height:24%;padding:0;border:1px solid #aa7938;border-radius:5px;background:#fff0c3;color:#49300a;font:900 clamp(7px,1.1cqw,14px)/1 sans-serif;cursor:pointer;white-space:nowrap}
+    .offer-cash:disabled{opacity:1;cursor:default}
+    .auction-bid-actions{border:0;background:none;padding:0!important;box-shadow:none}
     .table-overlay{z-index:500}
     .net-choice .cards{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
     .net-choice .card{padding:8px;min-height:180px}.net-choice .card h4{font-size:13px}
@@ -266,8 +276,8 @@
       .playing .physical-board{grid-template-columns:1fr;grid-template-rows:58px minmax(0,1fr) minmax(0,1fr);padding:5px}
       .board-hud-status{gap:4px}.board-hud strong{font-size:13px}.board-hud-tools{gap:4px}
       .board-art-wrap,.playing .board-hand{grid-column:1}
-      .sidebar-content{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px}
-      .sidebar-content:not(:has(.auction-panel)){grid-template-columns:1fr;max-width:300px}
+      .sidebar-content{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+      .sidebar-content:not(:has(.auction-panel)){max-width:none}
       .player-mat-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}
       .player-mat-button{min-width:0;padding:3px 2px;gap:3px;font-size:9px}.player-mat-button>span:first-child{overflow-wrap:anywhere}.player-mat-button img{width:12px;height:12px}
       .auction-panel{padding:6px}.auction-panel-heading{flex-wrap:wrap}.auction-panel h3{font-size:14px}
@@ -277,11 +287,11 @@
       .playing .physical-board{grid-template-rows:58px min(calc((100vw - 28px)*.7072),35dvh) minmax(0,1fr)}
       .board-art{margin:0 auto}
       .sidebar-content,.sidebar-content:not(:has(.auction-panel)){display:flex;flex-direction:column;align-items:stretch;max-width:none;gap:8px}
-      .playing .board-hand .hand-meta{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:start;gap:6px}
+      .playing .board-hand .hand-meta{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:6px}
       .player-mat-buttons{grid-column:1/-1;grid-template-columns:repeat(auto-fit,minmax(54px,1fr));gap:4px}
       .player-mat-button{padding:5px 3px;font-size:10px}
       .hand-meta>.auction-winner,.hand-meta>.mat-pending,.hand-meta>.mat-uses{grid-column:1/-1}
-      .mat-upgrade-lanes{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:0}
+      .mat-upgrade-lanes{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:0}
       .mat-upgrade-lane{padding:4px;min-height:40px}.mat-upgrade-lane h4{font-size:10px}
       .auction-panel{width:100%;padding:8px}
       .auction-panel-heading{flex-wrap:nowrap;gap:8px}.auction-panel h3{font-size:17px}
@@ -685,7 +695,7 @@ function advanceBidders(){
   resolveBids(G.bids);
 }
 function bidScore(b){return b.card.bid+b.cash+b.infl*ESP_X}
-window.chooseBid=function(id){if(G.phase!=='asta'||G.auctionStage!=='bid'||!activePlayer().hand.some(c=>c.id===id))return;G.selectedBid=id;G.bidCash=0;G.bidInfl=0;render()};
+window.chooseBid=function(id){if(G.phase!=='asta'||G.auctionStage!=='bid'||!activePlayer().hand.some(c=>c.id===id))return;G.selectedBid=id;G.viewedPlayer=activePlayer().id;G.bidCash=0;G.bidInfl=0;render()};
 window.returnBidCard=function(){if(G.phase!=='asta'||G.auctionStage!=='bid')return;G.selectedBid=null;G.bidCash=0;G.bidInfl=0;render()};
 window.addInfluence=function(){const me=activePlayer();if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid)return;G.bidInfl=G.bidInfl>=me.influence?0:G.bidInfl+1;render()};
 window.submitBid=function(mode='bid'){
@@ -925,8 +935,10 @@ window.showAutomaCard=function(id){
 };
 function humanArea(p,color){
   const zone=body=>`<div class="offer-zone human-action" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)} · tu</span><div class="player-area-action">${body}</div></div>`;
-  if(G.phase==='asta'&&G.auctionStage==='bid'){const card=p.hand.find(c=>c.id===G.selectedBid),coins=`<button id="offerCoins" class="offer-coins ${G.bidCash?'':'hidden'}" onclick="removeBidCoin(event)" title="Riprendi un Ducato" aria-label="Riprendi un Ducato"><i></i><i></i><i></i><b id="offerCoinCount">${G.bidCash}</b></button>`;
-    return`<div class="offer-zone human-bid" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)} · tu</span>${card?`<div id="humanOfferCard" class="offer-card-back" role="button" tabindex="0" title="Rimetti la carta in mano" aria-label="Carta offerta coperta. Clicca per riprenderla" onclick="returnBidCard()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();returnBidCard()}"><img src="assets/board/card-back.png" alt="Retro della carta Pescaria" draggable="false">${coins}</div>`:'<div class="offer-card-empty">SCEGLI<br>UNA CARTA</div>'}</div>`}
+  if(G.phase==='asta'&&G.auctionStage==='bid'){
+    const card=p.hand.find(c=>c.id===G.selectedBid);
+    return`<div class="offer-zone human-bid" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)} · tu</span>${card?`<div id="humanOfferCard" class="offer-card-back"><button class="offer-card-return" title="Rimetti la carta in mano" aria-label="Carta offerta: valore ${card.bid}. Clicca per riprenderla" onclick="returnBidCard()"><img src="assets/board/card-back.png" alt="Retro della carta Pescaria" draggable="false"><strong class="offer-bid-value">${card.bid}</strong></button><button id="offerCash" class="offer-cash" onclick="removeBidCoin(event)" title="Riprendi un Ducato" aria-label="Riprendi un Ducato. Ducati aggiunti: ${G.bidCash}" ${G.bidCash?'':'disabled'}>+${G.bidCash} ${G.bidCash===1?'Ducato':'Ducati'}</button></div>`:'<div class="offer-card-empty">SCEGLI<br>UNA CARTA</div>'}</div>`;
+  }
   if(G.phase==='draft')return zone('');
   if(G.phase==='pubblico')return zone(`<button class="player-action-btn" onclick="finishMarket()">TERMINA</button>`);
   if(G.phase==='bilancia')return zone(`<button class="player-action-btn" onclick="finishDayBtn()">${G.day===4?'PUNTEGGIO':'CHIUDI'}</button>`);
@@ -960,7 +972,7 @@ function playerAnnouncement(){
   if(G.phase==='draft')return`${name} · Draft · Carte scelte: ${G.drafted[me.id].length}/5. Scegli una carta libera dal ventaglio.`;
   if(G.phase==='asta'){
     const fish=currentFish();
-    if(G.auctionStage==='bid')return G.selectedBid?`${name} · Asta ${fish}. Aggiungi i Ducati alla tua offerta, poi premi OFFRI.`:`${name} · Asta ${fish}. Scegli la carta da puntare, oppure PASSA. TUTTE salta le aste rimaste oggi.`;
+    if(G.auctionStage==='bid')return G.selectedBid?`${name} · Asta ${fish}. Tocca la moneta sul tuo banco per aggiungere Ducati, poi premi OFFRI. Tocca i Ducati sulla carta per riprenderli.`:`${name} · Asta ${fish}. Scegli la carta da puntare, oppure PASSA. TUTTE salta le aste rimaste oggi.`;
     const winner=G.auctionResult?.[0];
     return`${winner?`${G.players[winner.pid].name} vince l’asta con ${bidScore(winner)}. `:''}${name}, scegli quanti ${fish} comprare e conferma.`;
   }
@@ -993,8 +1005,11 @@ function playerMatHtml(p){
   const [color,character]=PLAYER_MATS[p.character??p.id],fish=FISH.flatMap(f=>Array(p.banco[f]).fill(f));
   const trays=Array.from({length:3},(_,i)=>{const stock=inv();fish.filter((_,j)=>j%3===i).forEach(f=>stock[f]++);return`<div class="bank-tray">${count(stock)?inventoryHtml(stock):''}</div>`}).join('');
   const lanes=Object.entries(CATS).map(([key,cat])=>{const cards=p.installed.filter(c=>c.cat===key);return`<section class="mat-upgrade-lane" aria-label="Migliorie ${cat.name}"><h4>${cat.name} <span>${cards.length}</span></h4>${cards.map(c=>`<details class="mat-upgrade"><summary>${esc(upName(c))}</summary><p>${esc(c.name)}<br>${esc(UPG[c.up].fx)}${c.favFish?`<br>Pesce preferito: ${esc(c.favFish)}`:''}</p></details>`).join('')||'<span class="mat-empty">—</span>'}</section>`}).join('');
+  const bidding=G.phase==='asta'&&G.auctionStage==='bid'&&!G.handoff&&p.id===activePlayer().id;
+  const available=bidding?Math.max(0,p.coins-G.bidCash):p.coins;
+  const coins=bidding?`<button id="bidCoinSource" class="mat-coins mat-bid-coins" onclick="addBidCoin(event)" title="Aggiungi i Ducati alla tua offerta" aria-label="Aggiungi un Ducato all'offerta. ${available} Ducati disponibili" ${G.selectedBid&&available?'':'disabled'}>${available}</button>`:`<span class="mat-coins" aria-label="${p.coins} Ducati">${p.coins}</span>`;
   const pending=p.pending.length?`<div class="mat-pending"><b>Da installare a fine giornata</b>${p.pending.map(c=>`<span>${CATS[c.cat].icon} ${esc(upName(c))}</span>`).join('')}</div>`:'';
-  return`<div class="player-mat" role="group" aria-label="Plancia ${character} di ${esc(p.name)}"><img class="player-mat-art" src="assets/players/plancia-${color}.png" alt="Plancia ${color}: ${character}" draggable="false"><span class="mat-label mat-bank-label">Banco ${count(p.banco)}/${capBanco(p)}</span><div class="mat-bank" role="group" aria-label="Banco: ${count(p.banco)} pesci su ${capBanco(p)}">${trays}</div><span class="mat-label mat-cesta-label">Cesta ${count(p.cesta)}/${CESTA_CAP}</span><div class="mat-cesta" role="group" aria-label="Cesta: ${count(p.cesta)} pesci su ${CESTA_CAP}">${count(p.cesta)?inventoryHtml(p.cesta):''}</div><span class="mat-coins" aria-label="${p.coins} Ducati">${p.coins}</span></div><div class="mat-upgrade-lanes">${lanes}</div>${pending}`;
+  return`<div class="player-mat" role="group" aria-label="Plancia ${character} di ${esc(p.name)}"><img class="player-mat-art" src="assets/players/plancia-${color}.png" alt="Plancia ${color}: ${character}" draggable="false"><span class="mat-label mat-bank-label">Banco ${count(p.banco)}/${capBanco(p)}</span><div class="mat-bank" role="group" aria-label="Banco: ${count(p.banco)} pesci su ${capBanco(p)}">${trays}</div><span class="mat-label mat-cesta-label">Cesta ${count(p.cesta)}/${CESTA_CAP}</span><div class="mat-cesta" role="group" aria-label="Cesta: ${count(p.cesta)} pesci su ${CESTA_CAP}">${count(p.cesta)?inventoryHtml(p.cesta):''}</div>${coins}</div><div class="mat-upgrade-lanes">${lanes}</div>${pending}`;
 }
 window.viewPlayerMat=function(id){if(!G||!G.players[id])return;G.viewedPlayer=id;renderBoard()};
 function auctionPanelHtml(me){
@@ -1002,8 +1017,7 @@ function auctionPanelHtml(me){
   const f=currentFish();
   if(G.auctionStage==='bid'){
     const card=me.hand.find(c=>c.id===G.selectedBid);
-  const wallet=`<div class="bid-wallet"><span>Ducati disponibili</span><button id="bidCoinSource" class="bid-coin-source" ${G.selectedBid&&G.bidCash<me.coins?'':'disabled'} onclick="addBidCoin(event)" aria-label="Aggiungi un Ducato all'offerta"><i></i><i></i><i></i><b id="bidWalletCount">${Math.max(0,me.coins-G.bidCash)}</b></button><small>Aggiungi i Ducati alla tua offerta</small></div>`;
-    return`<section class="auction-panel" aria-label="La tua offerta"><div class="auction-panel-heading"><h3>Asta dei ${f}</h3>${wallet}</div><table class="auction-table"><tbody><tr><th>Carta</th><td>${card?esc(card.name):'Scegli una carta dalla mano'}</td></tr><tr><th>Valore d’asta della carta</th><td><strong>${card?card.bid:'—'}</strong></td></tr><tr><th>Ducati puntati</th><td><button class="bid-minus" aria-label="Togli un Ducato dall’offerta" onclick="removeBidCoin(event)" ${G.bidCash?'':'disabled'}>−</button> <b id="bidCashValue">${G.bidCash}</b></td></tr></tbody></table><div class="auction-panel-buttons"><button class="btn primary offer-submit" ${card?'':'disabled'} onclick="submitBid()">OFFRI${card?` ${bidScore({card,cash:G.bidCash,infl:G.bidInfl})}`:''}</button><button class="btn secondary" title="Non partecipi a questa asta" onclick="submitBid('pass')">PASSA</button><button class="btn secondary" title="Non partecipi alle aste rimaste oggi" onclick="submitBid('all')">TUTTE</button></div></section>`;
+    return`<section class="auction-panel auction-bid-actions" aria-label="La tua offerta"><div class="auction-panel-buttons"><button class="btn primary offer-submit" ${card?'':'disabled'} onclick="submitBid()">OFFRI</button><button class="btn secondary" title="Non partecipi a questa asta" onclick="submitBid('pass')">PASSA</button><button class="btn secondary" title="Non partecipi alle aste rimaste oggi" onclick="submitBid('all')">TUTTE</button></div></section>`;
   }
   const q=G.buyQueue?.[G.buyPos];
   if(G.auctionStage!=='buy'||q?.pid!==me.id)return'';
@@ -1088,7 +1102,11 @@ function fitGameContents(){
     panel.style.zoom=Math.min(1,(innerHeight-40)/panel.scrollHeight,(innerWidth-32)/panel.offsetWidth);
   });
 }
-function syncBidCash(){const available=Math.max(0,activePlayer().coins-G.bidCash),source=$('bidCoinSource'),wallet=$('bidWalletCount'),stack=$('offerCoins'),total=$('offerCoinCount');if(wallet)wallet.textContent=available;if(source)source.disabled=!G.selectedBid||!available;if(total)total.textContent=G.bidCash;const cash=$('bidCashValue'),minus=document.querySelector('.bid-minus');if(cash)cash.textContent=G.bidCash;if(minus)minus.disabled=!G.bidCash;if(stack)stack.classList.toggle('hidden',!G.bidCash);const sub=document.querySelector('.offer-submit'),card=activePlayer().hand.find(c=>c.id===G.selectedBid);if(card){const label=`OFFRI ${bidScore({card,cash:G.bidCash,infl:G.bidInfl})}`;if(sub)sub.textContent=label}}
+function syncBidCash(){
+  const available=Math.max(0,activePlayer().coins-G.bidCash),source=$('bidCoinSource'),cash=$('offerCash');
+  if(source){source.textContent=available;source.disabled=!G.selectedBid||!available;source.setAttribute('aria-label',`Aggiungi un Ducato all'offerta. ${available} Ducati disponibili`)}
+  if(cash){cash.textContent=`+${G.bidCash} ${G.bidCash===1?'Ducato':'Ducati'}`;cash.disabled=!G.bidCash;cash.setAttribute('aria-label',`Riprendi un Ducato. Ducati aggiunti: ${G.bidCash}`)}
+}
 function flyBidCoin(from){const target=$('humanOfferCard');if(!target||reducedMotion)return;const to=target.getBoundingClientRect(),coin=document.createElement('span');coin.className='flying-ducat';coin.style.left=from.left+from.width/2-23+'px';coin.style.top=from.top+from.height/2-23+'px';document.body.appendChild(coin);if(window.gsap)gsap.to(coin,{left:to.left+to.width/2-23,top:to.top+to.height/2-23,rotation:720,scale:.72,duration:.52,ease:'power2.inOut',onComplete:()=>coin.remove()});else coin.animate([{transform:'translate(0) rotate(0)'},{transform:`translate(${to.left-from.left}px,${to.top-from.top}px) rotate(720deg) scale(.72)`}],{duration:520,easing:'ease-in-out'}).finished.then(()=>coin.remove())}
 window.addBidCoin=function(e){if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid||G.bidCash>=activePlayer().coins)return;const from=e.currentTarget.getBoundingClientRect();G.bidCash++;syncBidCash();flyBidCoin(from)};
 window.removeBidCoin=function(e){e.stopPropagation();if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.bidCash)return;G.bidCash--;syncBidCash()};
