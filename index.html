@@ -126,7 +126,7 @@
     /* Banco sul ghiaccio, Cesta nel barile, contratti sotto la categoria. */
     .playing .board-hand{gap:10px}
     .playing .board-hand .hand-meta{display:block;max-height:50%;overflow:clip;scrollbar-width:thin}
-    .player-mat-buttons{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px}
+    .player-mat-buttons{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
     .player-mat-button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:30px;padding:4px 7px;border:1px solid #c4ad83;border-bottom:3px solid var(--player-color);border-radius:6px;background:#fff9e9;color:#302417;font-size:11px;font-weight:800;cursor:pointer}
     .player-mat-button[aria-pressed="true"]{background:#dceee8;border-color:#17656a;border-bottom-color:var(--player-color);box-shadow:inset 0 0 0 1px #17656a}
     .player-mat-button:hover,.player-mat-button:focus-visible{background:#e5f2ee;outline:2px solid #17656a;outline-offset:1px}
@@ -1053,7 +1053,7 @@ function renderBoard(){
   const raised=mode==='draft'||mode==='market'||(mode==='bid'&&!G.selectedBid);
   const viewed=G.players[G.viewedPlayer||0],winner=G.phase==='asta'&&G.auctionStage==='buy'?G.auctionResult?.[0]:null;
   const extra=[copies(viewed,'Esperienza')?`Senza tassa ×${copies(viewed,'Esperienza')}`:'',copies(viewed,'Nuovi Clienti')?`Fortuna ×${copies(viewed,'Nuovi Clienti')}`:'',viewed.subsLeft?`Sottobanco ×${viewed.subsLeft}`:''].filter(Boolean).join(' · ');
-  host.innerHTML=`<div class="sidebar-content">${humanPlayers().length>1?`<div class="active-operator">Turno di ${esc(me.name)}</div>`:''}<div class="hand-meta">${winner?`<div class="auction-winner">${esc(G.players[winner.pid].name)} vince l’asta · ${bidScore(winner)}</div>`:''}<div class="player-mat-buttons" role="group" aria-label="Scegli la plancia del giocatore">${G.players.map(p=>`<button class="player-mat-button" style="--player-color:${playerColor(p)}" aria-pressed="${p.id===viewed.id}" onclick="viewPlayerMat(${p.id})"><span>${esc(p.name)}</span><span class="player-ducats">${p.coins}<img src="assets/tokens/moneta.png" alt="Ducati"></span></button>`).join('')}</div>${playerMatHtml(viewed)}${extra?`<div class="mat-uses">${extra}</div>`:''}</div>${auctionPanelHtml(me)}</div>`;
+  host.innerHTML=`<div class="sidebar-content">${humanPlayers().length>1?`<div class="active-operator">Turno di ${esc(me.name)}</div>`:''}<div class="hand-meta">${winner?`<div class="auction-winner">${esc(G.players[winner.pid].name)} vince l’asta · ${bidScore(winner)}</div>`:''}${playerMatHtml(viewed)}<div class="player-mat-buttons" role="group" aria-label="Scegli la plancia del giocatore">${G.players.map(p=>`<button class="player-mat-button" style="--player-color:${playerColor(p)}" aria-pressed="${p.id===viewed.id}" onclick="viewPlayerMat(${p.id})"><span>${esc(p.name)}</span><span class="player-ducats">${p.coins}<img src="assets/tokens/moneta.png" alt="Ducati"></span></button>`).join('')}</div>${extra?`<div class="mat-uses">${extra}</div>`:''}</div>${auctionPanelHtml(me)}</div>`;
   const dock=$('floatingHand'),handKey=`${G.day}:${G.phase}:${me.id}:${G.auctionIndex}:${G.auctionStage}:${G.draftRound}:${G.selectedBid}`;
   if(G.handViewKey!==handKey){G.handViewKey=handKey;G.handFolded=!raised}
   dock.classList.toggle('folded',G.handFolded);
