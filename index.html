@@ -194,7 +194,7 @@
     .playing #floatingHand.folded{transform:translate(-50%,calc(100% - 40px))}
     #floatingHand .hand-cards{pointer-events:none;inset:0}
     .playing #floatingHand .card{pointer-events:auto;width:210px;height:294px;bottom:12px;box-shadow:0 15px 28px #061c22a8,inset 0 0 0 2px #f5dfa6}
-    #floatingHand [data-swipe-select]{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+    #floatingHand .card{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
     #floatingHand .hand-toggle{position:absolute;left:-16px;bottom:12px;z-index:350;pointer-events:auto;width:44px;height:44px;padding:0;border:1px solid #b99b5c;border-radius:50%;background:#fff5dc;color:var(--ink);box-shadow:0 3px 12px #0006;font:900 27px/1 sans-serif;transition:transform .5s cubic-bezier(.22,.75,.25,1)}
     #floatingHand.folded .hand-toggle{transform:translateY(calc(40px - var(--hand-height)))}
     #floatingHand .hand-toggle:focus-visible{outline:3px solid #d5a33a;outline-offset:3px}
@@ -1213,16 +1213,18 @@ function setupHandSwipe(host){
   host.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')blockClick=false});
   host.addEventListener('touchstart',e=>{
     blockClick=false;
-    const card=e.target.closest('[data-swipe-select]');
+    const card=e.target.closest('.card');
     if(e.touches.length!==1){gesture=null;blockClick=true;return}
     if(!card||host.classList.contains('folded')){gesture=null;return}
-    const t=e.touches[0];gesture={card,id:t.identifier,x:t.clientX,y:t.clientY,moved:0};
+    const t=e.touches[0];gesture={card,id:t.identifier,x:t.clientX,y:t.clientY,moved:0,started:Date.now()};
   },{passive:true});
   host.addEventListener('touchmove',e=>{
     if(!gesture)return;
     if(e.touches.length!==1){gesture=null;blockClick=true;return}
     const t=e.touches[0];
     gesture.moved=Math.max(gesture.moved,Math.hypot(t.clientX-gesture.x,t.clientY-gesture.y));
+    const preview=host.querySelector('.gsap-open');
+    if(preview&&preview!==gesture.card){gesture.card=preview;gesture.x=t.clientX;gesture.y=t.clientY}
     if(gesture.moved>12){blockClick=true;e.preventDefault()}
   },{passive:false});
   host.addEventListener('touchend',e=>{
@@ -1230,9 +1232,9 @@ function setupHandSwipe(host){
     const t=[...e.changedTouches].find(t=>t.identifier===g.id);
     if(!t||e.touches.length){blockClick=true;return}
     const dx=t.clientX-g.x,up=g.y-t.clientY;
-    blockClick=g.moved>12||Math.hypot(dx,up)>12;
+    blockClick=g.moved>12||Math.hypot(dx,up)>12||Date.now()-g.started>=300;
     if(blockClick)e.preventDefault();
-    if(up>=56&&up>Math.abs(dx)*1.4&&g.card.isConnected&&!host.classList.contains('folded'))g.card.click();
+    if(up>=56&&up>Math.abs(dx)*1.4&&g.card.hasAttribute('data-swipe-select')&&g.card.isConnected&&!host.classList.contains('folded'))g.card.click();
   },{passive:false});
   host.addEventListener('touchcancel',()=>{gesture=null;blockClick=true});
   host.addEventListener('click',e=>{if(blockClick&&e.detail!==0){e.preventDefault();e.stopImmediatePropagation()}},true);
@@ -1246,8 +1248,10 @@ function animateHand(host){
   gsap.fromTo(cards,{y:24,scale:.98,opacity:1,rotation:i=>base[i].r*1.35},{x:i=>base[i].x,y:i=>base[i].y,rotation:i=>base[i].r,scale:1,opacity:1,duration:.32,stagger:.02,ease:'power3.out',overwrite:true});
   const close=()=>{cards.forEach(c=>{c.classList.remove('gsap-open');c.style.pointerEvents='auto'});gsap.to(cards,{x:i=>base[i].x,y:i=>base[i].y,rotation:i=>base[i].r,rotationX:0,rotationY:0,scale:1,opacity:1,zIndex:i=>i+1,duration:.36,ease:'power3.out',overwrite:true});delete hand.dataset.open};
   const open=index=>{hand.dataset.open=index;cards.forEach((c,i)=>{c.classList.toggle('gsap-open',i===index);c.style.pointerEvents=i===index?'auto':'none'});gsap.to(cards,{x:i=>base[i].x+(i<index?-58:i>index?58:0)+(i===index?(index===0?30:index===cards.length-1?-30:0):0),y:i=>i===index?-104:base[i].y+10,rotation:i=>i===index?0:base[i].r*.72,rotationX:0,rotationY:0,scale:i=>i===index?1.07:.95,opacity:i=>i===index?1:.62,zIndex:i=>i===index?300:i+1,duration:.3,ease:'power3.out',overwrite:true})};
-  cards.forEach((card,index)=>{const tiltX=gsap.quickTo(card,'rotationX',{duration:.24,ease:'power3.out'}),tiltY=gsap.quickTo(card,'rotationY',{duration:.24,ease:'power3.out'});let frame=0,lastEvent;card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&hand.dataset.open==null)open(index)});card.addEventListener('focusin',()=>open(index));card.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||hand.dataset.open!=index)return;lastEvent=e;if(frame)return;frame=requestAnimationFrame(()=>{const r=card.getBoundingClientRect();tiltX(((lastEvent.clientY-r.top)/r.height-.5)*-6);tiltY(((lastEvent.clientX-r.left)/r.width-.5)*8);frame=0})})});
-  hand.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const r=hand.getBoundingClientRect();if(e.clientY<r.bottom-145)return;const center=r.left+r.width/2,next=base.reduce((best,c,i)=>Math.abs(e.clientX-center-c.x)<Math.abs(e.clientX-center-base[best].x)?i:best,0);if(hand.dataset.open!=next)open(next)});
+  cards.forEach((card,index)=>{const tiltX=gsap.quickTo(card,'rotationX',{duration:.24,ease:'power3.out'}),tiltY=gsap.quickTo(card,'rotationY',{duration:.24,ease:'power3.out'});let frame=0,lastEvent;card.addEventListener('pointerenter',e=>{if(hand.dataset.open==null)open(index)});card.addEventListener('focusin',()=>open(index));card.addEventListener('pointermove',e=>{if(hand.dataset.open!=index)return;lastEvent=e;if(frame)return;frame=requestAnimationFrame(()=>{const r=card.getBoundingClientRect();tiltX(((lastEvent.clientY-r.top)/r.height-.5)*-6);tiltY(((lastEvent.clientX-r.left)/r.width-.5)*8);frame=0})})});
+  let touchStart=null;
+  hand.addEventListener('pointerdown',e=>{touchStart=e.pointerType==='touch'?{x:e.clientX,y:e.clientY}:null});
+  hand.addEventListener('pointermove',e=>{if(e.pointerType==='touch'&&(!touchStart||Math.abs(e.clientX-touchStart.x)<12||Math.abs(e.clientX-touchStart.x)<=Math.abs(e.clientY-touchStart.y)))return;const r=hand.getBoundingClientRect();if(e.clientY<r.bottom-145)return;const center=r.left+r.width/2,next=base.reduce((best,c,i)=>Math.abs(e.clientX-center-c.x)<Math.abs(e.clientX-center-base[best].x)?i:best,0);if(hand.dataset.open!=next){open(next);if(e.pointerType==='touch')touchStart={x:e.clientX,y:e.clientY}}});
   hand.addEventListener('pointerleave',close);
   hand.addEventListener('focusout',e=>{if(!hand.contains(e.relatedTarget))close()});
 }
