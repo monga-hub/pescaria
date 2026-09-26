@@ -358,6 +358,13 @@
     @media(max-width:700px){.board-hud{grid-template-columns:auto minmax(0,1fr) 36px;grid-template-rows:1fr;gap:5px}.board-hud>strong{font-size:15px}.board-ticker{grid-column:2;grid-row:1;font-size:12px}.playing .physical-board{grid-template-rows:40px minmax(0,1fr) minmax(0,1fr)}}
     @media(max-width:700px) and (orientation:portrait){.playing .physical-board{grid-template-rows:40px min(calc((100vw - 28px)*.7072),35dvh) minmax(0,1fr)}}
 
+  /* The guide reserves its own space; it never covers the requested action. */
+    body.tutorial{--tutorial-height:132px}
+    body.tutorial main{position:absolute;inset:var(--tutorial-height) 0 0;height:auto;margin:0}
+    .tutorial-guide{position:fixed;z-index:900;top:6px;left:12px;right:12px;min-height:120px;display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:16px;align-items:center;padding:12px 18px;background:#fff4dd;border:2px solid #b89547;border-radius:14px;box-shadow:0 3px 16px #0005;color:#17343b;overflow:clip}
+    .tutorial-progress{font-size:10px;font-weight:900;letter-spacing:.07em;color:#806129}.tutorial-copy h2{font:700 22px Georgia,serif;margin:3px 0 5px}.tutorial-copy p{margin:0;font-size:14px;line-height:1.35}.tutorial-controls{display:grid;gap:9px;text-align:center}.tutorial-controls .btn{padding:10px 8px;font-size:13px}.tutorial-exit{border:0;background:none;color:#5f5140;text-decoration:underline;cursor:pointer;font-size:12px;padding:3px}.tutorial-hint{font-size:12px;font-weight:900;color:#806129}
+    .tutorial-target{outline:4px solid #ffd85e!important;outline-offset:2px;box-shadow:0 0 18px #ffd85e99!important}
+    @media(max-width:700px){body.tutorial{--tutorial-height:170px}.tutorial-guide{min-height:158px;left:6px;right:6px;padding:10px;grid-template-columns:minmax(0,1fr) 88px;gap:8px}.tutorial-copy h2{font-size:17px}.tutorial-copy p{font-size:12px;line-height:1.3}.tutorial-controls .btn{font-size:11px;padding:9px 4px}.tutorial-hint,.tutorial-exit{font-size:10px}.tutorial-progress{font-size:9px}}
   </style>
 </head>
 <body>
@@ -367,7 +374,7 @@
       <div id="setupOptions" class="setup-options"></div>
       <div id="setupPlayers" class="setup-players"></div>
       <p class="setup-note">I giocatori umani si passano lo stesso dispositivo. Ogni personaggio è unico: scegliendone uno già assegnato, i due mercanti se lo scambiano.</p>
-      <button class="btn primary wide" onclick="newGame()">Apri il mercato</button><button class="btn secondary setup-menu" onclick="openGameMenu()">Menu · Carica partita</button>
+      <button class="btn primary wide" onclick="newGame()">Apri il mercato</button><button class="btn secondary setup-menu" onclick="startTutorial()">Impara a giocare · Tutorial guidato</button><button class="btn secondary setup-menu" onclick="openGameMenu()">Menu · Carica partita</button>
     </section>
 
     <section id="game" class="hidden" tabindex="-1">
@@ -385,6 +392,7 @@
 
     <section id="end" class="panel end hidden"></section>
   </main>
+  <aside id="tutorialGuide" class="tutorial-guide hidden" aria-label="Tutorial guidato"></aside>
   <dialog id="gameMenu" aria-labelledby="gameMenuTitle"></dialog>
   <dialog id="automaPreview" aria-label="Carta della Congrega dei Mercanti">
     <img id="automaPreviewImage" alt="" draggable="false">
@@ -668,6 +676,83 @@ window.loadGameSlot=function(slot){
   }catch{renderGameMenu('saves','Impossibile caricare questo salvataggio. Gli altri slot restano disponibili.')}
 };
 
+// A fixed teaching day, using the normal game rules and real actions.
+const TUTORIAL_STEPS=[
+  {title:'Benvenuto al mercato',text:'Impariamo giocando una giornata contro Berry. Carte e scelte sono preparate: segui il bordo dorato. Parti con 12 Ducati; dopo quattro giornate vince chi ne ha di più.',selector:'.player-mat'},
+  {title:'Il pescato del mattino',text:'In due si estraggono 12 pesci: 6 per mercante. Guarda i lotti: oggi ci sono 3 Polpi. Sceglieremo un contratto che ne richiede uno.',action:'beginDraft',args:[],button:'Vai al draft',selector:'.board-fish'},
+  {title:'Come leggere una carta',text:'Famiglia Badoer: lo scudo 3 è il valore d’asta; la moneta 5 è l’incasso del contratto; il Polpo è la consegna richiesta. In basso trovi la miglioria Senza tassa.',selector:'[data-card-id="7"]'},
+  {title:'Tieni il tuo primo contratto',text:'Scegli Famiglia Badoer. Il Polpo richiesto è disponibile al mercato: proveremo a comprarlo. Il lucchetto indica che la carta è già tua.',action:'pickDraft',args:[7],selector:'[data-card-id="7"]'},
+  {title:'Una carta forte per l’asta',text:'I pacchetti passano al vicino. Ora scegli Ristorante alla Frasca: il suo scudo vale 10. La useremo per puntare, quindi non potremo poi completarla come contratto.',action:'pickDraft',args:[71],selector:'[data-card-id="71"]'},
+  {title:'Prepara un’offerta economica',text:'Scegli Bacaro Risorto. Il suo valore d’asta è 3: ci servirà per partecipare a un’altra asta senza sacrificare i contratti che vogliamo completare.',action:'pickDraft',args:[1],selector:'[data-card-id="1"]'},
+  {title:'Un secondo contratto',text:'Scegli Osteria ai Pugni: richiede 1 Gambero e rende 4 Ducati. L’ultima carta del draft, Bacaro della Riva, arriva automaticamente. Avrai cinque carte.',action:'pickDraft',args:[4],selector:'[data-card-id="4"]'},
+  {title:'Cominciano le aste',text:'Le aste seguono questo ordine: Polpi, Gamberi, Molluschi, Branzini, Sardine. Si punta una carta coperta, più eventuali Ducati visibili. Le carte puntate finiscono negli scarti.',selector:'.board-fish'},
+  {title:'Punta la carta da 10',text:'Scegli Ristorante alla Frasca per l’asta dei Polpi. La carta andrà coperta nel tuo spazio. Puoi cliccarla oppure evidenziarla e scorrere verso l’alto.',action:'chooseBid',args:[71],selector:'[data-card-id="71"]'},
+  {title:'Aggiungi un Ducato',text:'Tocca la moneta sul tuo banco una volta. L’offerta diventa 10 + 1 = 11. Solo il vincitore paga i Ducati puntati; il prezzo dei pesci si paga a parte.',action:'addBidCoin',selector:'#bidCoinSource'},
+  {title:'Conferma l’offerta',text:'Ora premi OFFRI. Berry offrirà 5: il tuo 11 vincerà. In una partita libera le carte avversarie sono segrete fino alla rivelazione. In parità ha precedenza chi viene prima nel turno.',action:'submitBid',args:[],selector:'.offer-submit'},
+  {title:'Hai vinto: compri a 1',text:'Hai pagato 1 Ducato per la puntata e sei il nuovo Capitano. Vincere dà il diritto di comprare per primo, a 1 Ducato per pesce. Il Banco può contenere 6 pesci.',selector:'.auction-panel'},
+  {title:'Scegli due Polpi',text:'Tocca il secondo Polpo per selezionarne due: uno servirà al contratto, l’altro ci farà vedere come conservare il pesce. La spesa sarà di 2 Ducati.',action:'toggleBuyToken',args:[2],selector:'[onclick="toggleBuyToken(2)"]'},
+  {title:'Portali sul banco',text:'Conferma l’acquisto dei due Polpi. Dopo la puntata e questo acquisto ti resteranno 9 Ducati. Anche chi perde ma partecipa può comprare, dopo il vincitore, a 2 Ducati per pesce.',action:'confirmBuy',args:[],selector:'.purchase-confirm'},
+  {title:'Partecipa all’asta dei Gamberi',text:'Punta Bacaro Risorto, valore 3. Non aggiungiamo Ducati. Stavolta Berry offrirà 7 e vincerà: possiamo comunque comprare il Gambero che ci serve.',action:'chooseBid',args:[1],selector:'[data-card-id="1"]'},
+  {title:'Offri senza aggiungere Ducati',text:'Premi OFFRI. La carta puntata va negli scarti anche se perdi. Il vantaggio di partecipare è poter comprare il pesce rimasto dopo Berry.',action:'submitBid',args:[],selector:'.offer-submit'},
+  {title:'Hai perso, ma puoi comprare',text:'Berry compra per primo. Per te è già selezionato 1 Gambero a 2 Ducati. Serve a Osteria ai Pugni: conferma l’acquisto. Ti resteranno 7 Ducati.',action:'confirmBuy',args:[],selector:'.purchase-confirm'},
+  {title:'Passa una sola asta',text:'Non ci servono Molluschi. Premi PASSA: conservi le carte e non compri in questa asta. Potrai ancora partecipare alle successive.',action:'submitBid',args:['pass'],selector:'[onclick="submitBid(\'pass\')"]'},
+  {title:'Passa le aste rimanenti',text:'Non ci servono neppure Branzini o Sardine. Premi TUTTE per rinunciare a tutte le aste rimaste oggi. Berry passa anche lui; il pesce invenduto torna nel sacchetto.',action:'submitBid',args:['all'],selector:'[onclick="submitBid(\'all\')"]'},
+  {title:'Apri il mercato',text:'Hai 2 Polpi e 1 Gambero sul Banco. Ora le carte diventano contratti da soddisfare. Non devi completarle tutte: scegli quelle per cui possiedi il pesce richiesto.',selector:'.mat-bank'},
+  {title:'Consegna il primo contratto',text:'Scegli Famiglia Badoer. Consegni 1 Polpo e incassi 5 Ducati: da 7 passi a 12. La carta diventa una miglioria da installare a fine giornata.',action:'serveContract',args:[7],selector:'[data-card-id="7"]'},
+  {title:'Completa anche il secondo',text:'Scegli Osteria ai Pugni: consegni 1 Gambero e incassi altri 4 Ducati. Arrivi a 16. Le migliorie appena completate non danno ancora bonus: si attivano a fine giornata.',action:'serveContract',args:[4],selector:'[data-card-id="4"]'},
+  {title:'Conserva il pesce avanzato',text:'Ti resta 1 Polpo. Chiudendo il mercato va nella Cesta, che conserva fino a 3 pesci per domani. Il pesce oltre questa capienza torna nel sacchetto.',action:'finishMarket',args:[],button:'Chiudi il mercato',selector:'.mat-bank'},
+  {title:'Scegli una carta per domani',text:'Puoi conservare al massimo 2 carte. Te ne è rimasta una: seleziona Bacaro della Riva. Le carte conservate restano fuori dal prossimo draft e tornano in mano alla sua fine.',action:'toggleKeep',args:[18],selector:'[data-card-id="18"]'},
+  {title:'Conferma la carta conservata',text:'Bacaro della Riva è selezionata. Conferma: le carte non conservate andrebbero negli scarti. Ora installiamo le migliorie completate oggi.',action:'confirmKeep',args:[],button:'Conserva la carta'},
+  {title:'La prima miglioria: Senza tassa',text:'Famiglia Badoer è ora installata nella corsia Asta. Quando parteciperai e perderai un’asta, 1 pesce costerà 1 Ducato invece di 2. Ogni copia aumenta di uno i pesci scontati.',selector:'[aria-label="Migliorie Asta"]'},
+  {title:'La seconda miglioria: Sottobanco',text:'Osteria ai Pugni è installata nella corsia Mercato. In ogni contratto potrai sostituire 1 pesce mancante con 2 pesci uguali di un altro tipo. È permanente: si usa di nuovo nei contratti successivi.',selector:'[aria-label="Migliorie Mercato"]'},
+  {title:'Le migliorie fanno crescere il banco',text:'Ogni miglioria già installata aggiunge anche 1 Ducato ai futuri contratti della stessa categoria. Le carte Mercante danno rendite a fine giornata; oggi non ne hai installate.',selector:'.mat-upgrade-lanes'},
+  {title:'Passa alla giornata successiva',text:'Chiudi la giornata con 16 Ducati, 2 migliorie, 1 Polpo in Cesta e 1 carta conservata. Le migliorie restano attive per il resto della partita.',action:'finishDayBtn',args:[],button:'Inizia la seconda giornata'},
+  {title:'Ora sai giocare a Pescaria',text:'Hai visto un ciclo completo: draft, aste, acquisti, contratti e migliorie. La partita dura quattro giornate: vince chi ha più Ducati; in parità, chi ha più migliorie. Ora puoi aprire una partita libera.',selector:'.mat-cesta',done:true}
+];
+function tutorialStep(){return G?.tutorial?TUTORIAL_STEPS[G.tutorial.step]:null}
+window.startTutorial=function(){
+  if(G&&!G.finished&&!G.tutorial&&!confirm('Lasciare la partita in corso e iniziare il tutorial?'))return;
+  startGame({n:2,seed:20260926,difficulty:'normal',humanBot:false,roster:[{name:'Tu',human:true,character:0},{name:'Berry',human:false,character:1}]});
+  G.tutorial={step:0};G.captain=0;
+  for(const f of FISH)for(let i=0;i<G.market[f];i++)G.bag.push(f);
+  G.market={Polpi:3,Gamberi:3,Molluschi:2,Branzini:2,Sardine:2};
+  for(const f of FISH)for(let i=0;i<G.market[f];i++)G.bag.splice(G.bag.indexOf(f),1);
+  const ids=[7,1,18,28,29,71,4,30,31,32],dealt=ids.map(id=>G.deck.find(c=>c.id===id));
+  G.deck=G.deck.filter(c=>!ids.includes(c.id)).concat(dealt.reverse());
+  G.log=[];log('Tutorial','Una giornata guidata: 12 pesci al mercato, 12 Ducati per mercante.');
+  if(!HEADLESS){dismissPhaseIntro();$('gameMenu').close();document.body.classList.add('playing');$('setup').classList.add('hidden');$('end').classList.add('hidden');$('game').classList.remove('hidden')}
+  render();
+};
+window.tutorialNext=function(){const step=tutorialStep();if(!step||step.action||step.done)return;G.tutorial.step++;render()};
+window.tutorialDo=function(){const step=tutorialStep();if(step?.button)window[step.action](...(step.args||[]))};
+window.exitTutorial=function(){G=null;if(!HEADLESS){clearTutorialUI();restartGame()}};
+function clearTutorialUI(){if(HEADLESS)return;document.body.classList.remove('tutorial');document.body.style.removeProperty('--tutorial-height');$('tutorialGuide').classList.add('hidden');document.querySelectorAll('.tutorial-target').forEach(el=>el.classList.remove('tutorial-target'))}
+function renderTutorial(){
+  if(HEADLESS)return;const step=tutorialStep();if(!step){clearTutorialUI();return}
+  document.body.classList.add('tutorial');const guide=$('tutorialGuide');guide.classList.remove('hidden');
+  guide.innerHTML=`<div class="tutorial-copy" role="status"><div class="tutorial-progress">PARTITA GUIDATA · ${G.tutorial.step+1} / ${TUTORIAL_STEPS.length}</div><h2>${esc(step.title)}</h2><p>${esc(step.text)}</p></div><div class="tutorial-controls">${step.done?'<button class="btn primary" onclick="exitTutorial()">Gioca una partita</button>':step.button?`<button class="btn primary" onclick="tutorialDo()">${esc(step.button)}</button>`:!step.action?'<button class="btn primary" onclick="tutorialNext()">Avanti →</button>':'<span class="tutorial-hint">Segui il bordo dorato ↓</span>'}<button class="tutorial-exit" onclick="exitTutorial()">Esci dal tutorial</button></div>`;
+  requestAnimationFrame(()=>{
+    if(!G?.tutorial)return;
+    document.body.style.setProperty('--tutorial-height',(guide.offsetHeight+12)+'px');fitGameContents();
+    document.querySelectorAll('.tutorial-target').forEach(el=>el.classList.remove('tutorial-target'));
+    const target=step.selector&&document.querySelector(step.selector);if(target){target.classList.add('tutorial-target');if(target.classList.contains('card'))target.focus({preventScroll:true})}
+  });
+}
+function installTutorialGuards(){
+  for(const name of ['beginDraft','pickDraft','chooseBid','returnBidCard','addBidCoin','removeBidCoin','submitBid','toggleBuyToken','confirmBuy','serveContract','finishMarket','toggleKeep','confirmKeep','finishDayBtn','viewPlayerMat','addInfluence','pickFavorite','acceptHandoff']){
+    const action=window[name];window[name]=function(...args){
+      if(!G?.tutorial)return action(...args);
+      const step=tutorialStep();if(step?.action!==name||(step.args&&JSON.stringify(step.args)!==JSON.stringify(args)))return;
+      G.tutorial.step++;const result=action(...args);render();return result;
+    };
+  }
+  if(!HEADLESS)document.addEventListener('click',e=>{
+    const step=tutorialStep();if(!step||e.target.closest('#tutorialGuide')||e.target.closest('.hand-toggle'))return;
+    if(step.action&&!step.button&&step.selector&&e.target.closest(step.selector))return;
+    e.preventDefault();e.stopImmediatePropagation();
+  },true);
+}
+
 // ---------------- Setup ----------------
 let setupCount=4,setupDifficulty='normal',setupCongrega='no';
 const setupRoster=PLAYER_MATS.map((_,id)=>({name:id?BOTNAMES[id-1]:'Daniele',human:id===0,character:id}));
@@ -718,7 +803,7 @@ function startGame({n,name,seed=Math.floor(Math.random()*4294967295)+1,difficult
   log('Partita',`${G.players[G.captain].name} ha mangiato pesce più di recente: è il primo Capitano.`);
   startDay();
 }
-window.restartGame=function(){if(G&&!G.finished&&!confirm('Abbandonare la partita in corso?'))return;dismissPhaseIntro();$('gameMenu').close();G=null;document.body.classList.remove('playing');$('game').classList.add('hidden');$('end').classList.add('hidden');$('setup').classList.remove('hidden');scheduleFit()};
+window.restartGame=function(){if(G&&!G.finished&&!confirm('Abbandonare la partita in corso?'))return;dismissPhaseIntro();clearTutorialUI();$('gameMenu').close();G=null;document.body.classList.remove('playing');$('game').classList.add('hidden');$('end').classList.add('hidden');$('setup').classList.remove('hidden');scheduleFit()};
 
 // ---------------- Fase 1 · Pesca del Mattino ----------------
 function startDay(){
@@ -937,6 +1022,7 @@ function botUpgradeValue(p,c){
 function availability(p,c){const stock=mix(mix(p.banco,p.cesta),G.market);let miss=0,need=0;for(const [f,n] of Object.entries(c.recipe)){need+=n;miss+=Math.max(0,n-(stock[f]||0))}return need?1-miss/need:1}
 function botCardValue(p,c){return payout(p,c)+botUpgradeValue(p,c)*(G.day<4?1:(c.cat==='B'?1:0))}
 function botDraft(p,pack){
+  if(G.tutorial)return pack.find(c=>c.id===[32,29,31,28][G.draftRound-1])||pack[0];
   const score=c=>{const contract=botCardValue(p,c)*(0.35+0.65*availability(p,c)),bidUse=c.bid*.9;return Math.max(contract,bidUse)+noise()};
   return[...pack].sort((a,b)=>score(b)-score(a))[0];
 }
@@ -967,6 +1053,7 @@ function needOf(p,f,keepIds){
 function lostFishTypes(p,c){const stock=mix(p.banco,p.cesta);return Object.entries(c.recipe).filter(([g,n])=>{const miss=n-(stock[g]||0);if(miss<=0)return false;const gi=(G.aOrder||FISH).indexOf(g);return (gi>=G.auctionIndex?(G.market[g]||0):0)<miss}).map(([g])=>g)}
 const CARD_AVG=CARDS.reduce((s,c)=>s+c.bid,0)/CARDS.length;
 function botBid(p,f,seen=[]){
+  if(G.tutorial){const card=p.hand.find(c=>c.id===({Polpi:29,Gamberi:31}[f]));return card?{pid:p.id,card,cash:0,infl:0}:null}
   if(p.congrega)return congregaBid(p);
   if(!p.hand.length||!roomBanco(p))return null;
   const keep=botPlan(p),need=Math.min(needOf(p,f,keep),G.market[f]);
@@ -996,6 +1083,7 @@ function congregaBid(p){
 }
 function cheapBid(p,keep){const c=p.hand.filter(c=>!keep.has(c.id)).sort((a,b)=>a.bid-b.bid)[0];return c?{pid:p.id,card:c,cash:0,infl:0}:null}
 function botBuy(p,f,price,rank){
+  if(G.tutorial){buy(p,f,1,price);return}
   if(p.congrega){if(rank===0&&p.congregaCard)buy(p,f,p.congregaCard.fish,1);return}
   const keep=botPlan(p);let n=needOf(p,f,keep);
   if(rank===0&&p.coins>6)n=Math.max(n+(G.difficulty==='easy'?0:1),1);
@@ -1042,6 +1130,7 @@ function humanArea(p,color){
 }
 const me0=activePlayer;
 function overlayHtml(){
+  if(G.tutorial)return'';
   const me=activePlayer(),box=(note,title,body)=>`<div class="table-overlay" role="dialog" aria-modal="true" aria-labelledby="ovTitle"><div class="net-choice"><div class="net-choice-note">${note}</div><h2 id="ovTitle">${title}</h2>${body}</div></div>`;
   if(G.handoff)return box('Passa il dispositivo',`Tocca a ${esc(me.name)}`,`<img class="handoff-portrait" src="assets/players/ritratto-${PLAYER_MATS[me.character??me.id][0]}.png" alt=""><p>Le carte restano nascoste finché non sei pronto.</p><button class="btn primary" onclick="acceptHandoff()">Sono ${esc(me.name)}, cominciamo</button>`);
   if(G.overlay==='morning'){
@@ -1062,6 +1151,7 @@ function pileHtml(cards,faceUp){
   return`<div class="board-pile ${faceUp?'discard':'deck'}-pile" aria-label="${label}: ${cards.length} carte"><div class="pile-cards">${stack}</div><span class="pile-count">${label} · ${cards.length}</span></div>`;
 }
 function playerAnnouncement(){
+  if(G.tutorial)return `Tutorial · ${tutorialStep().title}. Segui la spiegazione in alto.`;
   const me=activePlayer(),name=me.name;
   if(G.handoff)return`Passa il dispositivo a ${name}. Conferma quando sei pronto.`;
   if(G.phase==='rete')return`${name}, ecco il pescato di oggi. Vai al draft per scegliere le carte.`;
@@ -1095,7 +1185,7 @@ function inventoryHtml(stock,muted=false){const x=FISH.flatMap(f=>Array.from({le
 function cardHtml(c,mode='plain',enabled=true,style=''){
   const me=activePlayer(),selected=(mode==='bid'&&G.selectedBid===c.id)||(mode==='keep'&&G.keepSel?.has(c.id)),locked=mode==='draft'&&!enabled,selectable=enabled&&['bid','draft','market','client','keep'].includes(mode),fn={bid:'chooseBid',draft:'pickDraft',market:'serveContract',client:'pickClient',keep:'toggleKeep'}[mode],select=selectable?`role="button" tabindex="0" ${['draft','bid'].includes(mode)?'data-swipe-select':''} onclick="${fn}(${c.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}(${c.id})}"`:'tabindex="0"';
   const pay=mode==='market'&&enabled?payout(me,c):c.value,description=`${c.bid} CLIENTE #${c.id} ${c.name}. ${c.fish}. ${pay} Ducati. ${upName(c)}. ${UPG[c.up].fx}`;
-  return`<article class="card illustrated-card ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" aria-label="${esc(description)}" title="${esc(description)}" ${style?`style="${style}"`:''} ${select}><img class="card-art" src="assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2" alt="" draggable="false">${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}${pay!==c.value?`<span class="card-bonus">${pay} Ducati · +${pay-c.value} bonus</span>`:''}</article>`}
+  return`<article data-card-id="${c.id}" class="card illustrated-card ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" aria-label="${esc(description)}" title="${esc(description)}" ${style?`style="${style}"`:''} ${select}><img class="card-art" src="assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2" alt="" draggable="false">${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}${pay!==c.value?`<span class="card-bonus">${pay} Ducati · +${pay-c.value} bonus</span>`:''}</article>`}
 function phaseTitle(k){if(k==='draft')return'1 · Draft';if(k==='conserva')return'3 · Mercato';return PHASES.find(x=>x[0]===k)?.[1]||''}
 function playerMatHtml(p){
   const [color,character]=PLAYER_MATS[p.character??p.id],fish=FISH.flatMap(f=>Array(p.banco[f]).fill(f));
@@ -1141,19 +1231,21 @@ function renderBoard(){
   if(G.phase==='asta'&&G.auctionStage==='bid')mode='bid';
   if(G.phase==='pubblico'){mode='market';enabled=c=>canContract(me,c)}
   if(G.phase==='draft'){const pack=G.draftPacks[me.id];cards=[...G.drafted[me.id]].reverse().concat(pack);mode='draft';enabled=c=>pack.some(x=>x.id===c.id)}
+  if(G.tutorial&&G.phase==='conserva'){mode='keep';enabled=()=>true}
   if(G.handoff)cards=[];
   if(mode==='bid'&&G.selectedBid)cards=cards.filter(c=>c.id!==G.selectedBid);
   const mid=(cards.length-1)/2,room=Math.min(760,innerWidth-48),spread=Math.min(100,Math.max(18,(room-230)/Math.max(1,cards.length-1))),fan=cards.map((c,i)=>cardHtml(c,mode,enabled(c),`--i:${i};--x:${(i-mid)*spread}px;--r:${(i-mid)*5}deg;--edge:${i===0?32:i===cards.length-1?-32:0}px;--z:${i+1}`)).join('');
   const host=$('boardHand')||$('board');
 
-  const raised=mode==='draft'||mode==='market'||(mode==='bid'&&!G.selectedBid);
+  const raised=mode==='draft'||mode==='market'||mode==='keep'||(mode==='bid'&&!G.selectedBid);
   const viewed=G.players[G.viewedPlayer||0],winner=G.phase==='asta'&&G.auctionStage==='buy'?G.auctionResult?.[0]:null;
   const extra=[copies(viewed,'Esperienza')?`Senza tassa ×${copies(viewed,'Esperienza')}`:'',copies(viewed,'Nuovi Clienti')?`Fortuna ×${copies(viewed,'Nuovi Clienti')}`:'',viewed.subsLeft?`Sottobanco ×${viewed.subsLeft}`:''].filter(Boolean).join(' · ');
   host.innerHTML=`<div class="sidebar-content">${humanPlayers().length>1?`<div class="active-operator">Turno di ${esc(me.name)}</div>`:''}<div class="hand-meta">${winner?`<div class="auction-winner">${esc(G.players[winner.pid].name)} vince l’asta · ${bidScore(winner)}</div>`:''}${playerMatHtml(viewed)}<div class="player-mat-buttons" role="group" aria-label="Scegli la plancia del giocatore">${G.players.map(p=>`<button class="player-mat-button" style="--player-color:${playerColor(p)}" aria-pressed="${p.id===viewed.id}" onclick="viewPlayerMat(${p.id})"><span>${esc(p.name)}</span><span class="player-ducats">${p.coins}<img src="assets/tokens/moneta.png" alt="Ducati"></span></button>`).join('')}</div>${extra?`<div class="mat-uses">${extra}</div>`:''}</div>${auctionPanelHtml(me)}</div>`;
   const dock=$('floatingHand'),handKey=`${G.day}:${G.phase}:${me.id}:${G.auctionIndex}:${G.auctionStage}:${G.draftRound}:${G.selectedBid}`;
   if(G.handViewKey!==handKey){G.handViewKey=handKey;G.handFolded=!raised}
+  if(G.tutorial)G.handFolded=!tutorialStep()?.selector?.startsWith('[data-card-id=');
   dock.classList.toggle('folded',G.handFolded);
-  dock.classList.toggle('hidden',!!G.overlay||G.handoff||!cards.length);
+  dock.classList.toggle('hidden',(!!G.overlay&&!G.tutorial)||G.handoff||!cards.length);
   dock.innerHTML=`<button class="hand-toggle" onclick="toggleHand()" aria-controls="handCards"></button><div id="handCards" class="hand-cards">${fan||'<p class="empty">Nessuna carta in mano.</p>'}</div>`;
   syncHandToggle(dock);
   requestAnimationFrame(()=>{fitGameContents();animateHand(dock)})
@@ -1241,7 +1333,7 @@ function animateHand(host){
   gsap.set(cards,{xPercent:-50,transformOrigin:'50% 100%',force3D:true});
   gsap.fromTo(cards,{y:24,scale:.98,opacity:1,rotation:i=>base[i].r*1.35},{x:i=>base[i].x,y:i=>base[i].y,rotation:i=>base[i].r,scale:1,opacity:1,duration:.32,stagger:.02,ease:'power3.out',overwrite:true});
   const close=()=>{cards.forEach(c=>{c.classList.remove('gsap-open');c.style.pointerEvents='auto'});gsap.to(cards,{x:i=>base[i].x,y:i=>base[i].y,rotation:i=>base[i].r,rotationX:0,rotationY:0,scale:1,opacity:1,zIndex:i=>i+1,duration:.36,ease:'power3.out',overwrite:true});delete hand.dataset.open};
-  const open=index=>{hand.dataset.open=index;cards.forEach((c,i)=>{c.classList.toggle('gsap-open',i===index);c.style.pointerEvents=i===index?'auto':'none'});gsap.to(cards,{x:i=>base[i].x+(i<index?-58:i>index?58:0)+(i===index?(index===0?30:index===cards.length-1?-30:0):0),y:i=>i===index?-104:base[i].y+10,rotation:i=>i===index?0:base[i].r*.72,rotationX:0,rotationY:0,scale:i=>i===index?1.07:.95,opacity:i=>i===index?1:.62,zIndex:i=>i===index?300:i+1,duration:.3,ease:'power3.out',overwrite:true})};
+  const open=index=>{if(G?.tutorial){const required=cards.findIndex(c=>c.matches(tutorialStep()?.selector||':not(*)'));if(required>=0)index=required}hand.dataset.open=index;cards.forEach((c,i)=>{c.classList.toggle('gsap-open',i===index);c.style.pointerEvents=i===index?'auto':'none'});gsap.to(cards,{x:i=>base[i].x+(i<index?-58:i>index?58:0)+(i===index?(index===0?30:index===cards.length-1?-30:0):0),y:i=>i===index?-104:base[i].y+10,rotation:i=>i===index?0:base[i].r*.72,rotationX:0,rotationY:0,scale:i=>i===index?1.07:.95,opacity:i=>i===index?1:.62,zIndex:i=>i===index?300:i+1,duration:.3,ease:'power3.out',overwrite:true})};
   cards.forEach((card,index)=>{const tiltX=gsap.quickTo(card,'rotationX',{duration:.24,ease:'power3.out'}),tiltY=gsap.quickTo(card,'rotationY',{duration:.24,ease:'power3.out'});let frame=0,lastEvent;card.addEventListener('pointerenter',()=>{if(hand.dataset.open==null)open(index)});card.addEventListener('focusin',()=>open(index));card.addEventListener('pointermove',e=>{if(hand.dataset.open!=index)return;lastEvent=e;if(frame)return;frame=requestAnimationFrame(()=>{const r=card.getBoundingClientRect();tiltX(((lastEvent.clientY-r.top)/r.height-.5)*-6);tiltY(((lastEvent.clientX-r.left)/r.width-.5)*8);frame=0})})});
   hand.addEventListener('pointermove',e=>{const r=hand.getBoundingClientRect();if(e.clientY<r.bottom-145)return;const center=r.left+r.width/2,next=base.reduce((best,c,i)=>Math.abs(e.clientX-center-c.x)<Math.abs(e.clientX-center-base[best].x)?i:best,0);if(hand.dataset.open!=next)open(next)});
   hand.addEventListener('pointerleave',close);
@@ -1255,6 +1347,7 @@ window.dismissPhaseIntro=function(){
   if(phaseIntroFocus){(phaseIntroFocus.isConnected?phaseIntroFocus:$('game')).focus({preventScroll:true});phaseIntroFocus=null}
 };
 function showPhaseIntro(){
+  if(G.tutorial)return;
   const phase=G.phase==='conserva'?'pubblico':G.phase,fish=phase==='asta'?currentFish():null,key=`${G.day}:${phase}:${fish||''}`;
   if(G.phaseIntroSeen?.has(key))return;
   (G.phaseIntroSeen??=new Set()).add(key);G.phaseIntroKey=key;
@@ -1271,12 +1364,13 @@ function showPhaseIntro(){
   $('skipPhaseIntro').focus({preventScroll:true});
   phaseIntroTimer=setTimeout(dismissPhaseIntro,2100);
 }
-function render(){if(!G||HEADLESS||G.finished)return;showPhaseIntro();$('game').dataset.phase=G.phase;$('dayTitle').textContent=`Giorno ${G.day} di 4 · ${phaseTitle(G.phase)}`;$('deckInfo').textContent=`Mazzo: ${G.deck.length} · Sacchetto: ${G.bag.length}`;$('progress').innerHTML=PHASES.map(([k,n])=>{const order=['rete','asta','pubblico','bilancia'],actual=G.phase==='draft'?'rete':G.phase==='conserva'?'pubblico':G.phase,i=order.indexOf(k),now=order.indexOf(actual);return`<div class="step ${i===now?'active':i<now?'done':''}">${n}</div>`}).join('');renderPhysicalBoard();const scores=G.players.map(scoreCard).join('');$('scores').innerHTML=scores;renderBoard();$('log').innerHTML=[...G.log].reverse().map(x=>`<div class="logitem"><b>G${x.day} · ${esc(x.phase)}</b>${esc(x.text)}</div>`).join('')}
+function render(){if(!G||HEADLESS||G.finished)return;showPhaseIntro();$('game').dataset.phase=G.phase;$('dayTitle').textContent=`Giorno ${G.day} di 4 · ${phaseTitle(G.phase)}`;$('deckInfo').textContent=`Mazzo: ${G.deck.length} · Sacchetto: ${G.bag.length}`;$('progress').innerHTML=PHASES.map(([k,n])=>{const order=['rete','asta','pubblico','bilancia'],actual=G.phase==='draft'?'rete':G.phase==='conserva'?'pubblico':G.phase,i=order.indexOf(k),now=order.indexOf(actual);return`<div class="step ${i===now?'active':i<now?'done':''}">${n}</div>`}).join('');renderPhysicalBoard();const scores=G.players.map(scoreCard).join('');$('scores').innerHTML=scores;renderBoard();$('log').innerHTML=[...G.log].reverse().map(x=>`<div class="logitem"><b>G${x.day} · ${esc(x.phase)}</b>${esc(x.text)}</div>`).join('');renderTutorial()}
 
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 window.addEventListener('resize',()=>{render();scheduleFit();fitGameMenu()});
 document.addEventListener('load',scheduleFit,true);
 document.addEventListener('toggle',scheduleFit,true);
+installTutorialGuards();
 if(!HEADLESS){setupHandSwipe($('floatingHand'));renderSetupPlayers();scheduleFit()}
 document.addEventListener('pointermove',e=>{const c=e.target.closest?.('.hand-cards .card');if(!c||reducedMotion||window.gsap)return;const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.setProperty('--tilt-y',`${x*11}deg`);c.style.setProperty('--tilt-x',`${y*-8}deg`)});
 document.addEventListener('pointerout',e=>{const c=e.target.closest?.('.hand-cards .card');if(!c||window.gsap||c.contains(e.relatedTarget))return;c.style.removeProperty('--tilt-x');c.style.removeProperty('--tilt-y')});
