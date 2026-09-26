@@ -340,6 +340,23 @@
     .handoff-portrait{height:min(200px,28dvh);max-width:80%;object-fit:contain;margin:8px auto}.active-operator{font-weight:900;color:#184d43;background:#fff3d6;padding:6px 10px;border-radius:8px;margin-bottom:8px}
     @media(max-width:700px){#setup{padding:14px}.setup-heading h1{font-size:38px}.setup-heading h2{font-size:19px}.setup-heading p{font-size:12px;margin:4px 0 10px}.setup-options{gap:9px 18px;margin-bottom:10px}.setup-choice-label{font-size:9px}.setup-buttons button{padding:6px 8px;font-size:11px}.setup-count button{width:32px}.setup-players{grid-template-columns:1fr;max-width:none;gap:5px}.setup-player{grid-template-columns:70px 1fr;padding:6px;gap:8px;border-radius:10px}.setup-player legend{font-size:11px}.setup-player img{height:90px}.setup-player-fields{grid-template-columns:1fr 1fr;gap:5px}.setup-player-fields>.setup-choice:last-child{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px}.setup-player input{padding:5px;font-size:12px}.setup-player .setup-choice-label{font-size:9px}.setup-player-fields>.setup-choice:last-child>.setup-choice-label{max-width:60px}.setup-colors{gap:5px}.setup-colors button{width:25px;height:25px}.setup-character-label{display:none}.setup-character-name{display:block}#setup .setup-note{font-size:10px;margin:9px auto 0}.setup .wide{margin-top:10px;padding:10px}}
 
+    /* Header order stays the same on phones: title, ticker, menu. */
+    .board-hud{grid-template-columns:auto minmax(0,1fr) 40px;grid-template-rows:1fr;gap:8px}
+    .board-menu-button{width:36px;height:34px;padding:0;border:1px solid #d5a33a;border-radius:7px;background:#ffffff10;color:#fff3cf;font-size:24px;cursor:pointer}
+    .board-menu-button:focus-visible{outline:3px solid #fff3cf}
+    .board-ticker{grid-column:2;grid-row:1;border-top:0;border-inline:1px solid #f2cf7355}
+    #gameMenu{width:min(460px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 24px);margin:auto;padding:18px;border:2px solid #a78b54;border-radius:16px;background:#fff4dd;color:var(--ink);overflow:clip;box-shadow:0 20px 70px #0008}
+    #gameMenu::backdrop{background:#0e2927cc;backdrop-filter:blur(4px)}
+    .menu-inner{width:100%}.menu-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.menu-heading h2{margin:0;font:700 25px Georgia,serif}.menu-heading form{margin:0}
+    .menu-close{width:40px;height:40px;padding:0;font-size:28px;border:0;border-radius:50%;background:#174f46;color:#fff4dd;cursor:pointer}
+    .menu-item{display:block;width:100%;margin-top:9px;min-height:44px}.menu-item:disabled{opacity:.55}
+    .menu-note{font-size:13px;margin:0 0 12px}.menu-message{font-size:13px;margin:10px 0;color:#174f46}.menu-message:empty{display:none}
+    .save-slots{display:grid;gap:10px}.save-slot{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;align-items:center;padding:10px;border:1px solid #c4ad83;border-radius:9px;background:#fffaf0}.save-slot small{display:block;font-size:11px;line-height:1.35;margin-top:4px;overflow-wrap:anywhere}.save-slot .btn{padding:8px;min-height:40px;font-size:12px}
+    .menu-volume{display:grid;gap:10px;margin-top:20px}.menu-volume input{width:100%;accent-color:#174f46}
+    .setup-menu{display:block;margin:10px auto 0}
+    @media(max-width:700px){.board-hud{grid-template-columns:auto minmax(0,1fr) 36px;grid-template-rows:1fr;gap:5px}.board-hud>strong{font-size:15px}.board-ticker{grid-column:2;grid-row:1;font-size:12px}.playing .physical-board{grid-template-rows:40px minmax(0,1fr) minmax(0,1fr)}}
+    @media(max-width:700px) and (orientation:portrait){.playing .physical-board{grid-template-rows:40px min(calc((100vw - 28px)*.7072),35dvh) minmax(0,1fr)}}
+
   </style>
 </head>
 <body>
@@ -349,7 +366,7 @@
       <div id="setupOptions" class="setup-options"></div>
       <div id="setupPlayers" class="setup-players"></div>
       <p class="setup-note">I giocatori umani si passano lo stesso dispositivo. Ogni personaggio è unico: scegliendone uno già assegnato, i due mercanti se lo scambiano.</p>
-      <button class="btn primary wide" onclick="newGame()">Apri il mercato</button>
+      <button class="btn primary wide" onclick="newGame()">Apri il mercato</button><button class="btn secondary setup-menu" onclick="openGameMenu()">Menu · Carica partita</button>
     </section>
 
     <section id="game" class="hidden" tabindex="-1">
@@ -367,6 +384,7 @@
 
     <section id="end" class="panel end hidden"></section>
   </main>
+  <dialog id="gameMenu" aria-labelledby="gameMenuTitle"></dialog>
   <dialog id="automaPreview" aria-label="Carta della Congrega dei Mercanti">
     <img id="automaPreviewImage" alt="" draggable="false">
     <form method="dialog"><button class="btn secondary">Chiudi</button></form>
@@ -572,6 +590,83 @@ function completeContract(p,card){
   return true;
 }
 
+// Three local save slots. Card references are shared again after JSON restoration.
+const SAVE_PREFIX='pescaria.save.',SAVE_VERSION=1;
+function encodeGame(state){return JSON.stringify(state,(_,v)=>v instanceof Set?{_set:[...v]}:v)}
+function decodeGame(raw){
+  const cards=new Map();
+  const state=JSON.parse(raw,(_,v)=>{
+    if(v&&Array.isArray(v._set))return new Set(v._set);
+    if(v&&v.recipe&&v.cat&&Number.isInteger(v.id)){
+      if(!CARDS.some(c=>c.id===v.id))throw new Error('Carta non valida');
+      if(!cards.has(v.id))cards.set(v.id,v);return cards.get(v.id);
+    }
+    return v;
+  });
+  if(!state||!Array.isArray(state.players)||state.players.length<1||state.players.length>5||!Number.isInteger(state.rng?.s)||!Array.isArray(state.deck)||!Array.isArray(state.discard)||!Array.isArray(state.bag)||!['rete','draft','asta','pubblico','conserva','bilancia','fine'].includes(state.phase)||!Number.isInteger(state.day)||state.day<1||state.day>4||state.players.some(p=>typeof p.name!=='string'||!Array.isArray(p.hand)||!Array.isArray(p.installed)||!Array.isArray(p.pending)||!(p.keptIds instanceof Set)))throw new Error('Salvataggio non valido');
+  state.rng=Object.assign(new RNG(1),state.rng);
+  return state;
+}
+function readSave(slot){
+  const raw=localStorage.getItem(SAVE_PREFIX+slot);if(!raw)return null;
+  const entry=JSON.parse(raw);
+  if(entry.version!==SAVE_VERSION||typeof entry.state!=='string')throw new Error('Versione del salvataggio non compatibile');
+  return entry;
+}
+let menuPage='home',audioEnabled=false,audioVolume=.3,audioContext=null;
+if(!HEADLESS)try{const settings=JSON.parse(localStorage.getItem('pescaria.audio')||'null');if(settings){audioEnabled=settings.enabled===true;audioVolume=Math.max(0,Math.min(1,Number(settings.volume)||0))}}catch{}
+function playSound(kind='coin'){
+  if(HEADLESS||!audioEnabled||!audioVolume)return;
+  try{
+    const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;
+    audioContext??=new Audio();audioContext.resume().catch(()=>{});
+    const tone=audioContext.createOscillator(),gain=audioContext.createGain(),now=audioContext.currentTime;
+    tone.type='sine';tone.frequency.setValueAtTime(kind==='phase'?440:880,now);tone.frequency.exponentialRampToValueAtTime(kind==='phase'?660:1320,now+.12);
+    gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(audioVolume*.12,now+.015);gain.gain.exponentialRampToValueAtTime(.001,now+.22);
+    tone.connect(gain);gain.connect(audioContext.destination);tone.start(now);tone.stop(now+.24);
+  }catch{}
+}
+window.setGameAudio=function(enabled,volume=audioVolume){
+  audioEnabled=enabled;audioVolume=Math.max(0,Math.min(1,Number(volume)||0));
+  try{localStorage.setItem('pescaria.audio',JSON.stringify({enabled:audioEnabled,volume:audioVolume}))}catch{}
+  renderGameMenu('audio');playSound('coin');
+};
+function fitGameMenu(){const box=$('gameMenu').querySelector('.menu-inner');if(!box||!$('gameMenu').open)return;box.style.zoom=1;box.style.zoom=Math.min(1,(innerHeight-64)/box.scrollHeight)}
+window.renderGameMenu=function(page='home',message=''){
+  menuPage=page;let body='';
+  if(page==='saves'){
+    body='<p class="menu-note">3 slot salvati in questo browser, su questo dispositivo.</p><div class="save-slots">'+[1,2,3].map(slot=>{
+      let info='Vuoto',exists=false;
+      try{const saved=readSave(slot);if(saved){const state=decodeGame(saved.state);exists=true;info=`Giorno ${state.day} · ${phaseTitle(state.phase)||'Partita conclusa'} · ${state.players.map(p=>p.name).join(', ')} · ${new Date(saved.savedAt).toLocaleString('it-IT')}`}}catch{info='Salvataggio non disponibile';}
+      return`<section class="save-slot" aria-label="Slot ${slot}"><div><b>Slot ${slot}</b><small>${esc(info)}</small></div><button class="btn primary" onclick="saveGameSlot(${slot})" ${G?'':'disabled'} aria-label="Salva nello slot ${slot}">Salva</button><button class="btn secondary" onclick="loadGameSlot(${slot})" ${exists?'':'disabled'} aria-label="Carica lo slot ${slot}">Carica</button></section>`;
+    }).join('')+'</div>';
+  }else if(page==='audio')body=`<p class="menu-note">Effetti per le fasi e i Ducati.</p><button class="btn secondary menu-item" aria-pressed="${audioEnabled}" onclick="setGameAudio(${!audioEnabled})">Audio ${audioEnabled?'attivo':'disattivato'}</button><label class="menu-volume">Volume <input type="range" min="0" max="100" value="${Math.round(audioVolume*100)}" aria-label="Volume audio" onchange="setGameAudio(audioEnabledFromMenu(),this.value/100)"></label>`;
+  else body=`<button class="btn primary menu-item" onclick="restartGame()">Nuova partita</button><button class="btn secondary menu-item" onclick="renderGameMenu('saves')">Carica / Salva partita</button><button class="btn secondary menu-item" onclick="renderGameMenu('audio')">Audio</button><button class="btn secondary menu-item" disabled>Credits · Prossimamente</button>`;
+  $('gameMenu').innerHTML=`<div class="menu-inner"><div class="menu-heading"><h2 id="gameMenuTitle">${page==='saves'?'Carica / Salva partita':page==='audio'?'Audio':'Menu'}</h2><form method="dialog"><button class="menu-close" aria-label="Chiudi menu">×</button></form></div>${body}<p class="menu-message" role="status">${esc(message)}</p>${page!=='home'?'<button class="btn secondary menu-item" onclick="renderGameMenu()">← Indietro</button>':''}</div>`;
+  fitGameMenu();
+};
+window.audioEnabledFromMenu=()=>audioEnabled;
+window.openGameMenu=function(){dismissPhaseIntro();renderGameMenu();$('gameMenu').showModal();fitGameMenu()};
+window.saveGameSlot=function(slot){
+  if(!G||![1,2,3].includes(slot))return;
+  try{
+    if(localStorage.getItem(SAVE_PREFIX+slot)&&!confirm(`Sostituire il salvataggio nello slot ${slot}?`))return;
+    localStorage.setItem(SAVE_PREFIX+slot,JSON.stringify({version:SAVE_VERSION,savedAt:new Date().toISOString(),state:encodeGame(G)}));
+    renderGameMenu('saves',`Partita salvata nello slot ${slot}.`);
+  }catch{renderGameMenu('saves','Impossibile salvare: la memoria del browser non è disponibile o è piena.')}
+};
+window.loadGameSlot=function(slot){
+  if(![1,2,3].includes(slot))return;
+  try{
+    const saved=readSave(slot);if(!saved)return;
+    const restored=decodeGame(saved.state);
+    if(G&&!G.finished&&!confirm('Caricare questa partita e lasciare quella in corso?'))return;
+    dismissPhaseIntro();G=restored;$('gameMenu').close();
+    $('setup').classList.add('hidden');$('end').classList.add('hidden');$('game').classList.remove('hidden');document.body.classList.add('playing');
+    if(G.finished)finishGame();else render();
+  }catch{renderGameMenu('saves','Impossibile caricare questo salvataggio. Gli altri slot restano disponibili.')}
+};
+
 // ---------------- Setup ----------------
 let setupCount=4,setupDifficulty='normal',setupCongrega='no';
 const setupRoster=PLAYER_MATS.map((_,id)=>({name:id?BOTNAMES[id-1]:'Daniele',human:id===0,character:id}));
@@ -622,7 +717,7 @@ function startGame({n,name,seed=Math.floor(Math.random()*4294967295)+1,difficult
   log('Partita',`${G.players[G.captain].name} ha mangiato pesce più di recente: è il primo Capitano.`);
   startDay();
 }
-window.restartGame=function(){if(G&&!G.finished&&!confirm('Abbandonare la partita in corso?'))return;dismissPhaseIntro();G=null;document.body.classList.remove('playing');$('game').classList.add('hidden');$('end').classList.add('hidden');$('setup').classList.remove('hidden');scheduleFit()};
+window.restartGame=function(){if(G&&!G.finished&&!confirm('Abbandonare la partita in corso?'))return;dismissPhaseIntro();$('gameMenu').close();G=null;document.body.classList.remove('playing');$('game').classList.add('hidden');$('end').classList.add('hidden');$('setup').classList.remove('hidden');scheduleFit()};
 
 // ---------------- Fase 1 · Pesca del Mattino ----------------
 function startDay(){
@@ -821,7 +916,7 @@ function finishGame(){
   G.finished=true;G.phase='fine';const ranked=ranking();if(HEADLESS)return;
   document.body.classList.remove('playing');$('game').classList.add('hidden');$('end').classList.remove('hidden');
   const human=humanPlayers().length===1,solo=humanPlayers()[0]?.id;
-  $('end').innerHTML=`<div class="trophy">${human&&ranked[0].id===solo?'🏆':'⚓'}</div><div class="eyebrow">Partita conclusa</div><h2>${human&&ranked[0].id===solo?'Hai vinto!':esc(ranked[0].name)+' vince'}</h2><p>Dopo quattro giornate di mercato, il miglior mercante della Laguna ha ${ranked[0].coins} Ducati.</p><div class="rank">${ranked.map((p,i)=>`<div class="rankrow"><div class="place">${i+1}°</div><div class="who"><i class="dot" style="background:${playerColor(p)}"></i>${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.coins} ◈ · ${p.orders} contratti · ${p.installed.length+p.pending.length} migliorie · Bilancia ${p.bilanciaTot}</b></div>`).join('')}</div><button class="btn primary" onclick="restartGame()">Gioca ancora</button>`;
+  $('end').innerHTML=`<div class="trophy">${human&&ranked[0].id===solo?'🏆':'⚓'}</div><div class="eyebrow">Partita conclusa</div><h2>${human&&ranked[0].id===solo?'Hai vinto!':esc(ranked[0].name)+' vince'}</h2><p>Dopo quattro giornate di mercato, il miglior mercante della Laguna ha ${ranked[0].coins} Ducati.</p><div class="rank">${ranked.map((p,i)=>`<div class="rankrow"><div class="place">${i+1}°</div><div class="who"><i class="dot" style="background:${playerColor(p)}"></i>${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.coins} ◈ · ${p.orders} contratti · ${p.installed.length+p.pending.length} migliorie · Bilancia ${p.bilanciaTot}</b></div>`).join('')}</div><button class="btn primary" onclick="restartGame()">Gioca ancora</button><button class="btn secondary" onclick="openGameMenu()">Menu</button>`;
   scheduleFit();
 }
 
@@ -982,7 +1077,7 @@ function playerAnnouncement(){
   return`${name} · ${me.hand.length} carte in mano.`;
 }
 function announcementHtml(){
-  const text=playerAnnouncement(),message=esc(text);
+  const text=`Giorno ${G.day} · ${playerAnnouncement()}`,message=esc(text);
   return`<div class="board-ticker" role="status" aria-label="${message}" tabindex="0" title="${message}" style="--ticker-duration:${Math.max(16,text.length/5)}s"><div class="board-ticker-track" aria-hidden="true"><span>${message}</span><span>${message}</span></div></div>`;
 }
 function renderPhysicalBoard(){
@@ -993,7 +1088,7 @@ function renderPhysicalBoard(){
   const bidding=G.phase==='asta'&&G.auctionStage==='bid';
   const offers=Array.from({length:5},(_,i)=>{const p=G.players.find(p=>(p.character??p.id)===i);if(!p)return'<div class="offer-zone empty"><span class="offer-detail">Non in gioco</span></div>';const color=playerColor(p),custom=p.human&&p.id===activePlayer().id&&!G.handoff&&humanArea(p,color);if(custom)return custom;const automa=congregaOfferHtml(p);if(automa)return automa;const o=offerState(p);return`<div class="offer-zone" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)}${p.id===activePlayer().id?' · tu':''}</span><span class="offer-value">${o.value}</span><span class="offer-detail">${o.detail}</span></div>`}).join('');
   const pins=FISH.map(f=>`<div class="auction-pin ${activeFish===f?'active':''}" role="img" aria-label="${activeFish===f?'Asta in corso: ':'Lotto: '}${f}">${activeFish===f?'⚓':''}</div>`).join('');
-  $('physicalBoard').innerHTML=`<div class="board-hud"><strong>Mercato di Pescaria</strong>${announcementHtml()}<div class="board-hud-tools"><div class="board-hud-status"><span>Giorno ${G.day} · ${phaseTitle(G.phase)}</span><span>Sacchetto ${G.bag.length}</span></div><button id="restart" class="board-new-game" onclick="restartGame()">Nuova partita</button></div></div><div class="board-art-wrap"><div class="board-art" role="group" aria-label="Tabellone centrale di Pescaria">${pileHtml(G.deck,false)}${pileHtml(G.discard,true)}<div class="board-days">${days}</div><div class="board-phases">${phases}</div><div class="board-fish">${lots}</div><div class="board-pins">${pins}</div><div class="board-offers ${bidding?'auction-bidding':''} ${offers.includes('human-action')?'player-actions':''}">${offers}</div></div></div><section id="boardHand" class="panel board board-hand"></section>${overlayHtml()}`;
+  $('physicalBoard').innerHTML=`<div class="board-hud"><strong>PESCARIA</strong>${announcementHtml()}<button class="board-menu-button" onclick="openGameMenu()" aria-label="Apri menu" aria-haspopup="dialog">☰</button></div><div class="board-art-wrap"><div class="board-art" role="group" aria-label="Tabellone centrale di Pescaria">${pileHtml(G.deck,false)}${pileHtml(G.discard,true)}<div class="board-days">${days}</div><div class="board-phases">${phases}</div><div class="board-fish">${lots}</div><div class="board-pins">${pins}</div><div class="board-offers ${bidding?'auction-bidding':''} ${offers.includes('human-action')?'player-actions':''}">${offers}</div></div></div><section id="boardHand" class="panel board board-hand"></section>${overlayHtml()}`;
 }
 function inventoryHtml(stock,muted=false){const x=FISH.flatMap(f=>Array.from({length:stock[f]},()=>`<span class="token ${muted?'muted-token':''}" title="${f}"><img src="${ASSET.fish[f]}" alt="${f}"></span>`)).join('');return x||'<span class="empty">vuoto</span>'}
 function cardHtml(c,mode='plain',enabled=true,style=''){
@@ -1108,7 +1203,7 @@ function syncBidCash(){
   if(cash){cash.textContent=`+${G.bidCash} ${G.bidCash===1?'Ducato':'Ducati'}`;cash.disabled=!G.bidCash;cash.setAttribute('aria-label',`Riprendi un Ducato. Ducati aggiunti: ${G.bidCash}`)}
 }
 function flyBidCoin(from){const target=$('humanOfferCard');if(!target||reducedMotion)return;const to=target.getBoundingClientRect(),coin=document.createElement('span');coin.className='flying-ducat';coin.style.left=from.left+from.width/2-23+'px';coin.style.top=from.top+from.height/2-23+'px';document.body.appendChild(coin);if(window.gsap)gsap.to(coin,{left:to.left+to.width/2-23,top:to.top+to.height/2-23,rotation:720,scale:.72,duration:.52,ease:'power2.inOut',onComplete:()=>coin.remove()});else coin.animate([{transform:'translate(0) rotate(0)'},{transform:`translate(${to.left-from.left}px,${to.top-from.top}px) rotate(720deg) scale(.72)`}],{duration:520,easing:'ease-in-out'}).finished.then(()=>coin.remove())}
-window.addBidCoin=function(e){if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid||G.bidCash>=activePlayer().coins)return;const from=e.currentTarget.getBoundingClientRect();G.bidCash++;syncBidCash();flyBidCoin(from)};
+window.addBidCoin=function(e){if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid||G.bidCash>=activePlayer().coins)return;const from=e.currentTarget.getBoundingClientRect();G.bidCash++;syncBidCash();flyBidCoin(from);playSound('coin')};
 window.removeBidCoin=function(e){e.stopPropagation();if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.bidCash)return;G.bidCash--;syncBidCash()};
 function animateHand(host){
   const hand=host.querySelector('.hand-cards'),cards=[...host.querySelectorAll('.hand-cards .card')];
@@ -1137,7 +1232,7 @@ function showPhaseIntro(){
   (G.phaseIntroSeen??=new Set()).add(key);G.phaseIntroKey=key;
   const name=fish?`Asta ${fish==='Sardine'?'delle':'dei'} ${fish}`:phase==='draft'?'Draft':PHASES.find(([k])=>k===phase)?.[1].split(' · ')[1];
   if(!name)return;
-  dismissPhaseIntro();phaseIntroFocus=document.activeElement;
+  dismissPhaseIntro();playSound('phase');phaseIntroFocus=document.activeElement;
   $('phaseIntroAuctionIcon').hidden=!fish;
   $('phaseIntroAuctionIcon').src=ASSET.phase.asta;
   $('phaseIntroIcon').src=fish?ASSET.fish[fish]:ASSET.phase[phase==='draft'?'rete':phase];
@@ -1151,7 +1246,7 @@ function showPhaseIntro(){
 function render(){if(!G||HEADLESS||G.finished)return;showPhaseIntro();$('game').dataset.phase=G.phase;$('dayTitle').textContent=`Giorno ${G.day} di 4 · ${phaseTitle(G.phase)}`;$('deckInfo').textContent=`Mazzo: ${G.deck.length} · Sacchetto: ${G.bag.length}`;$('progress').innerHTML=PHASES.map(([k,n])=>{const order=['rete','asta','pubblico','bilancia'],actual=G.phase==='draft'?'rete':G.phase==='conserva'?'pubblico':G.phase,i=order.indexOf(k),now=order.indexOf(actual);return`<div class="step ${i===now?'active':i<now?'done':''}">${n}</div>`}).join('');renderPhysicalBoard();const scores=G.players.map(scoreCard).join('');$('scores').innerHTML=scores;renderBoard();$('log').innerHTML=[...G.log].reverse().map(x=>`<div class="logitem"><b>G${x.day} · ${esc(x.phase)}</b>${esc(x.text)}</div>`).join('')}
 
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
-window.addEventListener('resize',()=>{render();scheduleFit()});
+window.addEventListener('resize',()=>{render();scheduleFit();fitGameMenu()});
 document.addEventListener('load',scheduleFit,true);
 document.addEventListener('toggle',scheduleFit,true);
 if(!HEADLESS){renderSetupPlayers();scheduleFit()}
