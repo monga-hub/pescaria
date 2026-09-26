@@ -11,6 +11,7 @@ function checkSupply(){
 }
 function playGuide(reload){
   startTutorial();assert.equal(G.players.length,2);assert.deepEqual(G.market,{Polpi:3,Gamberi:3,Molluschi:2,Branzini:2,Sardine:2});
+  const initialStep=G.tutorial.step;toggleTutorialGuide();assert.equal(G.tutorial.collapsed,true);toggleTutorialGuide();assert.equal(G.tutorial.collapsed,false);assert.equal(G.tutorial.step,initialStep,'Reading the explanation never advances the scenario');
   let steps=0;
   while(!tutorialStep().done){
     assert(steps++<50,'The guide must terminate');checkSupply();
