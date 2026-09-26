@@ -17,8 +17,8 @@ function click(detail=1){const e={detail,preventDefault(){this.prevented=true},s
 opened=false;let result=gesture(0,-80);assert.equal(selections,0);assert(!result.move.prevented&&!result.end.prevented,'Unhighlighted cards keep original touch behavior');
 events.touchstart(event([point(100,200)]));opened=true;events.touchmove(event([point(100,100)]));events.touchend(event([],[point(100,100)]));assert.equal(selections,0,'Opening after touch starts does not arm a swipe');
 for(const [dx,dy] of [[80,-60],[0,80],[90,0],[0,0],[2,-4]]){result=gesture(dx,dy);assert.equal(selections,0);assert(!result.move.prevented&&!result.end.prevented);assert(!click().stopped,'Browsing, holding and taps are unchanged')}
-gesture(0,-30);assert.equal(selections,0,'Short upward movement does not select');
-result=gesture(8,-70);assert.equal(selections,1);assert(result.move.prevented&&result.end.prevented);assert(click().stopped,'No duplicate click after accepted swipe');assert(!click(0).stopped,'Keyboard and programmatic click still work');
+gesture(0,-27);assert.equal(selections,0,'Short upward movement does not select');
+result=gesture(8,-28);assert.equal(selections,1);assert(result.move.prevented&&result.end.prevented);assert(click().stopped,'No duplicate click after accepted swipe');assert(!click(0).stopped,'Keyboard and programmatic click still work');
 events.pointerdown({pointerType:'mouse'});assert(!click().stopped);
 const before=selections;
 events.touchstart(event([point(100,200)]));events.touchmove(event([point(100,100)]));opened=false;events.touchend(event([],[point(100,100)]));assert.equal(selections,before+1,'Pointerleave on release does not cancel an already accepted swipe');opened=true;
@@ -31,11 +31,11 @@ host.classList.contains=()=>true;gesture(0,-80);assert.equal(selections,stable);
 eligible=false;gesture(0,-80);assert.equal(selections,stable,'Locked or disabled cards cannot be swiped');eligible=true;
 events.touchstart(event([point(100,200)],[],{closest:()=>null}));events.touchend(event([],[point(100,200)]));assert(!click().stopped,'Arrow remains tappable');
 startGame({n:3,name:'Test',seed:13,difficulty:'normal',humanBot:false});beginDraft();
-const chosen=G.draftPacks[0][0];action=()=>pickDraft(chosen.id);gesture(0,-70);
+const chosen=G.draftPacks[0][0];action=()=>pickDraft(chosen.id);gesture(0,-28);
 assert.equal(G.drafted[0].length,1);assert.equal(G.drafted[0][0].id,chosen.id);
 assert(cardHtml(chosen,'draft',false).includes('draft-lock'));assert(!cardHtml(chosen,'draft',false).includes('data-swipe-select'));
 while(G.phase==='draft')pickDraft(G.draftPacks[0][0].id);
-const bid=activePlayer().hand[0];action=()=>chooseBid(bid.id);gesture(0,-70);assert.equal(G.selectedBid,bid.id);
+const bid=activePlayer().hand[0];action=()=>chooseBid(bid.id);gesture(0,-28);assert.equal(G.selectedBid,bid.id);
 assert(cardHtml(bid,'bid').includes('data-swipe-select'));assert(!cardHtml(bid,'market').includes('data-swipe-select'));
 // The original animation still opens and browses without direction filters.
 function fanNode(x=0){const classes=new Set(),listeners={};return{listeners,dataset:{},style:{pointerEvents:'auto',setProperty(){},getPropertyValue:k=>k==='--x'?String(x):'0'},classList:{add:c=>classes.add(c),remove:c=>classes.delete(c),contains:c=>classes.has(c),toggle:(c,on)=>on?classes.add(c):classes.delete(c)},addEventListener:(type,fn)=>listeners[type]=fn,getBoundingClientRect:()=>({left:0,width:600,top:300,height:300,bottom:600})}}

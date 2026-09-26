@@ -1221,13 +1221,13 @@ function setupHandSwipe(host){
     if(e.touches.length!==1||!gesture.card.classList.contains('gsap-open')){gesture=null;return}
     const t=e.touches[0],dx=Math.abs(t.clientX-gesture.x),up=gesture.y-t.clientY;
     if(dx>12&&dx>=up){gesture=null;return}
-    gesture.ready=up>=56&&up>dx*1.4;
-    if(up>12&&up>dx*1.4)e.preventDefault();
+    gesture.ready=up>=28&&up>dx*1.4;
+    if(up>8&&up>dx*1.4)e.preventDefault();
   },{passive:false});
   host.addEventListener('touchend',e=>{
     const g=gesture;gesture=null;if(!g||!g.ready||e.touches.length)return;
     const t=[...e.changedTouches].find(t=>t.identifier===g.id);
-    if(!t||g.y-t.clientY<56||g.y-t.clientY<=Math.abs(t.clientX-g.x)*1.4||!g.card.isConnected||host.classList.contains('folded'))return;
+    if(!t||g.y-t.clientY<28||g.y-t.clientY<=Math.abs(t.clientX-g.x)*1.4||!g.card.isConnected||host.classList.contains('folded'))return;
     e.preventDefault();suppressClick=true;g.card.click();
   },{passive:false});
   host.addEventListener('touchcancel',()=>{gesture=null});
