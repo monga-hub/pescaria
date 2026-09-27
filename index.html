@@ -408,9 +408,78 @@
       .playing.mobile-auction #floatingHand:not(.folded){z-index:800}
       .playing.mobile-auction .physical-board{grid-template-rows:40px minmax(0,1fr) minmax(0,1fr)}
     }
+
+    #startup{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:28px;background:radial-gradient(ellipse at 50% 35%,#285a4b,#102d2b 75%);color:#fff4cf;text-align:center}
+    #startup[hidden]{display:none}#startup .startup-brand{width:min(340px,100%)}
+    #startup img{width:108px;height:108px;object-fit:contain;filter:drop-shadow(0 8px 16px #0006)}
+    #startup h1{font:700 clamp(38px,11vw,58px) Georgia,serif;letter-spacing:.04em;margin:12px 0 6px;color:#f2cf73}
+    #startup .startup-subtitle{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#c1d0b9;margin:0 0 40px}
+    #startup progress{display:block;width:100%;height:9px;appearance:none;border:1px solid #ae8947;border-radius:20px;overflow:hidden;background:#061c19;accent-color:#f2cf73}
+    #startup progress::-webkit-progress-bar{background:#061c19}#startup progress::-webkit-progress-value{background:linear-gradient(90deg,#ac7c30,#ffe293);border-radius:20px;transition:width .25s}
+    #startup progress::-moz-progress-bar{background:#f2cf73}#startup progress:not([value]){background:linear-gradient(90deg,#061c19 10%,#d5a33a 50%,#061c19 90%);background-size:200% 100%;animation:startup-search 1.6s linear infinite}
+    #startup progress:not([value])::-webkit-progress-bar{background:transparent}
+    #startupStatus{font-size:15px;line-height:1.5;min-height:3em;margin:18px 0 0}
+    @keyframes startup-search{to{background-position:-200% 0}}
+    @media(prefers-reduced-motion:reduce){#startup progress{animation:none!important}}
   </style>
 </head>
 <body>
+  <div id="startup" role="status" aria-live="polite" aria-label="Avvio di Pescaria">
+    <div class="startup-brand"><img src="assets/fish/sardina.png?v=20260925" alt="" width="108" height="108"><h1>PESCARIA</h1><p class="startup-subtitle">Il mercato della laguna</p><progress aria-label="Caricamento del gioco"></progress><p id="startupStatus">Ricerca aggiornamenti…</p></div>
+  </div>
+  <script id="pescaria-boot">
+  (()=>{
+    const splash=document.getElementById('startup'),status=document.getElementById('startupStatus'),bar=splash.querySelector('progress');
+    const onlinePage=/^https?:$/.test(location.protocol),controller=new AbortController();
+    let fallback=false;
+    // A fresh HTML comparison also catches future releases without a manually maintained version number.
+    const url=new URL(location.href);url.searchParams.set('_update',Date.now());
+    const timer=setTimeout(()=>controller.abort(),6000);
+    const latest=onlinePage?fetch(url,{cache:'no-store',signal:controller.signal}).then(async response=>{
+      if(!response.ok)throw new Error('Update unavailable');
+      const page=new DOMParser().parseFromString(await response.text(),'text/html');
+      if(!page.getElementById('setup')||!page.getElementById('pescaria-boot'))throw new Error('Invalid game page');
+      return page;
+    }).catch(()=>null).finally(()=>clearTimeout(timer)):Promise.resolve(null);
+    function signature(page){
+      const body=page.body.cloneNode(true);body.querySelector('#startup')?.remove();
+      return page.head.innerHTML.trim()+body.innerHTML.trim();
+    }
+    window.pescariaBoot={
+      async check(){
+        const original=signature(document);document.querySelector('main').inert=true;
+        const page=await latest;
+        if(page&&signature(page)!==original){
+          // Bound reloads during a deployment, including when storage is unavailable.
+          const previous=Number(new URL(location.href).searchParams.get('_update'));
+          if(!previous||Date.now()-previous>30000){
+            status.textContent='Aggiornamento trovato. Apro la nuova versione…';
+            location.replace(url.href);return false;
+          }
+          fallback=true;status.textContent='Aggiornamento in pubblicazione. Apro il gioco disponibile…';
+        }else if(onlinePage&&!page){
+          fallback=true;status.textContent='Controllo non disponibile. Apro il gioco disponibile…';
+        }else status.textContent='Caricamento del gioco…';
+        return true;
+      },
+      async ready(){
+        const images=[...document.querySelectorAll('#setup img')];
+        bar.max=Math.max(1,images.length);bar.value=0;
+        let loaded=0;
+        await Promise.race([
+          Promise.all(images.map(img=>new Promise(resolve=>{
+            const done=()=>{bar.value=++loaded;resolve()};
+            if(img.complete)done();else{img.addEventListener('load',done,{once:true});img.addEventListener('error',done,{once:true})}
+          }))),new Promise(resolve=>setTimeout(resolve,4000))
+        ]);
+        bar.value=bar.max;
+        if(fallback)await new Promise(resolve=>setTimeout(resolve,1200));
+        splash.hidden=true;document.querySelector('main').inert=false;
+      }
+    };
+  })();
+  </script>
+
   <main>
     <section id="setup" class="panel setup">
       <div class="setup-heading"><div class="eyebrow">Il mercato della laguna</div><h1>PESCARIA</h1><h2>Chi apre il banco oggi?</h2><p>Scegli i mercanti, assegna i personaggi e preparati all’asta.</p></div>
@@ -447,10 +516,11 @@
   <dialog id="auctionSummary" aria-label="Risultato dell’asta" oncancel="event.preventDefault();continueAfterAuction()"></dialog>
   <div id="phaseIntro" class="phase-intro hidden"><button id="skipPhaseIntro" onclick="dismissPhaseIntro()" onkeydown="if(event.key==='Escape'){event.preventDefault();dismissPhaseIntro()}"><span class="phase-intro-label">Inizia la fase</span><span class="phase-intro-icons"><img id="phaseIntroAuctionIcon" alt="" hidden><img id="phaseIntroIcon" alt=""></span><span id="phaseIntroName" class="phase-intro-name"></span><span class="phase-intro-hint">Clicca per continuare</span></button></div>
 
-<script src="vendor/gsap.min.js"></script>
+<script src="vendor/gsap.min.js" defer></script>
 <script>
-(() => {
+(async () => {
 'use strict';
+if(typeof window.__PESCARIA_HEADLESS==='undefined'&&!await window.pescariaBoot.check())return;
 // ============================================================
 // Pescaria — simulatore V4.2 (regolamento V4.3 · mazzo V4.1)
 // ============================================================
@@ -1503,6 +1573,7 @@ const fiuto=CARDS.filter(c=>c.up==='Fiuto per il Pescato');
 console.assert(CARDS.length===100&&['A','E','C','B'].every(k=>CARDS.filter(c=>c.cat===k).length===25)&&CARDS.every(c=>UPG[c.up]&&UPG[c.up].cat===c.cat&&Object.keys(c.recipe).every(f=>FISH.includes(f)))&&fiuto.length===12&&fiuto.every(c=>c.recipe[c.fiuto])&&FISH.map(f=>fiuto.filter(c=>c.fiuto===f).length).join('')==='23232'&&CARDS.filter(c=>c.cat==='B').every(c=>MAESTRO[c.up]),'Mazzo Pescaria V5 non valido');
 
 // Hook per le simulazioni automatiche (solo test headless).
+if(!HEADLESS)window.pescariaBoot.ready();
 if(HEADLESS)window.__pescaria={simulate(opts){startGame({humanBot:true,name:'Bot0',...opts});return{G,ranking:ranking()}},CARDS};
 })();
 
