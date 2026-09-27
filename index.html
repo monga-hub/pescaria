@@ -371,6 +371,12 @@
     .tutorial-guide.collapsed .tutorial-progress,.tutorial-guide.collapsed .tutorial-copy p,.tutorial-guide.collapsed .tutorial-exit,.tutorial-guide.collapsed .tutorial-controls>.primary{display:none}
     .tutorial-guide.collapsed .tutorial-copy h2{margin:0;font:700 14px/1.2 Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .tutorial-guide.collapsed .tutorial-controls{display:block}.tutorial-guide.collapsed .tutorial-toggle{padding:7px 10px;font-size:12px}
+
+    #auctionSummary{width:min(480px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:auto;padding:20px;border:2px solid #b89547;border-radius:18px;background:#fff4dd;color:var(--ink);overflow:clip;box-shadow:0 16px 60px #0008}
+    #auctionSummary::backdrop{background:#071e1bd9;backdrop-filter:blur(4px)}
+    .auction-summary-heading{display:flex;align-items:center;gap:12px;margin-bottom:14px}.auction-summary-heading img{width:58px;height:58px;object-fit:contain}.auction-summary-heading h2{margin:0;font:700 24px Georgia,serif}.auction-summary-heading p{margin:3px 0 0;font-size:13px}
+    .auction-summary-row{display:grid;grid-template-columns:26px 44px minmax(0,1fr) auto;gap:9px;align-items:center;padding:8px;border-bottom:1px solid #cdbb98}.auction-summary-row.is-winner{background:#f4df9b;border-radius:10px;border:2px solid #b89547}.auction-summary-row>img{width:44px;height:48px;object-fit:contain}.auction-summary-row strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.auction-summary-row small{display:block;font-size:11px}.auction-summary-count{font-weight:900;white-space:nowrap}.auction-summary-foot{margin:14px 0 8px;font-size:12px;text-align:center}.auction-summary-next{width:100%}
+    @media(max-width:500px){#auctionSummary{padding:14px}.auction-summary-heading h2{font-size:21px}.auction-summary-row{grid-template-columns:22px 36px minmax(0,1fr) auto;gap:6px;padding:6px;font-size:13px}.auction-summary-row>img{width:36px;height:40px}}
   </style>
 </head>
 <body>
@@ -406,6 +412,7 @@
   </dialog>
   <section id="floatingHand" class="hand-dock folded" aria-label="Le tue carte"></section>
 
+  <dialog id="auctionSummary" aria-label="Risultato dell’asta" oncancel="event.preventDefault();continueAfterAuction()"></dialog>
   <div id="phaseIntro" class="phase-intro hidden"><button id="skipPhaseIntro" onclick="dismissPhaseIntro()" onkeydown="if(event.key==='Escape'){event.preventDefault();dismissPhaseIntro()}"><span class="phase-intro-label">Inizia la fase</span><span class="phase-intro-icons"><img id="phaseIntroAuctionIcon" alt="" hidden><img id="phaseIntroIcon" alt=""></span><span id="phaseIntroName" class="phase-intro-name"></span><span class="phase-intro-hint">Clicca per continuare</span></button></div>
 
 <script src="vendor/gsap.min.js"></script>
@@ -756,7 +763,7 @@ function installTutorialGuards(){
     };
   }
   if(!HEADLESS)document.addEventListener('click',e=>{
-    const step=tutorialStep();if(!step||e.target.closest('#tutorialGuide')||e.target.closest('#phaseIntro')||e.target.closest('.hand-toggle'))return;
+    const step=tutorialStep();if(!step||e.target.closest('#tutorialGuide')||e.target.closest('#phaseIntro')||e.target.closest('#auctionSummary')||e.target.closest('.hand-toggle'))return;
     if(step.action&&!step.button&&step.selector&&e.target.closest(step.selector))return;
     e.preventDefault();e.stopImmediatePropagation();
   },true);
@@ -866,7 +873,7 @@ function finishDraft(){
 // ---------------- Fase 2 · Aste ----------------
 function currentFish(){return (G.aOrder||FISH)[G.auctionIndex]}
 function nextAuction(){
-  G.selectedBid=null;G.bidCash=0;G.bidInfl=0;G.buyQty=0;G.auctionResult=null;G.buyQueue=null;
+  G.selectedBid=null;G.bidCash=0;G.bidInfl=0;G.buyQty=0;G.auctionPurchases={};G.auctionResult=null;G.buyQueue=null;
   G.auctionIndex++;
   while(G.auctionIndex<FISH.length&&!G.market[currentFish()]){log('Asta',`Nessun ${currentFish().toLowerCase()} al mercato: asta saltata.`);G.auctionIndex++}
   if(G.auctionIndex>=FISH.length){startMarket();return}
@@ -910,7 +917,7 @@ function resolveBids(bids){
 const cheapN=(p,price)=>price>1?copies(p,'Esperienza'):0;
 function costOf(p,n,price){const c=Math.min(n,cheapN(p,price));return c+(n-c)*price}
 function maxBuy(p,f,price){let n=Math.min(G.market[f],roomBanco(p));while(n>0&&costOf(p,n,price)>p.coins)n--;return n}
-function buy(p,f,n,price){n=Math.max(0,Math.min(n,maxBuy(p,f,price)));if(n){const cost=costOf(p,n,price);p.coins-=cost;p.banco[f]+=n;G.market[f]-=n;log('Acquisto',`${p.name} compra ${n} ${f} per ${cost} Ducat${cost===1?'o':'i'}.`)}return n}
+function buy(p,f,n,price){n=Math.max(0,Math.min(n,maxBuy(p,f,price)));if(n){const cost=costOf(p,n,price);p.coins-=cost;p.banco[f]+=n;G.market[f]-=n;(G.auctionPurchases??={})[p.id]=(G.auctionPurchases[p.id]||0)+n;log('Acquisto',`${p.name} compra ${n} ${f} per ${cost} Ducat${cost===1?'o':'i'}.`)}return n}
 function advanceBuys(){
   const f=currentFish();
   while(G.buyPos<G.buyQueue.length&&G.market[f]){const q=G.buyQueue[G.buyPos],p=G.players[q.pid];
@@ -925,8 +932,27 @@ function afterAuction(){
   G.auctionStage='clients';
   while(G.clientsQueue?.length){const {pid}=G.clientsQueue.shift(),p=G.players[pid],c=drawCard();if(!c)continue;
     p.hand.push(c);p.fortunaDraws=(p.fortunaDraws||0)+1;log('Fortuna',`${p.name} perde l’asta e pesca una carta${p.human?`: “${c.name}”`:''}.`)}
-  G.overlay=null;nextAuction();
+  G.overlay=null;
+  const bids=G.auctionResult||[],participants=new Set(bids.map(b=>b.pid));
+  G.lastAuctionSummary={fish:currentFish(),rows:[...bids.map((b,i)=>({pid:b.pid,rank:i+1,score:bidScore(b),bought:G.auctionPurchases?.[b.pid]||0})),...(G.bidOrder||turnOrder()).filter(id=>!participants.has(id)).map(pid=>({pid,rank:null,bought:0}))]};
+  if(!HEADLESS&&humanPlayers().length){G.auctionStage='summary';return}
+  nextAuction();
 }
+let auctionSummaryTimer=null;
+window.continueAfterAuction=function(){
+  clearTimeout(auctionSummaryTimer);auctionSummaryTimer=null;
+  if(!HEADLESS)$('auctionSummary').close();
+  if(!G||G.phase!=='asta'||G.auctionStage!=='summary')return;
+  nextAuction();render();
+};
+function showAuctionSummary(){
+  if(HEADLESS||G.phase!=='asta'||G.auctionStage!=='summary'||!$('phaseIntro').classList.contains('hidden'))return;
+  const dialog=$('auctionSummary');if(dialog.open)return;
+  const summary=G.lastAuctionSummary,winner=summary.rows.find(r=>r.rank===1);
+  dialog.innerHTML=`<div class="auction-summary-heading"><img src="${ASSET.fish[summary.fish]}" alt=""><div><h2>Asta ${summary.fish==='Sardine'?'delle':'dei'} ${summary.fish}</h2><p>${winner?`Vincitore: ${esc(G.players[winner.pid].name)}`:'Tutti hanno passato · nessun vincitore'}</p></div></div>${summary.rows.map(r=>{const p=G.players[r.pid];return`<div class="auction-summary-row ${r.rank===1?'is-winner':''}"><b>${r.rank?`${r.rank}°`:'—'}</b><img src="${p.congrega?'assets/automa/00.png':`assets/players/ritratto-${PLAYER_MATS[p.character??p.id][0]}.png`}" alt=""><div><strong>${esc(p.name)}</strong><small>${r.rank?`${r.rank===1?'Vincitore · ':''}Offerta ${r.score}`:'Ha passato'}</small></div><span class="auction-summary-count">${r.bought} ${r.bought===1?'pesce':'pesci'}</span></div>`}).join('')}<p class="auction-summary-foot">Pesci acquistati · si prosegue automaticamente</p><button class="btn primary auction-summary-next" onclick="continueAfterAuction()">Continua →</button>`;
+  dialog.showModal();auctionSummaryTimer=setTimeout(continueAfterAuction,6000);
+}
+
 
 // ---------------- Fase 3 · Mercato ----------------
 function startMarket(){
@@ -1349,11 +1375,12 @@ function animateHand(host){
   hand.addEventListener('focusout',e=>{if(!hand.contains(e.relatedTarget))close()});
 }
 let phaseIntroTimer=null,phaseIntroFocus=null;
-window.dismissPhaseIntro=function(){
+window.dismissPhaseIntro=function(showSummary=true){
   clearTimeout(phaseIntroTimer);phaseIntroTimer=null;
   $('phaseIntro').classList.add('hidden');
   $('game').inert=false;$('floatingHand').inert=false;$('tutorialGuide').inert=false;
   if(phaseIntroFocus){(phaseIntroFocus.isConnected?phaseIntroFocus:$('game')).focus({preventScroll:true});phaseIntroFocus=null}
+  if(G&&showSummary)showAuctionSummary();
 };
 function showPhaseIntro(){
   const phase=G.phase==='conserva'?'pubblico':G.phase,fish=phase==='asta'?currentFish():null,key=`${G.day}:${phase}:${fish||''}`;
@@ -1361,7 +1388,7 @@ function showPhaseIntro(){
   (G.phaseIntroSeen??=new Set()).add(key);G.phaseIntroKey=key;
   const name=fish?`Asta ${fish==='Sardine'?'delle':'dei'} ${fish}`:phase==='draft'?'Draft':PHASES.find(([k])=>k===phase)?.[1].split(' · ')[1];
   if(!name)return;
-  dismissPhaseIntro();playSound('phase');phaseIntroFocus=document.activeElement;
+  dismissPhaseIntro(false);playSound('phase');phaseIntroFocus=document.activeElement;
   $('phaseIntroAuctionIcon').hidden=!fish;
   $('phaseIntroAuctionIcon').src=ASSET.phase.asta;
   $('phaseIntroIcon').src=fish?ASSET.fish[fish]:ASSET.phase[phase==='draft'?'rete':phase];
@@ -1372,7 +1399,7 @@ function showPhaseIntro(){
   $('skipPhaseIntro').focus({preventScroll:true});
   phaseIntroTimer=setTimeout(dismissPhaseIntro,2100);
 }
-function render(){if(!G||HEADLESS||G.finished)return;showPhaseIntro();$('game').dataset.phase=G.phase;$('dayTitle').textContent=`Giorno ${G.day} di 4 · ${phaseTitle(G.phase)}`;$('deckInfo').textContent=`Mazzo: ${G.deck.length} · Sacchetto: ${G.bag.length}`;$('progress').innerHTML=PHASES.map(([k,n])=>{const order=['rete','asta','pubblico','bilancia'],actual=G.phase==='draft'?'rete':G.phase==='conserva'?'pubblico':G.phase,i=order.indexOf(k),now=order.indexOf(actual);return`<div class="step ${i===now?'active':i<now?'done':''}">${n}</div>`}).join('');renderPhysicalBoard();const scores=G.players.map(scoreCard).join('');$('scores').innerHTML=scores;renderBoard();$('log').innerHTML=[...G.log].reverse().map(x=>`<div class="logitem"><b>G${x.day} · ${esc(x.phase)}</b>${esc(x.text)}</div>`).join('');renderTutorial()}
+function render(){if(!G||HEADLESS||G.finished)return;showPhaseIntro();$('game').dataset.phase=G.phase;$('dayTitle').textContent=`Giorno ${G.day} di 4 · ${phaseTitle(G.phase)}`;$('deckInfo').textContent=`Mazzo: ${G.deck.length} · Sacchetto: ${G.bag.length}`;$('progress').innerHTML=PHASES.map(([k,n])=>{const order=['rete','asta','pubblico','bilancia'],actual=G.phase==='draft'?'rete':G.phase==='conserva'?'pubblico':G.phase,i=order.indexOf(k),now=order.indexOf(actual);return`<div class="step ${i===now?'active':i<now?'done':''}">${n}</div>`}).join('');renderPhysicalBoard();const scores=G.players.map(scoreCard).join('');$('scores').innerHTML=scores;renderBoard();$('log').innerHTML=[...G.log].reverse().map(x=>`<div class="logitem"><b>G${x.day} · ${esc(x.phase)}</b>${esc(x.text)}</div>`).join('');renderTutorial();showAuctionSummary()}
 
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 window.addEventListener('resize',()=>{render();scheduleFit();fitGameMenu()});
