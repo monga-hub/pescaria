@@ -364,7 +364,7 @@
     body.tutorial main{position:absolute;inset:var(--tutorial-height) 0 0;height:auto;margin:0}
     .tutorial-guide{position:fixed;z-index:900;top:6px;left:12px;right:12px;min-height:120px;display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:16px;align-items:center;padding:12px 18px;background:#fff4dd;border:2px solid #b89547;border-radius:14px;box-shadow:0 3px 16px #0005;color:#17343b;overflow:clip}
     .tutorial-progress{font-size:10px;font-weight:900;letter-spacing:.07em;color:#806129}.tutorial-copy h2{font:700 22px Georgia,serif;margin:3px 0 5px}.tutorial-copy p{margin:0;font-size:14px;line-height:1.35}.tutorial-controls{display:grid;gap:9px;text-align:center}.tutorial-controls .btn{padding:10px 8px;font-size:13px}.tutorial-exit{border:0;background:none;color:#5f5140;text-decoration:underline;cursor:pointer;font-size:12px;padding:3px}.tutorial-hint{font-size:12px;font-weight:900;color:#806129}
-    .tutorial-target{outline:4px solid #ffd85e!important;outline-offset:2px;box-shadow:0 0 18px #ffd85e99!important}
+    .tutorial-target{outline:4px solid #ffd85e!important;outline-offset:2px}
     @media(max-width:700px){body.tutorial{--tutorial-height:58px}.tutorial-guide{min-height:0;left:6px;right:6px;padding:10px;grid-template-columns:minmax(0,1fr) 88px;gap:8px}.tutorial-copy h2{font-size:17px}.tutorial-copy p{font-size:12px;line-height:1.3}.tutorial-controls .btn{font-size:11px;padding:9px 4px}.tutorial-hint,.tutorial-exit{font-size:10px}.tutorial-progress{font-size:9px}}
 
     .tutorial-guide.collapsed{min-height:0;height:46px;padding:5px 10px;grid-template-columns:minmax(0,1fr) auto;gap:8px}
@@ -382,7 +382,10 @@
     .tutorial-card>img{display:block;width:100%;height:100%;border-radius:14px;object-fit:contain}
     #tutorialPreview{position:fixed;z-index:850;left:0;right:0;bottom:18px;display:flex;justify-content:center;padding:0 14px;background:#17343bc9;backdrop-filter:blur(3px)}
     .tutorial-card{height:min(var(--preview-height),calc((100vw - 28px)*1.4))}
-    .tutorial-card-focus{position:absolute;border:4px solid #ffdd50;border-radius:12px;box-shadow:0 0 0 999px #0006,0 0 15px #ffdd50;pointer-events:none}
+    .tutorial-card-focus{position:absolute;border:4px solid #ffdd50;border-radius:12px;--tutorial-veil:0 0 0 999px #0006;pointer-events:none}
+    .tutorial-target,.tutorial-card-focus{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 14px #ffdd50,0 0 28px #ffbb3377,inset 0 0 8px #ffe99b66;animation:tutorialGlowPulse 1.6s ease-in-out infinite!important}
+    @keyframes tutorialGlowPulse{0%,100%{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 10px #ffdd50aa,0 0 20px #ffbb3344,inset 0 0 5px #ffe99b44}50%{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 22px #ffe99b,0 0 42px #ffbb33cc,inset 0 0 16px #ffe99baa}}
+    @media(prefers-reduced-motion:reduce){.tutorial-target,.tutorial-card-focus{animation:none!important}}
     .tutorial-card{overflow:hidden;border-radius:14px}
     .focus-bid{left:1%;top:1%;width:18%;height:17%}.focus-income{left:1%;top:18%;width:18%;height:16%}.focus-recipe{left:1%;top:33%;width:18%;height:20%}.focus-upgrade{left:1%;top:76%;width:98%;height:23%}
     .tutorial-card-lock{position:absolute;left:22%;top:3%;font-size:30px;background:#fff4dd;border-radius:10px;padding:4px}
