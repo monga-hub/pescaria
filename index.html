@@ -737,7 +737,7 @@ const TUTORIAL_STEPS=[
   {title:'Una carta, due usi',text:'Puoi spendere una carta per partecipare a un’asta, oppure tenerla come contratto da completare. Una carta spesa all’asta viene scartata: non potrai poi consegnarla a un cliente.',preview:7},
   {title:'Tieni Famiglia Badoer',text:'La scegliamo come contratto perché sul mercato ci sono Polpi da comprare. Premi “Tieni questa carta”: leggere l’immagine non conferma la scelta.',preview:7,action:'pickDraft',args:[7],button:'Tieni questa carta'},
   {title:'Questa carta ora è tua',text:'Hai tenuto Famiglia Badoer senza pagare nulla. Il lucchetto indica una carta già scelta nel draft. Rimarrà tua mentre scegli le altre.',preview:7,locked:true},
-  {title:'I pacchetti passano al vicino',text:'Le altre quattro carte sono passate a Berry. Anche lui ne ha tenuta una e ti ha passato le sue quattro rimanenti. Ora scegli da quel nuovo pacchetto.',selector:'.board-offers'},
+  {title:'I pacchetti passano al vicino',text:'Ora vedi le quattro carte ricevute da Berry e Famiglia Badoer, già tua e segnata dal lucchetto. Le tue altre quattro carte sono passate a lui. La freccia ↓ riabbassa le carte quando vuoi vedere il tabellone.',showHand:true,selector:'.hand-toggle'},
   {title:'Tieni una carta forte all’asta',text:'Lo scudo di Ristorante alla Frasca vale 10. La teniamo per fare un’offerta forte più tardi. Premi il pulsante per confermare questa seconda scelta.',preview:71,part:'bid',action:'pickDraft',args:[71],button:'Tieni questa carta'},
   {title:'La terza scelta',text:'Ricevi un altro pacchetto, ora più piccolo. Tieni Bacaro Risorto: il suo scudo vale 3. Lo useremo per una seconda asta.',preview:1,part:'bid',action:'pickDraft',args:[1],button:'Tieni questa carta'},
   {title:'La quarta scelta',text:'Tieni Osteria ai Pugni: richiede 1 Gambero. L’ultima carta rimasta, Bacaro della Riva, ti viene assegnata automaticamente. Il draft termina con 5 carte in mano.',preview:4,part:'recipe',action:'pickDraft',args:[4],button:'Tieni questa carta'},
@@ -777,7 +777,7 @@ function tutorialStep(){return G?.tutorial?TUTORIAL_STEPS[G.tutorial.step]:null}
 window.startTutorial=function(){
   if(G&&!G.finished&&!G.tutorial&&!confirm('Lasciare la partita in corso e iniziare il tutorial?'))return;
   startGame({n:2,seed:20260926,difficulty:'normal',humanBot:false,roster:[{name:'Tu',human:true,character:0},{name:'Berry',human:false,character:1}]});
-  G.tutorial={version:2,step:0};G.captain=0;
+  G.tutorial={version:2,step:0,history:[]};G.captain=0;
   for(const f of FISH)for(let i=0;i<G.market[f];i++)G.bag.push(f);
   G.market={Polpi:3,Gamberi:3,Molluschi:2,Branzini:2,Sardine:2};
   for(const f of FISH)for(let i=0;i<G.market[f];i++)G.bag.splice(G.bag.indexOf(f),1);
@@ -787,7 +787,18 @@ window.startTutorial=function(){
   if(!HEADLESS){dismissPhaseIntro();$('gameMenu').close();document.body.classList.add('playing');$('setup').classList.add('hidden');$('end').classList.add('hidden');$('game').classList.remove('hidden')}
   render();
 };
-window.tutorialNext=function(){const step=tutorialStep();if(!step||step.action||step.done)return;G.tutorial.step++;render()};
+function tutorialCheckpoint(){
+  const history=G.tutorial.history??=[];
+  history.push(encodeGame({...G,tutorial:{...G.tutorial,history:undefined}}));
+}
+window.tutorialBack=function(){
+  const history=G?.tutorial?.history;if(!history?.length)return;
+  const previous=decodeGame(history[history.length-1]);
+  history.pop();previous.tutorial.history=history;
+  if(!HEADLESS){clearTimeout(auctionSummaryTimer);auctionSummaryTimer=null;$('auctionSummary').close();dismissPhaseIntro(false);previous.tutorial.collapsed=false;previous.handViewKey=null}
+  G=previous;render();
+};
+window.tutorialNext=function(){const step=tutorialStep();if(!step||step.action||step.done)return;tutorialCheckpoint();G.tutorial.step++;render()};
 let tutorialConfirmed=false;
 window.tutorialDo=function(){const step=tutorialStep();if(!step?.button)return;tutorialConfirmed=true;try{window[step.action](...(step.args||[]))}finally{tutorialConfirmed=false}};
 window.exitTutorial=function(){if(G?.tutorial&&!tutorialStep()?.done&&!confirm('Uscire dal tutorial? Perderai i progressi della partita guidata.'))return;G=null;if(!HEADLESS){clearTutorialUI();restartGame()}};
@@ -798,7 +809,7 @@ function renderTutorial(){
   document.body.classList.add('tutorial');const guide=$('tutorialGuide');guide.classList.remove('hidden');
   if(guide.dataset.step!==String(G.tutorial.step)){G.tutorial.collapsed=false;guide.dataset.step=G.tutorial.step}
   guide.classList.toggle('collapsed',!!G.tutorial.collapsed);
-  guide.innerHTML=`<div class="tutorial-copy" role="status"><div class="tutorial-progress">PARTITA GUIDATA · ${G.tutorial.step+1} / ${TUTORIAL_STEPS.length}</div><h2>${esc(step.title)}</h2><p>${esc(step.text)}</p></div><div class="tutorial-controls">${step.done?'<button class="btn primary" onclick="exitTutorial()">Gioca una partita</button>':step.button?`<button class="btn primary" onclick="tutorialDo()">${esc(step.button)}</button>`:!step.action?'<button class="btn primary" onclick="tutorialNext()">Avanti →</button>':''}<button class="btn secondary tutorial-toggle" onclick="toggleTutorialGuide()" aria-expanded="${!G.tutorial.collapsed}" aria-label="${G.tutorial.collapsed?'Riapri la spiegazione':'Riduci la spiegazione'}">${G.tutorial.collapsed?'Mostra testo ▾':'Nascondi testo ↑'}</button><button class="tutorial-exit" onclick="exitTutorial()">Esci dal tutorial</button></div>`;
+  guide.innerHTML=`<div class="tutorial-copy" role="status"><div class="tutorial-progress">PARTITA GUIDATA · ${G.tutorial.step+1} / ${TUTORIAL_STEPS.length}</div><h2>${esc(step.title)}</h2><p>${esc(step.text)}</p></div><div class="tutorial-controls"><button class="btn secondary tutorial-back" onclick="tutorialBack()" ${G.tutorial.history?.length?'':'disabled'}>← Indietro</button>${step.done?'<button class="btn primary" onclick="exitTutorial()">Gioca una partita</button>':step.button?`<button class="btn primary" onclick="tutorialDo()">${esc(step.button)}</button>`:!step.action?'<button class="btn primary" onclick="tutorialNext()">Avanti →</button>':''}<button class="btn secondary tutorial-toggle" onclick="toggleTutorialGuide()" aria-expanded="${!G.tutorial.collapsed}" aria-label="${G.tutorial.collapsed?'Riapri la spiegazione':'Riduci la spiegazione'}">${G.tutorial.collapsed?'Mostra testo ▾':'Nascondi testo ↑'}</button><button class="tutorial-exit" onclick="exitTutorial()">Esci dal tutorial</button></div>`;
   const preview=$('tutorialPreview'),card=step.preview&&CARDS.find(c=>c.id===step.preview);
   preview.classList.toggle('hidden',!card);
   preview.innerHTML=card?`<figure class="tutorial-card"><img src="assets/cards/${String(card.id-1).padStart(3,'0')}.png?v=20260925-2" alt="${esc(card.name)}" draggable="false">${step.part?`<span class="tutorial-card-focus focus-${step.part}" aria-hidden="true"></span>`:''}${step.locked?'<span class="tutorial-card-lock" aria-label="Carta scelta">🔒</span>':''}</figure>`:'';
@@ -814,7 +825,7 @@ function installTutorialGuards(){
     const action=window[name];window[name]=function(...args){
       if(!G?.tutorial)return action(...args);
       const step=tutorialStep();if(step?.action!==name||(step.button&&!tutorialConfirmed)||(step.args&&JSON.stringify(step.args)!==JSON.stringify(args)))return;
-      G.tutorial.step++;const result=action(...args);render();return result;
+      tutorialCheckpoint();G.tutorial.step++;const result=action(...args);render();return result;
     };
   }
   if(!HEADLESS)document.addEventListener('click',e=>{
@@ -1333,9 +1344,9 @@ function renderBoard(){
   const extra=[copies(viewed,'Esperienza')?`Senza tassa ×${copies(viewed,'Esperienza')}`:'',copies(viewed,'Nuovi Clienti')?`Fortuna ×${copies(viewed,'Nuovi Clienti')}`:'',viewed.subsLeft?`Sottobanco ×${viewed.subsLeft}`:''].filter(Boolean).join(' · ');
   host.innerHTML=`<div class="sidebar-content">${humanPlayers().length>1?`<div class="active-operator">Turno di ${esc(me.name)}</div>`:''}<div class="hand-meta">${winner?`<div class="auction-winner">${esc(G.players[winner.pid].name)} vince l’asta · ${bidScore(winner)}</div>`:''}${playerMatHtml(viewed)}<div class="player-mat-buttons" role="group" aria-label="Scegli la plancia del giocatore">${G.players.map(p=>`<button class="player-mat-button" style="--player-color:${playerColor(p)}" aria-pressed="${p.id===viewed.id}" onclick="viewPlayerMat(${p.id})"><span>${esc(p.name)}</span><span class="player-ducats">${p.coins}<img src="assets/tokens/moneta.png" alt="Ducati"></span></button>`).join('')}</div>${extra?`<div class="mat-uses">${extra}</div>`:''}</div>${mobileAuctionLayout()?'':auctionPanelHtml(me)}</div>`;
   const mobile=$('mobileAuctionActions');mobile.innerHTML=mobileAuctionLayout()?auctionPanelHtml(me):'';mobile.classList.toggle('hidden',!mobile.innerHTML);document.body.classList.toggle('mobile-auction',!!mobile.innerHTML);
-  const dock=$('floatingHand'),handKey=`${G.day}:${G.phase}:${me.id}:${G.auctionIndex}:${G.auctionStage}:${G.draftRound}:${G.selectedBid}`;
+  const dock=$('floatingHand'),handKey=`${G.day}:${G.phase}:${me.id}:${G.auctionIndex}:${G.auctionStage}:${G.draftRound}:${G.selectedBid}:${G.tutorial?.step??''}`;
   if(G.handViewKey!==handKey){G.handViewKey=handKey;G.handFolded=!raised}
-  if(G.tutorial)G.handFolded=!tutorialStep()?.selector?.startsWith('[data-card-id=');
+  if(G.tutorial&&!tutorialStep()?.showHand)G.handFolded=!tutorialStep()?.selector?.startsWith('[data-card-id=');
   dock.classList.toggle('folded',G.handFolded);
   dock.classList.toggle('hidden',!!tutorialStep()?.preview||(!!G.overlay&&!G.tutorial)||G.handoff||!cards.length);
   dock.innerHTML=`<button class="hand-toggle" onclick="toggleHand()" aria-controls="handCards"></button><div id="handCards" class="hand-cards">${fan||'<p class="empty">Nessuna carta in mano.</p>'}</div>`;

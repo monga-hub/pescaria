@@ -9,9 +9,25 @@ function checkSupply(){
   if(G.phase==='draft')cards.push(...G.draftPacks.flat(),...G.drafted.flat());
   assert.equal(cards.length,100);assert.equal(new Set(cards.map(c=>c.id)).size,100);
 }
+function advanceLesson(step,before){
+  if(!step.action)tutorialNext();
+    else if(step.action==='addBidCoin')addBidCoin({currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:1,height:1})}});
+    else if(step.button){window[step.action](...(step.args||[]));assert.equal(encodeGame(G),before,"Reading cards must not confirm the choice");tutorialDo()}
+    else window[step.action](...(step.args||[]));
+}
+function settleSummaries(reload){
+    while(G.phase==='asta'&&G.auctionStage==='summary'){
+      const recap=G.lastAuctionSummary;
+      if(recap.fish==='Polpi')assert.deepEqual(recap.rows.map(r=>[r.pid,r.rank,r.bought]),[[0,1,2],[1,2,1]]);
+      if(recap.fish==='Gamberi')assert.deepEqual(recap.rows.map(r=>[r.pid,r.rank,r.bought]),[[1,1,1],[0,2,1]]);
+      if(recap.fish==='Molluschi'||recap.fish==='Branzini'||recap.fish==='Sardine')assert(recap.rows.every(r=>r.rank===null&&r.bought===0));
+      if(reload)G=decodeGame(encodeGame(G));
+      continueAfterAuction();
+    }
+}
 function playGuide(reload){
   startTutorial();assert.equal(G.players.length,2);assert.deepEqual(G.market,{Polpi:3,Gamberi:3,Molluschi:2,Branzini:2,Sardine:2});
-  const initial=encodeGame(G);exitTutorial();assert.equal(encodeGame(G),initial,'Cancelling exit preserves the tutorial');
+  const initial=encodeGame(G);tutorialBack();assert.equal(encodeGame(G),initial,'Back at the beginning changes nothing');exitTutorial();assert.equal(encodeGame(G),initial,'Cancelling exit preserves the tutorial');
   const initialStep=G.tutorial.step;toggleTutorialGuide();assert.equal(G.tutorial.collapsed,true);toggleTutorialGuide();assert.equal(G.tutorial.collapsed,false);assert.equal(G.tutorial.step,initialStep,'Reading the explanation never advances the scenario');
   let steps=0;
   while(!tutorialStep().done){
@@ -25,18 +41,12 @@ function playGuide(reload){
     const previous=G.tutorial.step;
     const oldStep=[0,3,6,12,15,16,17,18,21,22,23,25,27,28,29,31,32,34,35,36,37,39,40,42,43,44,45,46,47,48].indexOf(previous);
     if(oldStep>=0){const legacy=decodeGame(before);delete legacy.tutorial.version;legacy.tutorial.step=oldStep;assert.deepEqual(decodeGame(encodeGame(legacy)),decodeGame(before),'Old tutorial saves resume at the corresponding lesson')}
-    if(!step.action)tutorialNext();
-    else if(step.action==='addBidCoin')addBidCoin({currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:1,height:1})}});
-    else if(step.button){window[step.action](...(step.args||[]));assert.equal(encodeGame(G),before,"Reading cards must not confirm the choice");tutorialDo()}
-    else window[step.action](...(step.args||[]));
-    while(G.phase==='asta'&&G.auctionStage==='summary'){
-      const recap=G.lastAuctionSummary;
-      if(recap.fish==='Polpi')assert.deepEqual(recap.rows.map(r=>[r.pid,r.rank,r.bought]),[[0,1,2],[1,2,1]]);
-      if(recap.fish==='Gamberi')assert.deepEqual(recap.rows.map(r=>[r.pid,r.rank,r.bought]),[[1,1,1],[0,2,1]]);
-      if(recap.fish==='Molluschi'||recap.fish==='Branzini'||recap.fish==='Sardine')assert(recap.rows.every(r=>r.rank===null&&r.bought===0));
-      if(reload)G=decodeGame(encodeGame(G));
-      continueAfterAuction();
-    }
+    advanceLesson(step,before);settleSummaries(reload);
+    const after=encodeGame(G);
+    if(reload)G=decodeGame(after);
+    tutorialBack();assert.deepEqual(G,decodeGame(before),'Back restores cards, coins and all choices at step '+previous);checkSupply();
+    advanceLesson(step,before);settleSummaries(reload);
+    assert.deepEqual(G,decodeGame(after),'Repeating the lesson produces the same result');
     assert.equal(G.tutorial.step,previous+1);
     if(step.action==='pickDraft'&&step.args[0]===4){assert.equal(G.phase,'asta');assert.deepEqual(G.players[0].hand.map(c=>c.id),[7,71,1,4,18])}
     if(step.action==='confirmBuy'&&previous===28){assert.equal(G.players[0].coins,9);assert.equal(G.players[0].banco.Polpi,2)}
