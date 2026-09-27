@@ -385,11 +385,13 @@
 
     .playing #floatingHand .hand-cards:not(.gsap-hand) .tutorial-explained{animation:none!important;transform:translateX(-50%) translateY(-104px) rotate(0) scale(1.07);z-index:300;opacity:1}
     #floatingHand .hand-cards:has(.tutorial-explained) .card:not(.tutorial-explained){opacity:.55}
-    .tutorial-card-focus{z-index:8;position:absolute;border:4px solid #ffdd50;border-radius:12px;--tutorial-veil:0 0 0 999px #0006;pointer-events:none}
+    .tutorial-card-focus{z-index:8;position:absolute;box-sizing:border-box;border:2px solid #ffe36d;border-radius:50%;--tutorial-veil:0 0 0 999px #0006;pointer-events:none}
     .tutorial-target,.tutorial-card-focus{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 14px #ffdd50,0 0 28px #ffbb3377,inset 0 0 8px #ffe99b66;animation:tutorialGlowPulse 1.6s ease-in-out infinite!important}
     @keyframes tutorialGlowPulse{0%,100%{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 10px #ffdd50aa,0 0 20px #ffbb3344,inset 0 0 5px #ffe99b44}50%{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 22px #ffe99b,0 0 42px #ffbb33cc,inset 0 0 16px #ffe99baa}}
+    .tutorial-card-focus{box-shadow:var(--tutorial-veil),0 0 8px #ffdd50aa;animation-name:tutorialSymbolPulse!important}
+    @keyframes tutorialSymbolPulse{0%,100%{box-shadow:var(--tutorial-veil),0 0 5px #ffdd5088}50%{box-shadow:var(--tutorial-veil),0 0 12px #ffe99b}}
     @media(prefers-reduced-motion:reduce){.tutorial-target,.tutorial-card-focus{animation:none!important}}
-    .focus-bid{left:1%;top:1%;width:18%;height:17%}.focus-income{left:1%;top:18%;width:18%;height:16%}.focus-recipe{left:1%;top:33%;width:18%;height:20%}.focus-upgrade{left:1%;top:76%;width:98%;height:23%}
+    .focus-bid{left:0;top:0;width:24%;height:18%}.focus-income{left:0;top:16.25%;width:24%;aspect-ratio:1}.focus-recipe{left:0;top:31.25%;width:24%;aspect-ratio:1}.focus-upgrade{left:28.5%;top:67.5%;width:43%;aspect-ratio:1}
     #mobileAuctionActions{position:fixed;z-index:700;left:8px;right:8px;bottom:60px;box-shadow:0 3px 20px #0007;border:2px solid #b89547;border-radius:12px;background:#fff4dd;padding:9px;color:#17343b}
     #mobileAuctionActions .auction-panel{padding:0;margin:0;background:none}
     #mobileAuctionActions h3{font-size:18px;margin:0 0 2px}#mobileAuctionActions p{font-size:12px;margin:0 0 5px}
