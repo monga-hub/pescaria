@@ -195,7 +195,12 @@
     .playing #floatingHand.folded{transform:translate(-50%,calc(100% - 40px))}
     #floatingHand .hand-cards{pointer-events:none;inset:0}
     .playing #floatingHand .card{pointer-events:auto;width:210px;height:294px;bottom:12px;box-shadow:0 15px 28px #061c22a8,inset 0 0 0 2px #f5dfa6}
-    #floatingHand .hand-toggle{position:absolute;left:-16px;bottom:12px;z-index:350;pointer-events:auto;width:44px;height:44px;padding:0;border:1px solid #b99b5c;border-radius:50%;background:#fff5dc;color:var(--ink);box-shadow:0 3px 12px #0006;font:900 27px/1 sans-serif;transition:transform .5s cubic-bezier(.22,.75,.25,1)}
+    #floatingHand .hand-toggle{position:absolute;left:-16px;bottom:12px;z-index:350;pointer-events:auto;display:grid;place-items:center;width:50px;height:50px;padding:5px;border:2px solid #372718;border-radius:50%;background:conic-gradient(from 25deg,#8b6635,#f2dda0 12%,#8c6738 26%,#423022 40%,#c5a66a 58%,#fff0bf 74%,#7b582e 90%,#8b6635);box-shadow:0 3px 8px #000b,inset 0 0 0 1px #e8cc83;cursor:pointer;isolation:isolate;transition:transform .5s cubic-bezier(.22,.75,.25,1)}
+    #floatingHand .hand-toggle::before{content:"";position:absolute;inset:5px;z-index:-1;border-radius:50%;border:1px solid #211910;background:radial-gradient(circle at 40% 30%,#554637,#241c18 70%);box-shadow:inset 0 2px 5px #000c,0 1px 1px #ffe3a877}
+    #floatingHand .hand-toggle svg{width:36px;height:36px;overflow:visible;pointer-events:none;filter:drop-shadow(0 2px 1px #000b);transition:rotate .25s ease,filter .2s ease}
+    #floatingHand.folded .hand-toggle svg{rotate:180deg}
+    @media(hover:hover){#floatingHand .hand-toggle:hover svg{filter:drop-shadow(0 0 5px #ffb34dcc) brightness(1.2)}}
+    #floatingHand .hand-toggle:active svg{filter:brightness(.85);translate:0 1px}
     #floatingHand.folded .hand-toggle{transform:translateY(calc(40px - var(--hand-height)))}
     #floatingHand .hand-toggle:focus-visible{outline:3px solid #d5a33a;outline-offset:3px}
     .auction-winner{padding:6px 9px;margin-bottom:7px;border-radius:7px;background:#e1eee8;color:#155d5a;font-weight:800;font-size:13px}
@@ -204,7 +209,7 @@
     @media(min-width:1000px){.playing .board-hand{align-self:start;max-height:calc(100dvh - 134px);padding-bottom:14px!important}.board-art-wrap{box-shadow:0 8px 24px #0005}}
     @media(max-width:999px){.playing .board-hand{display:flex;flex-direction:column;min-height:0;margin-bottom:50px!important}.playing .board-hand .hand-meta{max-height:none}}
     @media(max-width:700px){.playing main{padding-bottom:56px}.playing #floatingHand{--hand-height:285px}.playing #floatingHand .card{width:180px;height:252px}}
-    @media(prefers-reduced-motion:reduce){.playing #floatingHand,#floatingHand .hand-toggle{transition:none}}
+    @media(prefers-reduced-motion:reduce){.playing #floatingHand,#floatingHand .hand-toggle,#floatingHand .hand-toggle svg{transition:none}}
     .auction-panel-heading{flex-wrap:wrap}.auction-panel .bid-wallet{display:grid;grid-template-columns:55px minmax(0,1fr);width:190px;max-width:100%;align-items:center;column-gap:6px}
     .auction-panel .bid-wallet>span{grid-column:1/-1;text-align:center}
     .auction-panel .bid-wallet small{display:block;font-size:10px;line-height:1.3;max-width:120px;text-transform:none}
@@ -1320,7 +1325,7 @@ function syncHandToggle(dock){
   button.setAttribute('aria-expanded',String(!folded));
   button.setAttribute('aria-label',folded?'Alza le carte':'Abbassa le carte');
   button.title=folded?'Alza le carte':'Abbassa le carte';
-  button.textContent=folded?'↑':'↓';
+  button.innerHTML='<svg viewBox="0 0 56 56" aria-hidden="true" focusable="false"><defs><linearGradient id="handArrowFill" x2="0" y2="1"><stop stop-color="#ffb071"/><stop offset=".28" stop-color="#ef5c36"/><stop offset=".65" stop-color="#c42c20"/><stop offset="1" stop-color="#701710"/></linearGradient></defs><path d="M12 10H24C34 10 38 17 38 27V29H45L31 43 17 29H24V25C24 21 22 20 18 20H12Z" fill="url(#handArrowFill)" stroke="#ffc681" stroke-width="1.7" stroke-linejoin="round"/><path d="M15 13H24C31 13 35 18 35 26M22 31L31 39 40 31" fill="none" stroke="#ffd49a" stroke-opacity=".55" stroke-width="1.4" stroke-linecap="round"/></svg>';
 }
 window.toggleHand=function(){
   if(!G||G.handoff)return;
