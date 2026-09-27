@@ -756,7 +756,7 @@ function installTutorialGuards(){
     };
   }
   if(!HEADLESS)document.addEventListener('click',e=>{
-    const step=tutorialStep();if(!step||e.target.closest('#tutorialGuide')||e.target.closest('.hand-toggle'))return;
+    const step=tutorialStep();if(!step||e.target.closest('#tutorialGuide')||e.target.closest('#phaseIntro')||e.target.closest('.hand-toggle'))return;
     if(step.action&&!step.button&&step.selector&&e.target.closest(step.selector))return;
     e.preventDefault();e.stopImmediatePropagation();
   },true);
@@ -1352,11 +1352,10 @@ let phaseIntroTimer=null,phaseIntroFocus=null;
 window.dismissPhaseIntro=function(){
   clearTimeout(phaseIntroTimer);phaseIntroTimer=null;
   $('phaseIntro').classList.add('hidden');
-  $('game').inert=false;$('floatingHand').inert=false;
+  $('game').inert=false;$('floatingHand').inert=false;$('tutorialGuide').inert=false;
   if(phaseIntroFocus){(phaseIntroFocus.isConnected?phaseIntroFocus:$('game')).focus({preventScroll:true});phaseIntroFocus=null}
 };
 function showPhaseIntro(){
-  if(G.tutorial)return;
   const phase=G.phase==='conserva'?'pubblico':G.phase,fish=phase==='asta'?currentFish():null,key=`${G.day}:${phase}:${fish||''}`;
   if(G.phaseIntroSeen?.has(key))return;
   (G.phaseIntroSeen??=new Set()).add(key);G.phaseIntroKey=key;
@@ -1369,7 +1368,7 @@ function showPhaseIntro(){
   $('phaseIntroName').textContent=name;
   $('skipPhaseIntro').setAttribute('aria-label',`Inizia la fase: ${name}. Salta animazione`);
   $('phaseIntro').classList.remove('hidden');
-  $('game').inert=true;$('floatingHand').inert=true;
+  $('game').inert=true;$('floatingHand').inert=true;$('tutorialGuide').inert=true;
   $('skipPhaseIntro').focus({preventScroll:true});
   phaseIntroTimer=setTimeout(dismissPhaseIntro,2100);
 }
