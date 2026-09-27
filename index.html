@@ -383,17 +383,13 @@
     .auction-summary-row{display:grid;grid-template-columns:26px 44px minmax(0,1fr) auto;gap:9px;align-items:center;padding:8px;border-bottom:1px solid #cdbb98}.auction-summary-row.is-winner{background:#f4df9b;border-radius:10px;border:2px solid #b89547}.auction-summary-row>img{width:44px;height:48px;object-fit:contain}.auction-summary-row strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.auction-summary-row small{display:block;font-size:11px}.auction-summary-count{font-weight:900;white-space:nowrap}.auction-summary-foot{margin:14px 0 8px;font-size:12px;text-align:center}.auction-summary-next{width:100%}
     @media(max-width:500px){#auctionSummary{padding:14px}.auction-summary-heading h2{font-size:21px}.auction-summary-row{grid-template-columns:22px 36px minmax(0,1fr) auto;gap:6px;padding:6px;font-size:13px}.auction-summary-row>img{width:36px;height:40px}}
 
-    .tutorial-card{position:relative;margin:0;height:100%;max-width:calc(100vw - 28px);aspect-ratio:5/7}
-    .tutorial-card>img{display:block;width:100%;height:100%;border-radius:14px;object-fit:contain}
-    #tutorialPreview{position:fixed;z-index:850;left:0;right:0;bottom:18px;display:flex;justify-content:center;padding:0 14px;background:#17343bc9;backdrop-filter:blur(3px)}
-    .tutorial-card{height:min(var(--preview-height),calc((100vw - 28px)*1.4))}
-    .tutorial-card-focus{position:absolute;border:4px solid #ffdd50;border-radius:12px;--tutorial-veil:0 0 0 999px #0006;pointer-events:none}
+    .playing #floatingHand .hand-cards:not(.gsap-hand) .tutorial-explained{animation:none!important;transform:translateX(-50%) translateY(-104px) rotate(0) scale(1.07);z-index:300;opacity:1}
+    #floatingHand .hand-cards:has(.tutorial-explained) .card:not(.tutorial-explained){opacity:.55}
+    .tutorial-card-focus{z-index:8;position:absolute;border:4px solid #ffdd50;border-radius:12px;--tutorial-veil:0 0 0 999px #0006;pointer-events:none}
     .tutorial-target,.tutorial-card-focus{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 14px #ffdd50,0 0 28px #ffbb3377,inset 0 0 8px #ffe99b66;animation:tutorialGlowPulse 1.6s ease-in-out infinite!important}
     @keyframes tutorialGlowPulse{0%,100%{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 10px #ffdd50aa,0 0 20px #ffbb3344,inset 0 0 5px #ffe99b44}50%{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 22px #ffe99b,0 0 42px #ffbb33cc,inset 0 0 16px #ffe99baa}}
     @media(prefers-reduced-motion:reduce){.tutorial-target,.tutorial-card-focus{animation:none!important}}
-    .tutorial-card{overflow:hidden;border-radius:14px}
     .focus-bid{left:1%;top:1%;width:18%;height:17%}.focus-income{left:1%;top:18%;width:18%;height:16%}.focus-recipe{left:1%;top:33%;width:18%;height:20%}.focus-upgrade{left:1%;top:76%;width:98%;height:23%}
-    .tutorial-card-lock{position:absolute;left:22%;top:3%;font-size:30px;background:#fff4dd;border-radius:10px;padding:4px}
     #mobileAuctionActions{position:fixed;z-index:700;left:8px;right:8px;bottom:60px;box-shadow:0 3px 20px #0007;border:2px solid #b89547;border-radius:12px;background:#fff4dd;padding:9px;color:#17343b}
     #mobileAuctionActions .auction-panel{padding:0;margin:0;background:none}
     #mobileAuctionActions h3{font-size:18px;margin:0 0 2px}#mobileAuctionActions p{font-size:12px;margin:0 0 5px}
@@ -438,7 +434,6 @@
     <section id="end" class="panel end hidden"></section>
   </main>
   <aside id="mobileAuctionActions" class="hidden" aria-label="Azioni dell’asta"></aside>
-  <div id="tutorialPreview" class="hidden" aria-label="Carta spiegata nel tutorial"></div>
   <aside id="tutorialGuide" class="tutorial-guide hidden" aria-label="Tutorial guidato"></aside>
   <dialog id="gameMenu" aria-labelledby="gameMenuTitle"></dialog>
   <dialog id="automaPreview" aria-label="Carta della Congrega dei Mercanti">
@@ -734,7 +729,7 @@ const TUTORIAL_STEPS=[
   {title:'Il mercato è di tutti',text:'Sul tabellone centrale trovi il pesce ancora da comprare, diviso per tipo: Polpi, Gamberi, Molluschi, Branzini e Sardine. Questi pesci non sono ancora tuoi.',selector:'.board-fish'},
   {title:'Ogni mattina arriva il pesce',text:'Si estraggono a caso 6 pesci per giocatore. In questo tutorial ci sono due giocatori, quindi 12 pesci sul mercato. I 3 Polpi sono il gruppo arancione.',selector:'.fish-lot'},
   {title:'Prima scegliamo le carte',text:'Ricevi 5 carte. Ne tieni una e passi le altre al vicino; poi scegli dal pacchetto ricevuto. Si ripete fino ad avere 5 carte. Questa scelta si chiama draft.',action:'beginDraft',args:[],button:'Inizia la scelta delle carte'},
-  {title:'Leggi senza scegliere',text:'Questa è Famiglia Badoer. Nel tutorial te la mostro da sola: puoi leggere e toccare l’immagine senza giocarla. Prima di sceglierla vediamo un simbolo alla volta.',preview:7},
+  {title:'Leggi senza scegliere',text:'Questa è Famiglia Badoer. Nel tutorial la trovi sollevata nel ventaglio: puoi leggere e toccare l’immagine senza giocarla. Prima di sceglierla vediamo un simbolo alla volta.',preview:7},
   {title:'Il pesce richiesto dal cliente',text:'L’icona arancione è un Polpo. Questo cliente ti chiede 1 Polpo. La carta è un contratto: più tardi potrai consegnare quel pesce per guadagnare.',preview:7,part:'recipe'},
   {title:'Quanto ti paga il cliente',text:'La moneta con il 5 indica l’incasso. Se completi questo contratto consegnando 1 Polpo, ricevi 5 Ducati.',preview:7,part:'income'},
   {title:'Quanto vale la carta all’asta',text:'Lo scudo con il 3 è il valore d’asta. Se usi questa carta per fare un’offerta, parti da 3. Non è il costo della carta né il prezzo del pesce.',preview:7,part:'bid'},
@@ -807,7 +802,7 @@ window.tutorialNext=function(){const step=tutorialStep();if(!step||step.action||
 let tutorialConfirmed=false;
 window.tutorialDo=function(){const step=tutorialStep();if(!step?.button)return;tutorialConfirmed=true;try{window[step.action](...(step.args||[]))}finally{tutorialConfirmed=false}};
 window.exitTutorial=function(){if(G?.tutorial&&!tutorialStep()?.done&&!confirm('Uscire dal tutorial? Perderai i progressi della partita guidata.'))return;G=null;if(!HEADLESS){clearTutorialUI();restartGame()}};
-function clearTutorialUI(){if(HEADLESS)return;document.body.classList.remove('tutorial');document.body.style.removeProperty('--tutorial-height');$('tutorialGuide').classList.add('hidden');$('tutorialPreview').classList.add('hidden');delete $('tutorialGuide').dataset.step;document.querySelectorAll('.tutorial-target').forEach(el=>el.classList.remove('tutorial-target'))}
+function clearTutorialUI(){if(HEADLESS)return;document.body.classList.remove('tutorial');document.body.style.removeProperty('--tutorial-height');$('tutorialGuide').classList.add('hidden');delete $('tutorialGuide').dataset.step;document.querySelectorAll('.tutorial-target').forEach(el=>el.classList.remove('tutorial-target'))}
 window.toggleTutorialGuide=function(){if(!G?.tutorial)return;G.tutorial.collapsed=!G.tutorial.collapsed;renderTutorial()};
 function renderTutorial(){
   if(HEADLESS)return;const step=tutorialStep();if(!step){clearTutorialUI();return}
@@ -815,9 +810,6 @@ function renderTutorial(){
   if(guide.dataset.step!==String(G.tutorial.step)){G.tutorial.collapsed=false;guide.dataset.step=G.tutorial.step}
   guide.classList.toggle('collapsed',!!G.tutorial.collapsed);
   guide.innerHTML=`<div class="tutorial-copy" role="status"><div class="tutorial-progress">PARTITA GUIDATA · ${G.tutorial.step+1} / ${TUTORIAL_STEPS.length}</div><h2>${esc(step.title)}</h2><p>${esc(step.text)}</p></div><div class="tutorial-controls"><button class="btn secondary tutorial-back" onclick="tutorialBack()" ${G.tutorial.history?.length?'':'disabled'}>← Indietro</button>${step.done?'<button class="btn primary" onclick="exitTutorial()">Gioca una partita</button>':step.button?`<button class="btn primary" onclick="tutorialDo()">${esc(step.button)}</button>`:!step.action?'<button class="btn primary" onclick="tutorialNext()">Avanti →</button>':''}<button class="btn secondary tutorial-toggle" onclick="toggleTutorialGuide()" aria-expanded="${!G.tutorial.collapsed}" aria-label="${G.tutorial.collapsed?'Riapri la spiegazione':'Riduci la spiegazione'}">${G.tutorial.collapsed?'Mostra testo ▾':'Nascondi testo ↑'}</button><button class="tutorial-exit" onclick="exitTutorial()">Esci dal tutorial</button></div>`;
-  const preview=$('tutorialPreview'),card=step.preview&&CARDS.find(c=>c.id===step.preview);
-  preview.classList.toggle('hidden',!card);
-  preview.innerHTML=card?`<figure class="tutorial-card"><img src="assets/cards/${String(card.id-1).padStart(3,'0')}.png?v=20260925-2" alt="${esc(card.name)}" draggable="false">${step.part?`<span class="tutorial-card-focus focus-${step.part}" aria-hidden="true"></span>`:''}${step.locked?'<span class="tutorial-card-lock" aria-label="Carta scelta">🔒</span>':''}</figure>`:'';
   requestAnimationFrame(()=>{
     if(!G?.tutorial)return;
     fitGameContents();
@@ -829,8 +821,9 @@ function installTutorialGuards(){
   for(const name of ['beginDraft','pickDraft','chooseBid','returnBidCard','addBidCoin','removeBidCoin','submitBid','toggleBuyToken','confirmBuy','serveContract','finishMarket','toggleKeep','confirmKeep','finishDayBtn','viewPlayerMat','addInfluence','pickFavorite','acceptHandoff']){
     const action=window[name];window[name]=function(...args){
       if(!G?.tutorial)return action(...args);
+      if(!HEADLESS&&draftTransition)return;
       const step=tutorialStep();if(step?.action!==name||(step.button&&!tutorialConfirmed)||(step.args&&JSON.stringify(step.args)!==JSON.stringify(args)))return;
-      tutorialCheckpoint();G.tutorial.step++;const result=action(...args);render();return result;
+      tutorialCheckpoint();G.tutorial.step++;const result=action(...args);if(!result?.then)render();return result;
     };
   }
   if(!HEADLESS)document.addEventListener('click',e=>{
@@ -932,8 +925,10 @@ function draftStep(humanId){
   if(humanPlayers().length)setActivePlayer(humanPlayers()[0].id);return true;
 }
 window.pickDraft=function(id){
-  if(G.phase!=='draft'||G.handoff)return;const me=activePlayer(),c=G.draftPacks[me.id].find(x=>x.id===id);if(!c)return;
-  log('Draft',`${me.name} sceglie una carta al giro ${G.draftRound}.`);draftStep(id);render();
+  if(G.phase!=='draft'||G.handoff||(!HEADLESS&&draftTransition))return;const me=activePlayer(),c=G.draftPacks[me.id].find(x=>x.id===id);if(!c)return;
+  const choose=()=>{log('Draft',`${me.name} sceglie una carta al giro ${G.draftRound}.`);draftStep(id);render()};
+  if(!HEADLESS&&!reducedMotion)return animateDraftPick(id,choose);
+  choose();
 };
 function finishDraft(){
   for(const p of G.players){p.hand.push(...G.drafted[p.id],...p.kept);p.keptIds=new Set(p.kept.map(c=>c.id));p.kept=[];p.plan=null}
@@ -1289,9 +1284,10 @@ function renderPhysicalBoard(){
 }
 function inventoryHtml(stock,muted=false){const x=FISH.flatMap(f=>Array.from({length:stock[f]},()=>`<span class="token ${muted?'muted-token':''}" title="${f}"><img src="${ASSET.fish[f]}" alt="${f}"></span>`)).join('');return x||'<span class="empty">vuoto</span>'}
 function cardHtml(c,mode='plain',enabled=true,style=''){
+  const lesson=tutorialStep(),explained=lesson?.preview===c.id;
   const me=activePlayer(),selected=(mode==='bid'&&G.selectedBid===c.id)||(mode==='keep'&&G.keepSel?.has(c.id)),locked=mode==='draft'&&!enabled,selectable=enabled&&['bid','draft','market','client','keep'].includes(mode),fn={bid:'chooseBid',draft:'pickDraft',market:'serveContract',client:'pickClient',keep:'toggleKeep'}[mode],select=selectable?`role="button" tabindex="0" ${['draft','bid'].includes(mode)?'data-swipe-select':''} onclick="${fn}(${c.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}(${c.id})}"`:'tabindex="0"';
   const pay=mode==='market'&&enabled?payout(me,c):c.value,description=`${c.bid} CLIENTE #${c.id} ${c.name}. ${c.fish}. ${pay} Ducati. ${upName(c)}. ${UPG[c.up].fx}`;
-  return`<article data-card-id="${c.id}" class="card illustrated-card ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" aria-label="${esc(description)}" title="${esc(description)}" ${style?`style="${style}"`:''} ${select}><img class="card-art" src="assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2" alt="" draggable="false">${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}${pay!==c.value?`<span class="card-bonus">${pay} Ducati · +${pay-c.value} bonus</span>`:''}</article>`}
+  return`<article data-card-id="${c.id}" class="card illustrated-card ${explained?'tutorial-explained':''} ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" aria-label="${esc(description)}" title="${esc(description)}" ${style?`style="${style}"`:''} ${select}><img class="card-art" src="assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2" alt="" draggable="false">${explained&&lesson.part?`<span class="tutorial-card-focus focus-${lesson.part}" aria-hidden="true"></span>`:''}${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}${pay!==c.value?`<span class="card-bonus">${pay} Ducati · +${pay-c.value} bonus</span>`:''}</article>`}
 function phaseTitle(k){if(k==='draft')return'1 · Draft';if(k==='conserva')return'3 · Mercato';return PHASES.find(x=>x[0]===k)?.[1]||''}
 function playerMatHtml(p){
   const [color,character]=PLAYER_MATS[p.character??p.id],fish=FISH.flatMap(f=>Array(p.banco[f]).fill(f));
@@ -1351,9 +1347,9 @@ function renderBoard(){
   const mobile=$('mobileAuctionActions');mobile.innerHTML=mobileAuctionLayout()?auctionPanelHtml(me):'';mobile.classList.toggle('hidden',!mobile.innerHTML);document.body.classList.toggle('mobile-auction',!!mobile.innerHTML);
   const dock=$('floatingHand'),handKey=`${G.day}:${G.phase}:${me.id}:${G.auctionIndex}:${G.auctionStage}:${G.draftRound}:${G.selectedBid}:${G.tutorial?.step??''}`;
   if(G.handViewKey!==handKey){G.handViewKey=handKey;G.handFolded=!raised}
-  if(G.tutorial&&!tutorialStep()?.showHand)G.handFolded=!tutorialStep()?.selector?.startsWith('[data-card-id=');
+  if(G.tutorial&&!tutorialStep()?.showHand)G.handFolded=!tutorialStep()?.preview;
   dock.classList.toggle('folded',G.handFolded);
-  dock.classList.toggle('hidden',!!tutorialStep()?.preview||(!!G.overlay&&!G.tutorial)||G.handoff||!cards.length);
+  dock.classList.toggle('hidden',(!!G.overlay&&!G.tutorial)||G.handoff||!cards.length);
   dock.innerHTML=`<button class="hand-toggle" onclick="toggleHand()" aria-controls="handCards"></button><div id="handCards" class="hand-cards">${fan||'<p class="empty">Nessuna carta in mano.</p>'}</div>`;
   syncHandToggle(dock);
   requestAnimationFrame(()=>{fitGameContents();animateHand(dock)})
@@ -1370,12 +1366,8 @@ function tokenGrid(n,width,height,maxSize){
 let fitFrame=0;
 function scheduleFit(){if(HEADLESS||fitFrame)return;fitFrame=requestAnimationFrame(()=>{fitFrame=0;fitGameContents()})}
 function fitGameContents(){
-  const mobileActions=$('mobileAuctionActions'),preview=$('tutorialPreview');
+  const mobileActions=$('mobileAuctionActions');
   document.body.style.setProperty('--mobile-actions-space',mobileActions&&!mobileActions.classList.contains('hidden')?`${mobileActions.offsetHeight+68}px`:'56px');
-  if(preview&&!preview.classList.contains('hidden')){
-    const top=$('tutorialGuide').getBoundingClientRect().bottom+8;
-    preview.style.top=top+'px';preview.style.setProperty('--preview-height',Math.max(1,innerHeight-top-18)+'px');
-  }
   const side=document.querySelector('.sidebar-content');
   if(side){
     side.style.zoom=1;side.style.width=Math.max(1,side.parentElement.clientWidth-22)+'px';
@@ -1433,15 +1425,34 @@ function setupHandSwipe(host){
   host.addEventListener('touchcancel',()=>{gesture=null});
   host.addEventListener('click',e=>{if(suppressClick&&e.detail!==0){e.preventDefault();e.stopImmediatePropagation()}},true);
 }
+let draftTransition=null,draftArrival=null;
+async function animateDraftPick(id,choose){
+  const state=G,player=activePlayer(),dock=$('floatingHand'),guide=$('tutorialGuide'),table=$('game');
+  const outgoing=[...dock.querySelectorAll('.card')].filter(el=>G.draftPacks[player.id].some(c=>c.id===Number(el.dataset.cardId))&&Number(el.dataset.cardId)!==id);
+  const kept=new Set([...G.drafted[player.id].map(c=>c.id),id]);
+  draftTransition={state};dock.inert=true;guide.inert=true;table.inert=true;
+  const animations=outgoing.map((el,i)=>el.animate([{transform:getComputedStyle(el).transform,opacity:getComputedStyle(el).opacity},{transform:`translateX(${-innerWidth-300}px) rotate(-18deg)`,opacity:0}],{duration:380,delay:i*45,easing:'ease-in',fill:'forwards'}));
+  try{await Promise.all(animations.map(a=>a.finished.catch(()=>{})))}finally{
+    animations.forEach(a=>a.cancel());draftTransition=null;dock.inert=false;guide.inert=false;table.inert=false;
+  }
+  if(G!==state){render();return}
+  draftArrival={state,pid:player.id,kept};choose();
+}
 function animateHand(host){
   const hand=host.querySelector('.hand-cards'),cards=[...host.querySelectorAll('.hand-cards .card')];
-  if(!hand||!cards.length||!window.gsap||reducedMotion)return;
+  const arrival=draftArrival;draftArrival=null;
+  const incoming=arrival?.state===G&&arrival.pid===activePlayer().id?cards.filter(c=>!arrival.kept.has(Number(c.dataset.cardId))):[];
+  if(!hand||!cards.length||reducedMotion)return;
+  if(!window.gsap){incoming.forEach((c,i)=>c.animate([{transform:`translateX(${innerWidth}px)`,opacity:0},{transform:getComputedStyle(c).transform,opacity:1}],{duration:480,delay:i*45,easing:'ease-out',fill:'backwards'}));return;}
   hand.classList.add('gsap-hand');hand.style.setProperty('--rest-bottom','12px');
   const base=cards.map(c=>({x:+c.style.getPropertyValue('--x').replace('px',''),r:+c.style.getPropertyValue('--r').replace('deg',''),y:c.classList.contains('selected')?-23:0}));
   gsap.set(cards,{xPercent:-50,transformOrigin:'50% 100%',force3D:true});
-  gsap.fromTo(cards,{y:24,scale:.98,opacity:1,rotation:i=>base[i].r*1.35},{x:i=>base[i].x,y:i=>base[i].y,rotation:i=>base[i].r,scale:1,opacity:1,duration:.32,stagger:.02,ease:'power3.out',overwrite:true});
+  gsap.set(cards,{x:i=>base[i].x,y:i=>base[i].y,rotation:i=>base[i].r,scale:1,opacity:1});
+  const deal=incoming.length?gsap.from(incoming,{x:innerWidth+200,y:35,rotation:18,opacity:0,duration:.5,stagger:.045,ease:'power3.out'}):gsap.fromTo(cards,{y:24,scale:.98,rotation:i=>base[i].r*1.35},{x:i=>base[i].x,y:i=>base[i].y,rotation:i=>base[i].r,scale:1,opacity:1,duration:.32,stagger:.02,ease:'power3.out',overwrite:true});
   const close=()=>{cards.forEach(c=>{c.classList.remove('gsap-open');c.style.pointerEvents='auto'});gsap.to(cards,{x:i=>base[i].x,y:i=>base[i].y,rotation:i=>base[i].r,rotationX:0,rotationY:0,scale:1,opacity:1,zIndex:i=>i+1,duration:.36,ease:'power3.out',overwrite:true});delete hand.dataset.open};
-  const open=index=>{if(G?.tutorial){const required=cards.findIndex(c=>c.matches(tutorialStep()?.selector||':not(*)'));if(required>=0)index=required}hand.dataset.open=index;cards.forEach((c,i)=>{c.classList.toggle('gsap-open',i===index);c.style.pointerEvents=i===index?'auto':'none'});gsap.to(cards,{x:i=>base[i].x+(i<index?-58:i>index?58:0)+(i===index?(index===0?30:index===cards.length-1?-30:0):0),y:i=>i===index?-104:base[i].y+10,rotation:i=>i===index?0:base[i].r*.72,rotationX:0,rotationY:0,scale:i=>i===index?1.07:.95,opacity:i=>i===index?1:.62,zIndex:i=>i===index?300:i+1,duration:.3,ease:'power3.out',overwrite:true})};
+  const open=index=>{if(G?.tutorial){const required=cards.findIndex(c=>Number(c.dataset.cardId)===tutorialStep()?.preview);if(required>=0)index=required}hand.dataset.open=index;cards.forEach((c,i)=>{c.classList.toggle('gsap-open',i===index);c.style.pointerEvents=i===index?'auto':'none'});gsap.to(cards,{x:i=>G?.tutorial&&i===index?0:base[i].x+(i<index?-58:i>index?58:0)+(i===index?(index===0?30:index===cards.length-1?-30:0):0),y:i=>i===index?-104:base[i].y+10,rotation:i=>i===index?0:base[i].r*.72,rotationX:0,rotationY:0,scale:i=>i===index?1.07:.95,opacity:i=>i===index?1:.62,zIndex:i=>i===index?300:i+1,duration:.3,ease:'power3.out',overwrite:true})};
+  const explained=cards.findIndex(c=>c.classList.contains('tutorial-explained'));
+  if(explained>=0){if(incoming.length)deal.eventCallback('onComplete',()=>{if(hand.isConnected)open(explained)});else open(explained);return;}
   cards.forEach((card,index)=>{const tiltX=gsap.quickTo(card,'rotationX',{duration:.24,ease:'power3.out'}),tiltY=gsap.quickTo(card,'rotationY',{duration:.24,ease:'power3.out'});let frame=0,lastEvent;card.addEventListener('pointerenter',()=>{if(hand.dataset.open==null)open(index)});card.addEventListener('focusin',()=>open(index));card.addEventListener('pointermove',e=>{if(hand.dataset.open!=index)return;lastEvent=e;if(frame)return;frame=requestAnimationFrame(()=>{const r=card.getBoundingClientRect();tiltX(((lastEvent.clientY-r.top)/r.height-.5)*-6);tiltY(((lastEvent.clientX-r.left)/r.width-.5)*8);frame=0})})});
   hand.addEventListener('pointermove',e=>{const r=hand.getBoundingClientRect();if(e.clientY<r.bottom-145)return;const center=r.left+r.width/2,next=base.reduce((best,c,i)=>Math.abs(e.clientX-center-c.x)<Math.abs(e.clientX-center-base[best].x)?i:best,0);if(hand.dataset.open!=next)open(next)});
   hand.addEventListener('pointerleave',close);
@@ -1451,7 +1462,7 @@ let phaseIntroTimer=null,phaseIntroFocus=null;
 window.dismissPhaseIntro=function(showSummary=true){
   clearTimeout(phaseIntroTimer);phaseIntroTimer=null;
   $('phaseIntro').classList.add('hidden');
-  $('game').inert=false;$('floatingHand').inert=false;$('tutorialGuide').inert=false;$('mobileAuctionActions').inert=false;$('tutorialPreview').inert=false;
+  $('game').inert=false;$('floatingHand').inert=false;$('tutorialGuide').inert=false;$('mobileAuctionActions').inert=false;
   if(phaseIntroFocus){(phaseIntroFocus.isConnected?phaseIntroFocus:$('game')).focus({preventScroll:true});phaseIntroFocus=null}
   if(G&&showSummary)showAuctionSummary();
 };
@@ -1468,11 +1479,11 @@ function showPhaseIntro(){
   $('phaseIntroName').textContent=name;
   $('skipPhaseIntro').setAttribute('aria-label',`Inizia la fase: ${name}. Salta animazione`);
   $('phaseIntro').classList.remove('hidden');
-  $('game').inert=true;$('floatingHand').inert=true;$('tutorialGuide').inert=true;$('mobileAuctionActions').inert=true;$('tutorialPreview').inert=true;
+  $('game').inert=true;$('floatingHand').inert=true;$('tutorialGuide').inert=true;$('mobileAuctionActions').inert=true;
   $('skipPhaseIntro').focus({preventScroll:true});
   phaseIntroTimer=setTimeout(dismissPhaseIntro,2100);
 }
-function render(){if(!G||HEADLESS||G.finished)return;showPhaseIntro();$('game').dataset.phase=G.phase;$('dayTitle').textContent=`Giorno ${G.day} di 4 · ${phaseTitle(G.phase)}`;$('deckInfo').textContent=`Mazzo: ${G.deck.length} · Sacchetto: ${G.bag.length}`;$('progress').innerHTML=PHASES.map(([k,n])=>{const order=['rete','asta','pubblico','bilancia'],actual=G.phase==='draft'?'rete':G.phase==='conserva'?'pubblico':G.phase,i=order.indexOf(k),now=order.indexOf(actual);return`<div class="step ${i===now?'active':i<now?'done':''}">${n}</div>`}).join('');renderPhysicalBoard();const scores=G.players.map(scoreCard).join('');$('scores').innerHTML=scores;renderBoard();$('log').innerHTML=[...G.log].reverse().map(x=>`<div class="logitem"><b>G${x.day} · ${esc(x.phase)}</b>${esc(x.text)}</div>`).join('');renderTutorial();showAuctionSummary()}
+function render(){if(!G||HEADLESS||G.finished||draftTransition)return;showPhaseIntro();$('game').dataset.phase=G.phase;$('dayTitle').textContent=`Giorno ${G.day} di 4 · ${phaseTitle(G.phase)}`;$('deckInfo').textContent=`Mazzo: ${G.deck.length} · Sacchetto: ${G.bag.length}`;$('progress').innerHTML=PHASES.map(([k,n])=>{const order=['rete','asta','pubblico','bilancia'],actual=G.phase==='draft'?'rete':G.phase==='conserva'?'pubblico':G.phase,i=order.indexOf(k),now=order.indexOf(actual);return`<div class="step ${i===now?'active':i<now?'done':''}">${n}</div>`}).join('');renderPhysicalBoard();const scores=G.players.map(scoreCard).join('');$('scores').innerHTML=scores;renderBoard();$('log').innerHTML=[...G.log].reverse().map(x=>`<div class="logitem"><b>G${x.day} · ${esc(x.phase)}</b>${esc(x.text)}</div>`).join('');renderTutorial();showAuctionSummary()}
 
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 window.addEventListener('resize',()=>{render();scheduleFit();fitGameMenu()});
