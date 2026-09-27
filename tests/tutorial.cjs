@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
-const source=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1].replace('if(!HEADLESS&&humanPlayers().length){G.auctionStage=', 'if((!HEADLESS||window.__SHOW_SUMMARIES)&&humanPlayers().length){G.auctionStage=');
+const source=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1].replace('if(!HEADLESS&&humanPlayers().length){G.auctionStage=', 'if((!HEADLESS||window.__SHOW_SUMMARIES)&&humanPlayers().length){G.auctionStage=').replace('humanPlayers().length&&!HEADLESS', 'humanPlayers().length&&(!HEADLESS||window.__SHOW_SUMMARIES)');
 const context={assert,console,clearTimeout(){},__PESCARIA_HEADLESS:true,addEventListener(){},document:{getElementById:id=>id==='rules'?{}:null,addEventListener(){}},matchMedia:()=>({matches:true})};context.window=context;context.confirm=()=>false;
 vm.runInNewContext(source.replace(/\}\)\(\);\s*$/,String.raw`
 function checkSupply(){
@@ -16,7 +16,20 @@ function advanceLesson(step,before){
     else window[step.action](...(step.args||[]));
 }
 function settleSummaries(reload){
-    while(G.phase==='asta'&&G.auctionStage==='summary'){
+    while(G.phase==='asta'&&['ranking','summary'].includes(G.auctionStage)){
+      if(G.auctionStage==='ranking'){
+        const standings=auctionStandings();
+        assert(standings.rows.every(r=>r.bought===0),'Ranking appears before anyone buys');
+        assert.equal(standings.rows[0].pid,G.captain);
+        assert.deepEqual(standings.rows.filter(r=>r.rank).map(r=>r.pid),G.buyQueue.map(q=>q.pid));
+        const scores=standings.rows.filter(r=>r.rank).map(r=>r.score);
+        assert.deepEqual(scores,[...scores].sort((a,b)=>b-a));
+        if(reload)G=decodeGame(encodeGame(G));
+        continueAfterAuction();
+        assert.equal(G.auctionStage,'buy');
+        const before=encodeGame(G);continueAfterAuction();assert.equal(encodeGame(G),before,'Double continue cannot skip a purchase');
+        continue;
+      }
       const recap=G.lastAuctionSummary;
       if(recap.fish==='Polpi')assert.deepEqual(recap.rows.map(r=>[r.pid,r.rank,r.bought]),[[0,1,2],[1,2,1]]);
       if(recap.fish==='Gamberi')assert.deepEqual(recap.rows.map(r=>[r.pid,r.rank,r.bought]),[[1,1,1],[0,2,1]]);
