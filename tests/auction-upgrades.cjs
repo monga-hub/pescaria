@@ -50,8 +50,8 @@ function auction() {
   winner.hand.push(high); loser.hand.push(low);
   resolveBids([{pid:0, card:high, cash:0, infl:0}, {pid:1, card:low, cash:0, infl:0}]);
 }
-auction();
-assert.equal(G.viewedPlayer, winner.id, 'Show the auction winner’s mat');
+G.viewedPlayer=passer.id;auction();
+assert.equal(G.viewedPlayer, passer.id, 'Resolving an auction must not switch to the winner’s mat');
 assert.equal(loser.hand.length, 1);
 assert.equal(loser.hand[0], drawn);
 assert.equal(winner.hand.length, 0);
@@ -158,7 +158,7 @@ for(const controls of [[true],[false],[false,true],[true,true],[true,false,true]
       if(G.auctionStage==='bid'){
         assert(me.human);chooseBid(me.hand[0].id);submitBid();
       }else if(G.auctionStage==='buy'){
-        assert.equal(G.buyQueue[G.buyPos].pid,me.id);G.buyQty=Math.min(1,maxBuy(me,currentFish(),G.buyQueue[G.buyPos].price));confirmBuy();
+        assert.equal(G.buyQueue[G.buyPos].pid,me.id);assert.equal(G.viewedPlayer,me.id,'Show the buying human’s own mat, even after a bot wins');G.buyQty=Math.min(1,maxBuy(me,currentFish(),G.buyQueue[G.buyPos].price));confirmBuy();
       }else assert.fail('Auction stalled');
     }else if(G.phase==='pubblico'){
       const contract=me.hand.find(c=>canContract(me,c));if(contract)serveContract(contract.id);else window.finishMarket();

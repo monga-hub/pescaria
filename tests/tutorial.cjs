@@ -4,6 +4,7 @@ const source=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1].replace('if(!HEADL
 const context={assert,console,clearTimeout(){},__PESCARIA_HEADLESS:true,addEventListener(){},document:{getElementById:id=>id==='rules'?{}:null,addEventListener(){}},matchMedia:()=>({matches:true})};context.window=context;context.confirm=()=>false;
 vm.runInNewContext(source.replace(/\}\)\(\);\s*$/,String.raw`
 function checkSupply(){
+  if(G.phase==='asta'&&G.auctionStage==='buy')assert.equal(G.viewedPlayer,activePlayer().id,'The tutorial keeps the buyer’s own mat visible');
   assert.equal(G.bag.length+count(G.market)+G.players.reduce((n,p)=>n+count(p.banco)+count(p.cesta),0),100);
   const cards=[...G.deck,...G.discard,...G.players.flatMap(p=>[...p.hand,...p.installed,...p.pending,...p.kept])];
   if(G.phase==='draft')cards.push(...G.draftPacks.flat(),...G.drafted.flat());

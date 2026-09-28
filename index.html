@@ -235,7 +235,7 @@
     .playing .physical-board{display:grid;height:100%;overflow:clip;grid-template-columns:minmax(0,1fr) 400px;grid-template-rows:38px minmax(0,1fr)}
     .board-hud,.board-scorebar{grid-column:1/-1}
     .board-art-wrap{container-type:size;overflow:clip}
-    .board-art{width:min(100cqw,141.4078cqh);min-width:0;margin:auto}
+    .board-art{width:min(100cqw,141.4078cqh);height:min(70.71745cqw,100cqh);min-width:0;margin:auto}
     .playing .board-hand{display:block;align-self:stretch;height:100%;max-height:none;min-height:0;margin:0!important;overflow:clip!important;background:#c7afa0 url('assets/board/fondo-colonna-destra.png') center/cover no-repeat}
     .sidebar-content{display:flex;flex-direction:column;gap:10px;margin:0 auto}
     .playing .board-hand .hand-meta{display:block;max-height:none;overflow:visible}
@@ -1045,7 +1045,7 @@ function resolveBids(bids){
   if(!bids.length){log('Asta',`Nessuno partecipa all’asta dei ${f}: il pesce torna nel Sacchetto.`);returnFish(f,G.market[f]);G.market[f]=0;G.auctionResult=[];afterAuction();return}
   bids.sort((a,b)=>bidScore(b)-bidScore(a)||order.indexOf(a.pid)-order.indexOf(b.pid));
   const win=bids[0],wp=G.players[win.pid];wp.coins-=win.cash;for(const b of bids)G.players[b.pid].influence-=b.infl;G.captain=win.pid;
-  G.auctionResult=bids;G.viewedPlayer=win.pid;
+  G.auctionResult=bids;
   log('Asta',`${wp.name} vince l’asta dei ${f} con ${bidScore(win)} (carta ${win.card.bid}${win.cash?` + ${win.cash} Ducati`:''}${win.infl?` + ${win.infl*ESP_X} Esperienza`:''}) e diventa Capitano.`);
   // Fortuna: chi ha partecipato e perso pesca 1 carta (una volta al giorno per carta).
   for(const b of bids.slice(1)){const p=G.players[b.pid];for(let i=0;i<copies(p,'Nuovi Clienti');i++)G.clientsQueue.push({pid:p.id,k:1})}
@@ -1061,7 +1061,7 @@ function buy(p,f,n,price){n=Math.max(0,Math.min(n,maxBuy(p,f,price)));if(n){cons
 function advanceBuys(){
   const f=currentFish();
   while(G.buyPos<G.buyQueue.length&&G.market[f]){const q=G.buyQueue[G.buyPos],p=G.players[q.pid];
-    if(p.human){if(maxBuy(p,f,q.price)>0){setActivePlayer(p.id);G.viewedPlayer=G.auctionResult[0].pid;G.buyQty=Math.min(maxBuy(p,f,q.price),Math.max(q.rank===0?1:0,needOf(p,f)));return}G.buyPos++;continue}
+    if(p.human){if(maxBuy(p,f,q.price)>0){setActivePlayer(p.id);G.buyQty=Math.min(maxBuy(p,f,q.price),Math.max(q.rank===0?1:0,needOf(p,f)));return}G.buyPos++;continue}
     botBuy(p,f,q.price,q.rank);G.buyPos++}
   if(G.market[f]){returnFish(f,G.market[f]);log('Asta',`${G.market[f]} ${f} invenduti tornano nel Sacchetto.`);G.market[f]=0}
   afterAuction();
