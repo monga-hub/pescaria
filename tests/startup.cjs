@@ -23,7 +23,7 @@ function launch({remote='same',href='https://example.com/pescaria/?mode=test#gam
   app=launch({remote:'new release',href:target.href});assert.equal(await app.boot.check(),true);assert.equal(app.redirects.length,0,'Never loop during deployment');
   for(const remote of ['offline','http-error','invalid','timeout']){
     app=launch({remote});if(remote==='timeout')app.timers.get(6000)();
-    assert.equal(await app.boot.check(),true);assert.equal(app.redirects.length,0);assert.match(app.status.textContent,/Controllo non disponibile/);
+    assert.equal(await app.boot.check(),true);assert.equal(app.redirects.length,0);assert.match(app.status.textContent,/Non riesco a verificare gli aggiornamenti/);
     const done=app.boot.ready();await new Promise(resolve=>setImmediate(resolve));app.timers.get(1200)();await done;assert.equal(app.splash.hidden,true);
   }
   app=launch({href:'file:///Users/test/pescaria/index.html'});assert.equal(await app.boot.check(),true);assert.equal(app.requests.length,0);await app.boot.ready();
