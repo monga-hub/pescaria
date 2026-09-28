@@ -794,7 +794,7 @@ window.loadGameSlot=function(slot){
 };
 
 // A fixed teaching day, using the normal game rules and real actions.
-const TUTORIAL_STEPS=[
+const TUTORIAL_V2_STEPS=[
   {title:'Benvenuto a Pescaria',text:'In Pescaria ogni giocatore gestisce una pescheria. Compri pesce al mercato e lo consegni ai clienti per guadagnare. Qui giochi contro Berry, controllato dal computer.',selector:'.player-mat'},
   {title:'Come si vince',text:'I Ducati sono i soldi del gioco. Parti con 12 Ducati. Dopo quattro giornate vince chi ne ha di più. Qui impariamo giocando soltanto la prima giornata.',selector:'.mat-coins'},
   {title:'Questo è il tuo banco',text:'La plancia con il personaggio è la tua pescheria. Il tuo Banco contiene il pesce che compri: inizialmente può ospitare 6 pesci in totale, di qualsiasi tipo.',selector:'.mat-bank'},
@@ -845,15 +845,44 @@ const TUTORIAL_STEPS=[
   {title:'La fine della giornata',text:'Le carte Mercante, se installate, danno anche rendite a fine giornata. Oggi non ne hai. Chiudi con 16 Ducati, 2 migliorie, 1 Polpo in Cesta e 1 carta conservata.',action:'finishDayBtn',args:[],button:'Inizia la seconda giornata'},
   {title:'Hai completato il tutorial',text:'Hai scelto carte, partecipato alle aste, comprato pesce e completato contratti. In una partita libera scegli tu la strategia: dopo quattro giornate vince chi ha più Ducati; in parità, più migliorie.',selector:'.mat-cesta',done:true}
 ];
-function tutorialStep(){return G?.tutorial?TUTORIAL_STEPS[G.tutorial.step]:null}
+// Keep the previous scenario available for saved tutorials and their Back history.
+const TUTORIAL_STEPS=[
+  ...TUTORIAL_V2_STEPS.slice(0,17),
+  {...TUTORIAL_V2_STEPS[17],text:'Tieni Osteria ai Pugni: richiede 1 Gambero. L’ultima carta, Bacaro del Pirata, ti viene assegnata automaticamente. Useremo tutte e cinque le carte: due per le aste e tre come contratti.'},
+  ...TUTORIAL_V2_STEPS.slice(18,27),
+  {title:'Seleziona 3 Polpi',text:'Tocca il terzo Polpo, quello con il numero 3. Due ci serviranno per Famiglia Badoer e Bacaro del Pirata; il terzo lo conserveremo per domani.',action:'toggleBuyToken',args:[3],selector:'[onclick="toggleBuyToken(3)"]'},
+  {title:'Compra i tre Polpi',text:'Premi COMPRA 3. Paghi 3 Ducati e i tre Polpi entrano nel tuo Banco. Dopo il Ducato puntato e questo acquisto, ti restano 8 Ducati.',action:'confirmBuy',args:[],selector:'.purchase-confirm'},
+  ...TUTORIAL_V2_STEPS.slice(29,33),
+  {...TUTORIAL_V2_STEPS[33],text:'Premi COMPRA 1. Paghi 2 Ducati e metti il Gambero nel tuo Banco. Ora hai 3 Polpi, 1 Gambero e 6 Ducati.'},
+  ...TUTORIAL_V2_STEPS.slice(34,38),
+  {...TUTORIAL_V2_STEPS[38],text:'Sei passato da 6 a 11 Ducati. Famiglia Badoer è completata: alla chiusura della giornata la installerai nella corsia Asta, riconoscibile dal martello.'},
+  {...TUTORIAL_V2_STEPS[39],text:'Consegna il Gambero per ricevere altri 4 Ducati: passerai da 11 a 15. Questa carta della categoria Mercato diventerà la miglioria Sottobanco.'},
+  {title:'La quinta carta è un Mercante',text:'Bacaro del Pirata diventa un Mercante delle Aste. Anche questo è un contratto da completare, ma la sua miglioria dà una rendita in Ducati a fine giornata.',preview:27,part:'upgrade'},
+  {title:'Che cosa conta questo Mercante?',text:'Il martello indica la categoria Asta. Questo Mercante rende 2 Ducati per ogni tua miglioria Asta installata. Famiglia Badoer ne sarà una: 1 × 2 = 2 Ducati.',preview:27,part:'upgrade'},
+  {title:'Completa Bacaro del Pirata',text:'Consegna un altro Polpo per ricevere subito i 5 Ducati del contratto. La rendita del Mercante arriverà dopo, alla chiusura della giornata.',preview:27,part:'recipe',action:'serveContract',args:[27],button:'Consegna 1 Polpo'},
+  {title:'Prima il contratto, poi la rendita',text:'I 5 Ducati del cliente ti hanno portato da 15 a 20. Il Mercante è tra le carte da installare: i suoi 2 Ducati di rendita non sono ancora stati pagati.',selector:'.mat-pending'},
+  TUTORIAL_V2_STEPS[40],
+  {title:'Abbiamo usato tutte le carte',text:'Due carte sono finite nelle aste e tre sono diventate contratti completati. Non ne restano in mano. Se ne fossero rimaste, potresti conservarne al massimo 2 per domani.',selector:'.mat-pending'},
+  {title:'Chiudi il tuo mercato',text:'Premi “Chiudi il mercato”: il Polpo avanzato va nella Cesta. Poi si installano le tre migliorie e si calcolano le rendite dei Mercanti.',action:'finishMarket',args:[],button:'Chiudi il mercato',selector:'.mat-cesta'},
+  {title:'Prima si installano le migliorie',text:'Hai installato Senza tassa nella corsia Asta, Sottobanco in Mercato e il Mercante in Bilancia. Per le rendite contano già anche le carte installate oggi.',selector:'.mat-upgrade-lanes'},
+  TUTORIAL_V2_STEPS[44],
+  TUTORIAL_V2_STEPS[45],
+  {title:'Il Mercante ha reso 2 Ducati',text:'Bacaro del Pirata conta la tua unica miglioria Asta: Famiglia Badoer. Il calcolo è 1 carta × 2 Ducati = 2 Ducati di rendita. Le carte Mercato e Bilancia non contano per questo Mercante.',selector:'[aria-label="Migliorie Bilancia"]'},
+  {title:'Da 20 a 22 Ducati',text:'I 2 Ducati di rendita sono stati aggiunti ai tuoi 20: ora ne hai 22. Il Mercante renderà ancora a ogni fine giornata; con due migliorie Asta renderebbe 4 Ducati.',selector:'.mat-coins'},
+  {...TUTORIAL_V2_STEPS[46],text:'Ogni miglioria già installata aggiunge anche 1 Ducato all’incasso dei futuri contratti della stessa categoria. È un guadagno distinto dalla rendita di fine giornata dei Mercanti.'},
+  {...TUTORIAL_V2_STEPS[47],text:'Chiudi con 22 Ducati, 3 migliorie e 1 Polpo in Cesta. Hai usato tutte e cinque le carte. Domani potrai sfruttare le migliorie e scegliere cinque nuove carte.'},
+  {...TUTORIAL_V2_STEPS[48],text:'Hai usato tutte le carte: offerte all’asta, contratti, migliorie e una rendita di fine giornata. In una partita libera scegli tu la strategia: dopo quattro giornate vince chi ha più Ducati; in parità, più migliorie.'}
+];
+function tutorialSteps(){return G?.tutorial?.version>=3?TUTORIAL_STEPS:TUTORIAL_V2_STEPS}
+function tutorialStep(){return G?.tutorial?tutorialSteps()[G.tutorial.step]:null}
 window.startTutorial=function(){
   if(G&&!G.finished&&!G.tutorial&&!confirm('Lasciare la partita in corso e iniziare il tutorial?'))return;
   startGame({n:2,seed:20260926,difficulty:'normal',humanBot:false,roster:[{name:'Tu',human:true,character:0},{name:'Berry',human:false,character:1}]});
-  G.tutorial={version:2,step:0,history:[]};G.captain=0;
+  G.tutorial={version:3,step:0,history:[]};G.captain=0;
   for(const f of FISH)for(let i=0;i<G.market[f];i++)G.bag.push(f);
   G.market={Polpi:3,Gamberi:3,Molluschi:2,Branzini:2,Sardine:2};
   for(const f of FISH)for(let i=0;i<G.market[f];i++)G.bag.splice(G.bag.indexOf(f),1);
-  const ids=[7,1,18,28,29,71,4,30,31,32],dealt=ids.map(id=>G.deck.find(c=>c.id===id));
+  const ids=[7,1,27,28,29,71,4,30,31,32],dealt=ids.map(id=>G.deck.find(c=>c.id===id));
   G.deck=G.deck.filter(c=>!ids.includes(c.id)).concat(dealt.reverse());
   G.log=[];log('Tutorial','Una giornata guidata: 12 pesci al mercato, 12 Ducati per mercante.');
   if(!HEADLESS){dismissPhaseIntro();$('gameMenu').close();document.body.classList.add('playing');$('setup').classList.add('hidden');$('end').classList.add('hidden');$('game').classList.remove('hidden')}
@@ -881,7 +910,7 @@ function renderTutorial(){
   document.body.classList.add('tutorial');const guide=$('tutorialGuide');guide.classList.remove('hidden');
   if(guide.dataset.step!==String(G.tutorial.step)){G.tutorial.collapsed=false;guide.dataset.step=G.tutorial.step}
   guide.classList.toggle('collapsed',!!G.tutorial.collapsed);
-  guide.innerHTML=`<div class="tutorial-copy" role="status"><div class="tutorial-progress">PARTITA GUIDATA · ${G.tutorial.step+1} / ${TUTORIAL_STEPS.length}</div><h2>${esc(step.title)}</h2><p>${esc(step.text)}</p></div><div class="tutorial-controls"><button class="btn secondary tutorial-back" onclick="tutorialBack()" ${G.tutorial.history?.length?'':'disabled'}>← Indietro</button>${step.done?'<button class="btn primary" onclick="exitTutorial()">Gioca una partita</button>':step.button?`<button class="btn primary" onclick="tutorialDo()">${esc(step.button)}</button>`:!step.action?'<button class="btn primary" onclick="tutorialNext()">Avanti →</button>':''}<button class="btn secondary tutorial-toggle" onclick="toggleTutorialGuide()" aria-expanded="${!G.tutorial.collapsed}" aria-label="${G.tutorial.collapsed?'Riapri la spiegazione':'Riduci la spiegazione'}">${G.tutorial.collapsed?'Mostra testo ▾':'Nascondi testo ↑'}</button><button class="tutorial-exit" onclick="exitTutorial()">Esci dal tutorial</button></div>`;
+  guide.innerHTML=`<div class="tutorial-copy" role="status"><div class="tutorial-progress">PARTITA GUIDATA · ${G.tutorial.step+1} / ${tutorialSteps().length}</div><h2>${esc(step.title)}</h2><p>${esc(step.text)}</p></div><div class="tutorial-controls"><button class="btn secondary tutorial-back" onclick="tutorialBack()" ${G.tutorial.history?.length?'':'disabled'}>← Indietro</button>${step.done?'<button class="btn primary" onclick="exitTutorial()">Gioca una partita</button>':step.button?`<button class="btn primary" onclick="tutorialDo()">${esc(step.button)}</button>`:!step.action?'<button class="btn primary" onclick="tutorialNext()">Avanti →</button>':''}<button class="btn secondary tutorial-toggle" onclick="toggleTutorialGuide()" aria-expanded="${!G.tutorial.collapsed}" aria-label="${G.tutorial.collapsed?'Riapri la spiegazione':'Riduci la spiegazione'}">${G.tutorial.collapsed?'Mostra testo ▾':'Nascondi testo ↑'}</button><button class="tutorial-exit" onclick="exitTutorial()">Esci dal tutorial</button></div>`;
   requestAnimationFrame(()=>{
     if(!G?.tutorial)return;
     fitGameContents();

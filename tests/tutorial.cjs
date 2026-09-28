@@ -32,15 +32,21 @@ function settleSummaries(reload){
         continue;
       }
       const recap=G.lastAuctionSummary;
-      if(recap.fish==='Polpi')assert.deepEqual(recap.rows.map(r=>[r.pid,r.rank,r.bought]),[[0,1,2],[1,2,1]]);
+      if(recap.fish==='Polpi')assert.deepEqual(recap.rows.map(r=>[r.pid,r.rank,r.bought]),G.tutorial.version>=3?[[0,1,3],[1,2,0]]:[[0,1,2],[1,2,1]]);
       if(recap.fish==='Gamberi')assert.deepEqual(recap.rows.map(r=>[r.pid,r.rank,r.bought]),[[1,1,1],[0,2,1]]);
       if(recap.fish==='Molluschi'||recap.fish==='Branzini'||recap.fish==='Sardine')assert(recap.rows.every(r=>r.rank===null&&r.bought===0));
       if(reload)G=decodeGame(encodeGame(G));
       continueAfterAuction();
     }
 }
-function playGuide(reload){
-  startTutorial();assert.equal(G.players.length,2);assert.deepEqual(G.market,{Polpi:3,Gamberi:3,Molluschi:2,Branzini:2,Sardine:2});
+function playGuide(reload,legacy=false){
+  startTutorial();
+  if(legacy){
+    G.tutorial.version=2;
+    const oldCard=G.deck.findIndex(c=>c.id===18),newCard=G.deck.findIndex(c=>c.id===27);
+    [G.deck[oldCard],G.deck[newCard]]=[G.deck[newCard],G.deck[oldCard]];
+  }
+  assert.equal(tutorialSteps().length,legacy?49:55);assert.equal(G.players.length,2);assert.deepEqual(G.market,{Polpi:3,Gamberi:3,Molluschi:2,Branzini:2,Sardine:2});
   const initial=encodeGame(G);tutorialBack();assert.equal(encodeGame(G),initial,'Back at the beginning changes nothing');exitTutorial();assert.equal(encodeGame(G),initial,'Cancelling exit preserves the tutorial');
   const initialStep=G.tutorial.step;toggleTutorialGuide();assert.equal(G.tutorial.collapsed,true);toggleTutorialGuide();assert.equal(G.tutorial.collapsed,false);assert.equal(G.tutorial.step,initialStep,'Reading the explanation never advances the scenario');
   let steps=0;
@@ -54,7 +60,7 @@ function playGuide(reload){
     assert.equal(encodeGame(G),before,'Unrequested actions are blocked at step '+G.tutorial.step);
     const previous=G.tutorial.step;
     const oldStep=[0,3,6,12,15,16,17,18,21,22,23,25,27,28,29,31,32,34,35,36,37,39,40,42,43,44,45,46,47,48].indexOf(previous);
-    if(oldStep>=0){const legacy=decodeGame(before);delete legacy.tutorial.version;legacy.tutorial.step=oldStep;assert.deepEqual(decodeGame(encodeGame(legacy)),decodeGame(before),'Old tutorial saves resume at the corresponding lesson')}
+    if(legacy&&oldStep>=0){const legacy=decodeGame(before);delete legacy.tutorial.version;legacy.tutorial.step=oldStep;assert.deepEqual(decodeGame(encodeGame(legacy)),decodeGame(before),'Old tutorial saves resume at the corresponding lesson')}
     advanceLesson(step,before);settleSummaries(reload);
     const after=encodeGame(G);
     if(reload)G=decodeGame(after);
@@ -62,17 +68,28 @@ function playGuide(reload){
     advanceLesson(step,before);settleSummaries(reload);
     assert.deepEqual(G,decodeGame(after),'Repeating the lesson produces the same result');
     assert.equal(G.tutorial.step,previous+1);
-    if(step.action==='pickDraft'&&step.args[0]===4){assert.equal(G.phase,'asta');assert.deepEqual(G.players[0].hand.map(c=>c.id),[7,71,1,4,18])}
-    if(step.action==='confirmBuy'&&previous===28){assert.equal(G.players[0].coins,9);assert.equal(G.players[0].banco.Polpi,2)}
-    if(step.action==='confirmBuy'&&previous===33){assert.equal(G.players[0].coins,7);assert.equal(G.players[0].banco.Gamberi,1)}
+    if(step.action==='pickDraft'&&step.args[0]===4){assert.equal(G.phase,'asta');assert.deepEqual(G.players[0].hand.map(c=>c.id),[7,71,1,4,legacy?18:27])}
+    if(step.action==='confirmBuy'&&previous===28){assert.equal(G.players[0].coins,legacy?9:8);assert.equal(G.players[0].banco.Polpi,legacy?2:3)}
+    if(step.action==='confirmBuy'&&previous===33){assert.equal(G.players[0].coins,legacy?7:6);assert.equal(G.players[0].banco.Gamberi,1)}
+    if(!legacy&&step.action==='serveContract'&&step.args[0]===27){
+      assert.equal(G.players[0].coins,20);assert.equal(G.players[0].bilanciaTot,0,'The contract does not pay the Merchant income early');
+      assert(G.players[0].pending.some(c=>c.id===27));assert.equal(G.players[0].hand.length,0,'All five drafted cards have been used');
+    }
+    if(!legacy&&step.action==='finishMarket'){
+      assert.equal(G.phase,'bilancia');assert.equal(G.players[0].coins,22);
+      assert.deepEqual(G.players[0].today.bilancia.map(x=>[x.card.id,x.v]),[[27,2]],'New Merchant counts the newly installed auction upgrade');
+      assert.equal(G.players[0].cesta.Polpi,1);
+    }
   }
-  checkSupply();assert.equal(G.day,2);assert.equal(G.phase,'rete');assert.equal(G.players[0].coins,16);assert.equal(G.players[0].orders,2);
-  assert.deepEqual(G.players[0].installed.map(c=>c.id),[7,4]);assert.equal(G.players[0].cesta.Polpi,1);assert.deepEqual(G.players[0].kept.map(c=>c.id),[18]);
+  checkSupply();assert.equal(G.day,2);assert.equal(G.phase,'rete');assert.equal(G.players[0].coins,legacy?16:22);assert.equal(G.players[0].orders,legacy?2:3);
+  assert.deepEqual(G.players[0].installed.map(c=>c.id),legacy?[7,4]:[7,4,27]);assert.equal(G.players[0].cesta.Polpi,1);assert.deepEqual(G.players[0].kept.map(c=>c.id),legacy?[18]:[]);assert.equal(G.players[0].bilanciaTot,legacy?0:2);
   assert.equal(copies(G.players[0],'Esperienza'),1);assert.equal(copies(G.players[0],'Contrattazione Sottobanco'),1);
   const result=encodeGame(G);tutorialNext();assert.equal(encodeGame(G),result,'Completion cannot advance past the guide');exitTutorial();assert.equal(G,null);return result;
 }
-assert.equal(playGuide(false),playGuide(true),'Saving and restoring at every step preserves the exact scenario');
-window.__SHOW_SUMMARIES=true;assert.equal(playGuide(false),playGuide(true),'Auction summaries resume in order, including after saving');window.__SHOW_SUMMARIES=false;
+for(const legacy of [false,true]){
+  assert.equal(playGuide(false,legacy),playGuide(true,legacy),'Saving and restoring at every step preserves the exact scenario');
+  window.__SHOW_SUMMARIES=true;assert.equal(playGuide(false,legacy),playGuide(true,legacy),'Auction summaries resume in order, including after saving');window.__SHOW_SUMMARIES=false;
+}
 startGame({n:2,name:'Libera',seed:1,difficulty:'normal',humanBot:false});beginDraft();const card=G.draftPacks[0][1];pickDraft(card.id);assert(G.drafted[0].some(c=>c.id===card.id),'Free play choices remain unrestricted');
 console.log('Tutorial: percorso completo, scelte obbligate, conti, conservazione e ripresa a ogni passo OK');
 })();`),context);
