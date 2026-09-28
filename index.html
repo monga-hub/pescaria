@@ -1428,9 +1428,22 @@ function renderBoard(){
   if(G.tutorial&&!tutorialStep()?.showHand)G.handFolded=!tutorialStep()?.preview;
   dock.classList.toggle('folded',G.handFolded);
   dock.classList.toggle('hidden',(!!G.overlay&&!G.tutorial)||G.handoff||!cards.length);
-  dock.innerHTML=`<button class="hand-toggle" onclick="toggleHand()" aria-controls="handCards"></button><div id="handCards" class="hand-cards">${fan||'<p class="empty">Nessuna carta in mano.</p>'}</div>`;
+  const rebuilt=renderHandFan(dock,fan);
   syncHandToggle(dock);
-  requestAnimationFrame(()=>{fitGameContents();animateHand(dock)})
+  requestAnimationFrame(()=>{fitGameContents();if(rebuilt)animateHand(dock)})
+}
+function renderHandFan(dock,fan){
+  const focus=fan.match(/<span class="tutorial-card-focus[^"]*" aria-hidden="true"><\/span>/)?.[0]||'';
+  const structure=fan.replace(focus,''),explained=dock.querySelector('.tutorial-explained');
+  // Keep the real card and its current transform while only the lesson's highlight changes.
+  if(explained&&fan.includes('tutorial-explained')&&dock._tutorialFan===structure){
+    explained.querySelector('.tutorial-card-focus')?.remove();
+    if(focus)explained.insertAdjacentHTML('beforeend',focus);
+    return false;
+  }
+  dock.innerHTML=`<button class="hand-toggle" onclick="toggleHand()" aria-controls="handCards"></button><div id="handCards" class="hand-cards">${fan||'<p class="empty">Nessuna carta in mano.</p>'}</div>`;
+  dock._tutorialFan=structure;
+  return true;
 }
 // Tutte le pedine entrano nello spazio disponibile, conservando la forma.
 function tokenGrid(n,width,height,maxSize){
