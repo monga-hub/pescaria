@@ -39,14 +39,15 @@ function settleSummaries(reload){
       continueAfterAuction();
     }
 }
-function playGuide(reload,legacy=false){
-  startTutorial();
+function playGuide(reload,version=4){
+  const legacy=version===2;
+  startTutorial();G.tutorial.version=version;
   if(legacy){
     G.tutorial.version=2;
     const oldCard=G.deck.findIndex(c=>c.id===18),newCard=G.deck.findIndex(c=>c.id===27);
     [G.deck[oldCard],G.deck[newCard]]=[G.deck[newCard],G.deck[oldCard]];
   }
-  assert.equal(tutorialSteps().length,legacy?49:55);assert.equal(G.players.length,2);assert.deepEqual(G.market,{Polpi:3,Gamberi:3,Molluschi:2,Branzini:2,Sardine:2});
+  assert.equal(tutorialSteps().length,legacy?49:version===3?55:57);assert.equal(G.players.length,2);assert.deepEqual(G.market,{Polpi:3,Gamberi:3,Molluschi:2,Branzini:2,Sardine:2});
   const initial=encodeGame(G);tutorialBack();assert.equal(encodeGame(G),initial,'Back at the beginning changes nothing');exitTutorial();assert.equal(encodeGame(G),initial,'Cancelling exit preserves the tutorial');
   const initialStep=G.tutorial.step;toggleTutorialGuide();assert.equal(G.tutorial.collapsed,true);toggleTutorialGuide();assert.equal(G.tutorial.collapsed,false);assert.equal(G.tutorial.step,initialStep,'Reading the explanation never advances the scenario');
   let steps=0;
@@ -59,6 +60,10 @@ function playGuide(reload,legacy=false){
       assert.equal(step.selector,'.hand-cards [data-card-id="'+step.args[0]+'"]');
       tutorialDo();assert.equal(encodeGame(G),before,'The guide cannot substitute for the card gesture');
     }
+    if(step.action==='toggleHand'){
+      assert.equal(step.button,undefined);assert.equal(step.selector,'.hand-toggle');
+      tutorialNext();tutorialDo();assert.equal(encodeGame(G),before,'Only the real hand button advances the practice');
+    }
     if(step.preview&&!step.action){
       for(const action of [pickDraft,chooseBid,serveContract,toggleKeep])action(step.preview);
       assert.equal(encodeGame(G),before,'Reading the highlighted card must not play it');
@@ -68,7 +73,7 @@ function playGuide(reload,legacy=false){
     if(step.action!=='addBidCoin')addBidCoin({});
     if(step.action!=='confirmBuy')confirmBuy();
     assert.equal(encodeGame(G),before,'Unrequested actions are blocked at step '+G.tutorial.step);
-    const previous=G.tutorial.step;
+    const previous=G.tutorial.step,scenarioStep=version>=4&&previous>=17?previous-2:previous;
     const oldStep=[0,3,6,12,15,16,17,18,21,22,23,25,27,28,29,31,32,34,35,36,37,39,40,42,43,44,45,46,47,48].indexOf(previous);
     if(legacy&&oldStep>=0){const legacy=decodeGame(before);delete legacy.tutorial.version;legacy.tutorial.step=oldStep;assert.deepEqual(decodeGame(encodeGame(legacy)),decodeGame(before),'Old tutorial saves resume at the corresponding lesson')}
     advanceLesson(step,before);settleSummaries(reload);
@@ -78,9 +83,10 @@ function playGuide(reload,legacy=false){
     advanceLesson(step,before);settleSummaries(reload);
     assert.deepEqual(G,decodeGame(after),'Repeating the lesson produces the same result');
     assert.equal(G.tutorial.step,previous+1);
+    if(step.action==='toggleHand')assert.equal(G.handFolded,!step.handFolded,'The practice actually lowers and raises the hand');
     if(step.action==='pickDraft'&&step.args[0]===4){assert.equal(G.phase,'asta');assert.deepEqual(G.players[0].hand.map(c=>c.id),[7,71,1,4,legacy?18:27])}
-    if(step.action==='confirmBuy'&&previous===28){assert.equal(G.players[0].coins,legacy?9:8);assert.equal(G.players[0].banco.Polpi,legacy?2:3)}
-    if(step.action==='confirmBuy'&&previous===33){assert.equal(G.players[0].coins,legacy?7:6);assert.equal(G.players[0].banco.Gamberi,1)}
+    if(step.action==='confirmBuy'&&scenarioStep===28){assert.equal(G.players[0].coins,legacy?9:8);assert.equal(G.players[0].banco.Polpi,legacy?2:3)}
+    if(step.action==='confirmBuy'&&scenarioStep===33){assert.equal(G.players[0].coins,legacy?7:6);assert.equal(G.players[0].banco.Gamberi,1)}
     if(!legacy&&step.action==='serveContract'&&step.args[0]===27){
       assert.equal(G.players[0].coins,20);assert.equal(G.players[0].bilanciaTot,0,'The contract does not pay the Merchant income early');
       assert(G.players[0].pending.some(c=>c.id===27));assert.equal(G.players[0].hand.length,0,'All five drafted cards have been used');
@@ -96,9 +102,9 @@ function playGuide(reload,legacy=false){
   assert.equal(copies(G.players[0],'Esperienza'),1);assert.equal(copies(G.players[0],'Contrattazione Sottobanco'),1);
   const result=encodeGame(G);tutorialNext();assert.equal(encodeGame(G),result,'Completion cannot advance past the guide');exitTutorial();assert.equal(G,null);return result;
 }
-for(const legacy of [false,true]){
-  assert.equal(playGuide(false,legacy),playGuide(true,legacy),'Saving and restoring at every step preserves the exact scenario');
-  window.__SHOW_SUMMARIES=true;assert.equal(playGuide(false,legacy),playGuide(true,legacy),'Auction summaries resume in order, including after saving');window.__SHOW_SUMMARIES=false;
+for(const version of [4,3,2]){
+  assert.equal(playGuide(false,version),playGuide(true,version),'Saving and restoring at every step preserves the exact scenario');
+  window.__SHOW_SUMMARIES=true;assert.equal(playGuide(false,version),playGuide(true,version),'Auction summaries resume in order, including after saving');window.__SHOW_SUMMARIES=false;
 }
 startGame({n:2,name:'Libera',seed:1,difficulty:'normal',humanBot:false});beginDraft();const card=G.draftPacks[0][1];pickDraft(card.id);assert(G.drafted[0].some(c=>c.id===card.id),'Free play choices remain unrestricted');
 console.log('Tutorial: percorso completo, scelte obbligate, conti, conservazione e ripresa a ogni passo OK');
