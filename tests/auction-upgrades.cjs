@@ -25,6 +25,17 @@ for (const [width,height] of [[125,105],[240,180],[60,35]]) {
 }
 assert.equal(DISPLAY['Nuovi Clienti'], 'Fortuna');
 assert.equal(DISPLAY['Esperienza'], 'Senza tassa');
+const plainBidder={installed:[]},upgradedBidder={installed:[{up:'Esperienza'},{up:'Nuovi Clienti'}]};
+assert.equal(auctionPurchaseDescription(plainBidder,1),'Compra per primo a 1 Ducato per pesce');
+assert.equal(auctionPurchaseDescription(plainBidder,2),'Compra a 2 Ducati per pesce');
+assert.equal(auctionPurchaseDescription(upgradedBidder,2),'Compra a 2 Ducati per pesce<br>Senza tassa: primo pesce a 1 Ducato<br>Fortuna: pesca 1 carta a fine asta');
+upgradedBidder.installed.push(...upgradedBidder.installed);
+assert(auctionPurchaseDescription(upgradedBidder,3).includes('primi 2 pesci a 1 Ducato'));
+assert(auctionPurchaseDescription(upgradedBidder,3).includes('pesca 2 carte a fine asta'));
+assert(!auctionPurchaseDescription(upgradedBidder,1).includes('Fortuna'));
+assert.equal(auctionPurchaseDescription(upgradedBidder,null),'Ha passato · non compra');
+assert.equal(auctionPurchaseDescription({congrega:true,installed:[]},2),'Asta persa · non compra');
+
 startGame({n:3, name:'Test', seed:1, difficulty:'normal', humanBot:false});
 const advance = nextAuction;
 nextAuction = () => {};

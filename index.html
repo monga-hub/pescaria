@@ -1089,11 +1089,21 @@ window.continueAfterAuction=function(){
   if(G.auctionStage==='ranking'){G.auctionStage='buy';advanceBuys();render();return}
   if(G.auctionStage==='summary'){nextAuction();render()}
 };
+function auctionPurchaseDescription(p,rank){
+  if(!rank)return 'Ha passato · non compra';
+  if(rank===1)return 'Compra per primo a 1 Ducato per pesce';
+  if(p.congrega)return 'Asta persa · non compra';
+  const cheap=cheapN(p,2),fortune=copies(p,'Nuovi Clienti');
+  return ['Compra a 2 Ducati per pesce',
+    cheap?`Senza tassa: ${cheap===1?'primo pesce':`primi ${cheap} pesci`} a 1 Ducato`:'',
+    fortune?`Fortuna: pesca ${fortune} ${fortune===1?'carta':'carte'} a fine asta`:''
+  ].filter(Boolean).join('<br>');
+}
 function showAuctionSummary(){
   if(HEADLESS||G.phase!=='asta'||!['ranking','summary'].includes(G.auctionStage)||!$('phaseIntro').classList.contains('hidden'))return;
   const dialog=$('auctionSummary');if(dialog.open)return;
   const ranking=G.auctionStage==='ranking',summary=ranking?auctionStandings():G.lastAuctionSummary,winner=summary.rows.find(r=>r.rank===1);
-  dialog.innerHTML=`<div class="auction-summary-heading"><img src="${ASSET.fish[summary.fish]}" alt=""><div><h2>${ranking?'Classifica ·':`Asta ${summary.fish==='Sardine'?'delle':'dei'}`} ${summary.fish}</h2><p>${winner?`Vincitore: ${esc(G.players[winner.pid].name)}`:'Tutti hanno passato · nessun vincitore'}</p></div></div>${summary.rows.map(r=>{const p=G.players[r.pid];return`<div class="auction-summary-row ${r.rank===1?'is-winner':''}"><b>${r.rank?`${r.rank}°`:'—'}</b><img src="${p.congrega?'assets/automa/00.png':`assets/players/ritratto-${PLAYER_MATS[p.character??p.id][0]}.png`}" alt=""><div><strong>${esc(p.name)}</strong><small>${r.rank?(ranking?(r.rank===1?'Compra per primo':'Ordine di acquisto'):`${r.rank===1?'Vincitore · ':''}Offerta ${r.score}`):'Ha passato'}</small></div><span class="auction-summary-count">${ranking?(r.rank?`${r.score} punti`:'—'):`${r.bought} ${r.bought===1?'pesce':'pesci'}`}</span></div>`}).join('')}<p class="auction-summary-foot">${ranking?'Si compra in questo ordine: il vincitore per primo. A parità di offerta, conta l’ordine di turno.':'Pesci acquistati · si prosegue automaticamente'}</p><button class="btn primary auction-summary-next" onclick="continueAfterAuction()">${ranking?'Vai agli acquisti':'Continua'} →</button>`;
+  dialog.innerHTML=`<div class="auction-summary-heading"><img src="${ASSET.fish[summary.fish]}" alt=""><div><h2>${ranking?'Classifica ·':`Asta ${summary.fish==='Sardine'?'delle':'dei'}`} ${summary.fish}</h2><p>${winner?`Vincitore: ${esc(G.players[winner.pid].name)}`:'Tutti hanno passato · nessun vincitore'}</p></div></div>${summary.rows.map(r=>{const p=G.players[r.pid];return`<div class="auction-summary-row ${r.rank===1?'is-winner':''}"><b>${r.rank?`${r.rank}°`:'—'}</b><img src="${p.congrega?'assets/automa/00.png':`assets/players/ritratto-${PLAYER_MATS[p.character??p.id][0]}.png`}" alt=""><div><strong>${esc(p.name)}</strong><small>${ranking?auctionPurchaseDescription(p,r.rank):r.rank?`${r.rank===1?'Vincitore · ':''}Offerta ${r.score}`:'Ha passato'}</small></div><span class="auction-summary-count">${ranking?(r.rank?`${r.score} punti`:'—'):`${r.bought} ${r.bought===1?'pesce':'pesci'}`}</span></div>`}).join('')}<p class="auction-summary-foot">${ranking?'Si compra in questo ordine: il vincitore per primo. A parità di offerta, conta l’ordine di turno.':'Pesci acquistati · si prosegue automaticamente'}</p><button class="btn primary auction-summary-next" onclick="continueAfterAuction()">${ranking?'Vai agli acquisti':'Continua'} →</button>`;
   dialog.showModal();if(!ranking)auctionSummaryTimer=setTimeout(continueAfterAuction,6000);
 }
 
