@@ -125,7 +125,7 @@
       .bid-wallet{top:60px;right:8px}
     }
     @media(max-width:700px){.board-hud strong{font-size:14px}.board-hud-status{font-size:9px;gap:4px}.board-hud-status span:last-child{display:none}.playing .physical-board{grid-template-rows:34px 45px minmax(0,1fr) 185px}.board-art{margin:auto 0}.board-art-wrap{scrollbar-width:thin}.playing .board-hand .hand-meta{display:none}}
-    /* Banco sul ghiaccio, Cesta nel barile, contratti sotto la categoria. */
+    /* Banco sul ghiaccio, Barile per conservare il pesce, contratti sotto la categoria. */
     .playing .board-hand{gap:10px}
     .playing .board-hand .hand-meta{display:block;max-height:50%;overflow:clip;scrollbar-width:thin}
     .player-mat-buttons{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
@@ -846,18 +846,18 @@ const TUTORIAL_V2_STEPS=[
   {title:'Compra 1 Gambero',text:'Premi COMPRA 1. Paghi 2 Ducati e metti il Gambero nel tuo Banco. Ora hai 2 Polpi, 1 Gambero e 7 Ducati.',action:'confirmBuy',args:[],selector:'.purchase-confirm'},
   {title:'Salta quest’asta',text:'Non ci servono Molluschi. Premi PASSA: non spendi una carta e non compri pesce in quest’asta. Potrai partecipare a quelle successive.',action:'submitBid',args:['pass'],selector:'[onclick="submitBid(\'pass\')"]'},
   {title:'Salta le aste rimaste',text:'Oggi non ci servono nemmeno Branzini o Sardine. Premi TUTTE per saltare entrambe le aste. Il pesce invenduto torna nel sacchetto.',action:'submitBid',args:['all'],selector:'[onclick="submitBid(\'all\')"]'},
-  {title:'Adesso consegniamo ai clienti',text:'Le aste sono finite. Ora usa il pesce acquistato per completare i contratti delle carte che hai in mano. Puoi usare sia il pesce del Banco sia quello conservato nella Cesta.',selector:'.mat-bank'},
+  {title:'Adesso consegniamo ai clienti',text:'Le aste sono finite. Ora usa il pesce acquistato per completare i contratti delle carte che hai in mano. Puoi usare sia il pesce del Banco sia quello conservato nel Barile.',selector:'.mat-bank'},
   {title:'Completa Famiglia Badoer',text:'Hai il Polpo richiesto. Tocca Famiglia Badoer per completare il contratto: il pesce esce dal tuo Banco e ricevi i 5 Ducati indicati sulla carta.',preview:7,part:'recipe',action:'serveContract',args:[7],selector:'.hand-cards [data-card-id="7"]'},
   {title:'Il primo guadagno',text:'Sei passato da 7 a 12 Ducati. Hai completato il contratto di Famiglia Badoer: a fine giornata la carta diventerà una miglioria della tua pescheria.',selector:'.player-mat'},
   {title:'Completa Osteria ai Pugni',text:'Tocca Osteria ai Pugni per consegnare il Gambero richiesto e ricevere altri 4 Ducati. Arriverai a 16 Ducati.',preview:4,part:'income',action:'serveContract',args:[4],selector:'.hand-cards [data-card-id="4"]'},
-  {title:'Il pesce per domani',text:'Ti avanza 1 Polpo. Alla chiusura del mercato passerà nella tua Cesta. La Cesta può conservare fino a 3 pesci per il giorno successivo. I pesci in eccesso tornano nel sacchetto.',selector:'.mat-cesta'},
+  {title:'Il pesce per domani',text:'Ti avanza 1 Polpo. Alla chiusura del mercato passerà nel tuo Barile. Il Barile può conservare fino a 3 pesci per il giorno successivo. I pesci in eccesso tornano nel sacchetto.',selector:'.mat-cesta'},
   {title:'Chiudi il tuo mercato',text:'Per oggi hai completato i due contratti previsti. Premi “Termina il mercato” nel riepilogo dei contratti per conservare il Polpo avanzato e passare alla scelta delle carte per domani.',action:'finishMarket',args:[],selector:'.market-finish'},
   {title:'Conserva una carta',text:'Puoi conservare al massimo 2 carte. Te ne è rimasta una: Bacaro della Riva. Tocca la carta per selezionarla.',preview:18,action:'toggleKeep',args:[18],selector:'.hand-cards [data-card-id="18"]'},
   {title:'Conferma la carta conservata',text:'Hai selezionato Bacaro della Riva. Conferma per conservarla. Domani la carta resterà da parte durante il draft e tornerà nella tua mano dopo che avrai scelto le 5 nuove carte.',action:'confirmKeep',args:[],button:'Conferma la scelta'},
   {title:'Hai ottenuto Senza tassa',text:'Famiglia Badoer è installata nella corsia Asta. Da domani, quando partecipi a un’asta e la perdi, puoi comprare 1 pesce a 1 Ducato anziché 2. Questa miglioria rimane attiva.',selector:'[aria-label="Migliorie Asta"]'},
   {title:'Hai ottenuto Sottobanco',text:'Osteria ai Pugni è installata nella corsia Mercato. In ogni contratto potrai sostituire 1 pesce mancante con 2 pesci uguali di un altro tipo.',selector:'[aria-label="Migliorie Mercato"]'},
   {title:'Il bonus dei contratti futuri',text:'Ogni miglioria già installata aggiunge 1 Ducato all’incasso dei futuri contratti della stessa categoria. Le due carte completate oggi saranno utili dalla prossima giornata.',selector:'.mat-upgrade-lanes'},
-  {title:'La fine della giornata',text:'Le carte Mercante, se installate, danno anche rendite a fine giornata. Oggi non ne hai. Chiudi con 16 Ducati, 2 migliorie, 1 Polpo in Cesta e 1 carta conservata.',action:'finishDayBtn',args:[],button:'Inizia la seconda giornata'},
+  {title:'La fine della giornata',text:'Le carte Mercante, se installate, danno anche rendite a fine giornata. Oggi non ne hai. Chiudi con 16 Ducati, 2 migliorie, 1 Polpo nel Barile e 1 carta conservata.',action:'finishDayBtn',args:[],button:'Inizia la seconda giornata'},
   {title:'Hai completato il tutorial',text:'Hai scelto carte, partecipato alle aste, comprato pesce e completato contratti. In una partita libera scegli tu la strategia: dopo quattro giornate vince chi ha più Ducati. In caso di parità, vince chi ha più migliorie.',selector:'.mat-cesta',done:true}
 ];
 // Keep the previous scenario available for saved tutorials and their Back history.
@@ -878,14 +878,14 @@ const TUTORIAL_V3_STEPS=[
   {title:'Prima il contratto, poi la rendita',text:'I 5 Ducati del cliente ti hanno portato da 15 a 20. Il Mercante è tra le carte da installare: i suoi 2 Ducati di rendita non sono ancora stati pagati.',selector:'.market-panel'},
   TUTORIAL_V2_STEPS[40],
   {title:'Abbiamo usato tutte le carte',text:'Hai usato due carte nelle aste e completato i contratti delle altre tre. Non ne restano in mano. Se ne fossero rimaste, potresti conservarne al massimo 2 per domani.',selector:'.market-panel'},
-  {title:'Chiudi il tuo mercato',text:'Premi “Termina il mercato” nel riepilogo dei contratti: il Polpo avanzato va nella Cesta. Poi si installano le tre migliorie e si calcolano le rendite dei Mercanti.',action:'finishMarket',args:[],selector:'.market-finish'},
+  {title:'Chiudi il tuo mercato',text:'Premi “Termina il mercato” nel riepilogo dei contratti: il Polpo avanzato va nel Barile. Poi si installano le tre migliorie e si calcolano le rendite dei Mercanti.',action:'finishMarket',args:[],selector:'.market-finish'},
   {title:'Le migliorie si attivano a fine giornata',text:'Le tre migliorie sono ora installate: Senza tassa in Asta, Sottobanco in Mercato e il Mercante in Bilancia. Per calcolare le rendite si contano anche le migliorie installate oggi.',selector:'.mat-upgrade-lanes'},
   TUTORIAL_V2_STEPS[44],
   TUTORIAL_V2_STEPS[45],
   {title:'La rendita del Mercante: 2 Ducati',text:'Bacaro del Pirata ti dà 2 Ducati per Famiglia Badoer, la tua unica miglioria della categoria Asta. Le migliorie delle categorie Mercato e Bilancia non aumentano la rendita di questo Mercante.',selector:'[aria-label="Migliorie Bilancia"]'},
   {title:'Da 20 a 22 Ducati',text:'I 2 Ducati di rendita sono stati aggiunti ai tuoi 20: ora ne hai 22. Il Mercante ti darà una rendita alla fine di ogni giornata. Con due migliorie della categoria Asta, guadagneresti 4 Ducati.',selector:'.mat-coins'},
   {...TUTORIAL_V2_STEPS[46],text:'Ogni miglioria già installata aggiunge anche 1 Ducato all’incasso dei futuri contratti della stessa categoria. È un guadagno distinto dalla rendita di fine giornata dei Mercanti.'},
-  {...TUTORIAL_V2_STEPS[47],text:'Chiudi con 22 Ducati, 3 migliorie e 1 Polpo in Cesta. Hai usato tutte e cinque le carte. Domani potrai sfruttare le migliorie e scegliere cinque nuove carte.'},
+  {...TUTORIAL_V2_STEPS[47],text:'Chiudi con 22 Ducati, 3 migliorie e 1 Polpo nel Barile. Hai usato tutte e cinque le carte. Domani potrai sfruttare le migliorie e scegliere cinque nuove carte.'},
   {...TUTORIAL_V2_STEPS[48],text:'Hai usato due carte per le offerte all’asta e tre per completare contratti. Hai ottenuto tre migliorie e una rendita di fine giornata. In una partita libera scegli tu la strategia: dopo quattro giornate vince chi ha più Ducati. In caso di parità, vince chi ha più migliorie.'}
 ];
 const TUTORIAL_STEPS=[
@@ -1182,7 +1182,7 @@ function closePlayerMarket(p){
   const pri=f=>({Polpi:5,Gamberi:4,Molluschi:4,Branzini:3,Sardine:2})[f];pool.sort((a,b)=>pri(b)-pri(a));
   const keep=pool.slice(0,CESTA_CAP),gone=pool.slice(CESTA_CAP);p.banco=inv();p.cesta=inv();
   for(const f of keep)p.cesta[f]++;for(const f of gone)returnFish(f);p.wasted+=gone.length;
-  log('Mercato',`${p.name}: ${keep.length} pesci in Cesta${gone.length?`, ${gone.length} tornano nel sacchetto`:''}.`);
+  log('Mercato',`${p.name}: ${keep.length} pesci nel Barile${gone.length?`, ${gone.length} tornano nel sacchetto`:''}.`);
 }
 function finishMarket(){
   const me=activePlayer();closePlayerMarket(me);
@@ -1332,7 +1332,7 @@ function botBuy(p,f,price,rank){
   buy(p,f,n,price);
 }
 function botMarket(p){let moved=true;while(moved){moved=false;const c=p.hand.filter(x=>canContract(p,x)).sort((a,b)=>payout(p,b)+botUpgradeValue(p,b)-(payout(p,a)+botUpgradeValue(p,a)))[0];if(c){completeContract(p,c);moved=true}}}
-// Carte da conservare: le più promettenti come contratti (col pesce in Cesta) o come offerte forti.
+// Carte da conservare: le più promettenti come contratti (col pesce nel Barile) o come offerte forti.
 function botKeep(p){if(G.day===4)return[];const stock=p.cesta;const sc=c=>{let have=0,need=0;for(const [f,n] of Object.entries(c.recipe)){need+=n;have+=Math.min(n,stock[f]||0)}return Math.max(botCardValue(p,c)*(.35+.65*have/need),c.bid*.9)};return [...p.hand].sort((a,b)=>sc(b)-sc(a)).slice(0,KEEP_MAX).map(c=>c.id)}
 function botFavorite(p){const tally=inv();for(const c of [...p.installed,...p.pending,...p.hand])for(const [f,n] of Object.entries(c.recipe))tally[f]+=n;return [...FISH].sort((a,b)=>tally[b]-tally[a])[0]}
 
@@ -1436,7 +1436,7 @@ function playerMatHtml(p){
   const available=bidding?Math.max(0,p.coins-G.bidCash):p.coins;
   const coins=bidding?`<button id="bidCoinSource" class="mat-coins mat-bid-coins" onclick="addBidCoin(event)" title="Aggiungi i Ducati alla tua offerta" aria-label="Aggiungi un Ducato all'offerta. ${available} Ducati disponibili" ${G.selectedBid&&available?'':'disabled'}>${available}</button>`:`<span class="mat-coins" aria-label="${p.coins} Ducati">${p.coins}</span>`;
   const pending=p.pending.length?`<div class="mat-pending"><b>Da installare a fine giornata</b>${p.pending.map(c=>`<span>${CATS[c.cat].icon} ${esc(upName(c))}</span>`).join('')}</div>`:'';
-  return`<div class="player-mat" role="group" aria-label="Plancia ${character} di ${esc(p.name)}"><img class="player-mat-art" src="assets/players/plancia-${color}.png" alt="Plancia ${color}: ${character}" draggable="false"><span class="mat-label mat-bank-label">Banco ${count(p.banco)}/${capBanco(p)}</span><div class="mat-bank" role="group" aria-label="Banco: ${count(p.banco)} pesci su ${capBanco(p)}">${trays}</div><span class="mat-label mat-cesta-label">Cesta ${count(p.cesta)}/${CESTA_CAP}</span><div class="mat-cesta" role="group" aria-label="Cesta: ${count(p.cesta)} pesci su ${CESTA_CAP}">${count(p.cesta)?inventoryHtml(p.cesta):''}</div>${coins}</div><div class="mat-upgrade-lanes">${lanes}</div>${pending}`;
+  return`<div class="player-mat" role="group" aria-label="Plancia ${character} di ${esc(p.name)}"><img class="player-mat-art" src="assets/players/plancia-${color}.png" alt="Plancia ${color}: ${character}" draggable="false"><span class="mat-label mat-bank-label">Banco ${count(p.banco)}/${capBanco(p)}</span><div class="mat-bank" role="group" aria-label="Banco: ${count(p.banco)} pesci su ${capBanco(p)}">${trays}</div><span class="mat-label mat-cesta-label">Barile ${count(p.cesta)}/${CESTA_CAP}</span><div class="mat-cesta" role="group" aria-label="Barile: ${count(p.cesta)} pesci su ${CESTA_CAP}">${count(p.cesta)?inventoryHtml(p.cesta):''}</div>${coins}</div><div class="mat-upgrade-lanes">${lanes}</div>${pending}`;
 }
 window.viewPlayerMat=function(id){if(!G||!G.players[id])return;G.viewedPlayer=id;renderBoard()};
 function mobileAuctionLayout(){return !HEADLESS&&matchMedia('(max-width:700px) and (orientation:portrait)').matches}
