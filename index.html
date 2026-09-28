@@ -400,6 +400,13 @@
     #mobileAuctionActions .purchase-fish{width:44px;height:44px}
     #mobileAuctionActions .auction-table{font-size:12px;margin:4px 0}#mobileAuctionActions .auction-table th,#mobileAuctionActions .auction-table td{padding:3px}
     #mobileAuctionActions .purchase-confirm{width:100%}
+    .market-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.market-heading>strong{font-size:13px;white-space:nowrap;color:#18615b}
+    .market-receipts{max-height:24dvh;overflow:auto;margin:6px 0;overscroll-behavior:contain}
+    .market-receipts table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px;line-height:1.25;text-align:left}
+    .market-receipts th,.market-receipts td{padding:4px;vertical-align:top;overflow-wrap:anywhere;border-bottom:1px solid #c4ad8377}
+    .market-receipts th:first-child{width:40%}.market-receipts th:nth-child(2){width:18%}.market-receipts thead{color:#75603c;font-size:10px}
+    .market-receipts small{display:block;color:#75603c;font-size:10px;margin-top:2px}.market-income{font-weight:800;white-space:nowrap;color:#18615b}
+    .market-finish{width:100%}.market-panel p{font-size:11px}.market-panel{min-width:0}
     .mobile-bid-coins{display:flex;gap:8px;margin-bottom:8px}.mobile-bid-coins>button:first-child{flex:1}
     @media(max-width:700px) and (orientation:portrait){.playing main{padding-bottom:var(--mobile-actions-space,56px)}
       .tutorial-guide{grid-template-columns:1fr;gap:8px;padding:10px 12px}.tutorial-copy h2{font-size:19px}.tutorial-copy p{font-size:14px;line-height:1.35}
@@ -707,7 +714,7 @@ function completeContract(p,card){
   for(const [f,n0] of Object.entries(plan.use)){let n=n0;const fromC=Math.min(n,p.cesta[f]);p.cesta[f]-=fromC;n-=fromC;p.banco[f]-=n;returnFish(f,n0)}
   p.subsUsed=(p.subsUsed||0)+plan.subs;
   const cb=catBonus(p,card),fav=congregaBonus(p,card),gain=card.value+cb+fav;
-  p.coins+=gain;p.orders++;p.catTot=(p.catTot||0)+cb;p.favTot=(p.favTot||0)+fav;p.today.contracts.push(card);p.today.income+=gain;
+  p.coins+=gain;p.orders++;p.catTot=(p.catTot||0)+cb;p.favTot=(p.favTot||0)+fav;p.today.contracts.push(card);p.today.income+=gain;(p.today.contractIncome??={})[card.id]=gain;
   if(p.keptIds&&p.keptIds.has(card.id))p.keptUsed=(p.keptUsed||0)+1;
   p.hand.splice(p.hand.indexOf(card),1);p.pending.push(card);
   log('Mercato',`${p.name} completa “${card.name}”: ${card.value}${cb?` +${cb} categoria`:''}${fav?` +${fav} Congrega`:''} = ${gain} Ducati${plan.subs?` (Sottobanco)`:''}.`);
@@ -836,7 +843,7 @@ const TUTORIAL_V2_STEPS=[
   {title:'Il primo guadagno',text:'Sei passato da 7 a 12 Ducati. La carta Famiglia Badoer è stata completata: a fine giornata diventerà una miglioria della tua pescheria.',selector:'.player-mat'},
   {title:'Completa Osteria ai Pugni',text:'Tocca Osteria ai Pugni per consegnare il Gambero richiesto e ricevere altri 4 Ducati. Arriverai a 16 Ducati.',preview:4,part:'income',action:'serveContract',args:[4],selector:'.hand-cards [data-card-id="4"]'},
   {title:'Il pesce per domani',text:'Ti avanza 1 Polpo. Alla chiusura del mercato passerà nella tua Cesta. La Cesta conserva fino a 3 pesci per domani; quelli in più tornano nel sacchetto.',selector:'.mat-cesta'},
-  {title:'Chiudi il tuo mercato',text:'Per oggi hai completato i due contratti previsti. Premi TERMINA nel tuo riquadro sul tabellone per conservare il Polpo avanzato e passare alla scelta delle carte per domani.',action:'finishMarket',args:[],selector:'[onclick="finishMarket()"]'},
+  {title:'Chiudi il tuo mercato',text:'Per oggi hai completato i due contratti previsti. Premi “Termina il mercato” nel riepilogo dei contratti per conservare il Polpo avanzato e passare alla scelta delle carte per domani.',action:'finishMarket',args:[],selector:'.market-finish'},
   {title:'Conserva una carta',text:'Puoi conservare al massimo 2 carte. Te ne è rimasta una: Bacaro della Riva. Tocca la carta per selezionarla.',preview:18,action:'toggleKeep',args:[18],selector:'.hand-cards [data-card-id="18"]'},
   {title:'Conferma la carta conservata',text:'Bacaro della Riva è selezionata. Conferma la conservazione. Domani resterà fuori dal draft e tornerà nella tua mano dopo le nuove cinque scelte.',action:'confirmKeep',args:[],button:'Conferma conservazione'},
   {title:'Hai ottenuto Senza tassa',text:'Famiglia Badoer è installata nella corsia Asta. Da domani, quando partecipi e perdi un’asta, puoi comprare 1 pesce a 1 Ducato anziché 2. Questa miglioria rimane attiva.',selector:'[aria-label="Migliorie Asta"]'},
@@ -855,15 +862,15 @@ const TUTORIAL_STEPS=[
   ...TUTORIAL_V2_STEPS.slice(29,33),
   {...TUTORIAL_V2_STEPS[33],text:'Premi COMPRA 1. Paghi 2 Ducati e metti il Gambero nel tuo Banco. Ora hai 3 Polpi, 1 Gambero e 6 Ducati.'},
   ...TUTORIAL_V2_STEPS.slice(34,38),
-  {...TUTORIAL_V2_STEPS[38],text:'Sei passato da 6 a 11 Ducati. Famiglia Badoer è completata: alla chiusura della giornata la installerai nella corsia Asta, riconoscibile dal martello.'},
+  {...TUTORIAL_V2_STEPS[38],text:'Nel riepilogo del mercato vedi Famiglia Badoer: +5 Ducati e Senza tassa. Sei passato da 6 a 11 Ducati. La miglioria si installerà a fine giornata nella corsia Asta, riconoscibile dal martello.',selector:'.market-panel'},
   {...TUTORIAL_V2_STEPS[39],text:'Tocca Osteria ai Pugni per consegnare il Gambero e ricevere altri 4 Ducati: passerai da 11 a 15. Questa carta della categoria Mercato diventerà la miglioria Sottobanco.'},
   {title:'La quinta carta è un Mercante',text:'Bacaro del Pirata diventa un Mercante delle Aste. Anche questo è un contratto da completare, ma la sua miglioria dà una rendita in Ducati a fine giornata.',preview:27,part:'upgrade'},
   {title:'Che cosa conta questo Mercante?',text:'Il martello indica la categoria Asta. Questo Mercante rende 2 Ducati per ogni tua miglioria Asta installata. Famiglia Badoer ne sarà una: 1 × 2 = 2 Ducati.',preview:27,part:'upgrade'},
   {title:'Completa Bacaro del Pirata',text:'Tocca Bacaro del Pirata per consegnare un altro Polpo e ricevere subito i 5 Ducati del contratto. La rendita del Mercante arriverà dopo, alla chiusura della giornata.',preview:27,part:'recipe',action:'serveContract',args:[27],selector:'.hand-cards [data-card-id="27"]'},
-  {title:'Prima il contratto, poi la rendita',text:'I 5 Ducati del cliente ti hanno portato da 15 a 20. Il Mercante è tra le carte da installare: i suoi 2 Ducati di rendita non sono ancora stati pagati.',selector:'.mat-pending'},
+  {title:'Prima il contratto, poi la rendita',text:'I 5 Ducati del cliente ti hanno portato da 15 a 20. Il Mercante è tra le carte da installare: i suoi 2 Ducati di rendita non sono ancora stati pagati.',selector:'.market-panel'},
   TUTORIAL_V2_STEPS[40],
-  {title:'Abbiamo usato tutte le carte',text:'Due carte sono finite nelle aste e tre sono diventate contratti completati. Non ne restano in mano. Se ne fossero rimaste, potresti conservarne al massimo 2 per domani.',selector:'.mat-pending'},
-  {title:'Chiudi il tuo mercato',text:'Premi TERMINA nel tuo riquadro sul tabellone: il Polpo avanzato va nella Cesta. Poi si installano le tre migliorie e si calcolano le rendite dei Mercanti.',action:'finishMarket',args:[],selector:'[onclick="finishMarket()"]'},
+  {title:'Abbiamo usato tutte le carte',text:'Due carte sono finite nelle aste e tre sono diventate contratti completati. Non ne restano in mano. Se ne fossero rimaste, potresti conservarne al massimo 2 per domani.',selector:'.market-panel'},
+  {title:'Chiudi il tuo mercato',text:'Premi “Termina il mercato” nel riepilogo dei contratti: il Polpo avanzato va nella Cesta. Poi si installano le tre migliorie e si calcolano le rendite dei Mercanti.',action:'finishMarket',args:[],selector:'.market-finish'},
   {title:'Prima si installano le migliorie',text:'Hai installato Senza tassa nella corsia Asta, Sottobanco in Mercato e il Mercante in Bilancia. Per le rendite contano già anche le carte installate oggi.',selector:'.mat-upgrade-lanes'},
   TUTORIAL_V2_STEPS[44],
   TUTORIAL_V2_STEPS[45],
@@ -1342,7 +1349,7 @@ function humanArea(p,color){
     return`<div class="offer-zone human-bid" style="--player:${color};--player-soft:${color}55"><span class="offer-name">${esc(p.name)} · tu</span>${card?`<div id="humanOfferCard" class="offer-card-back"><button class="offer-card-return" title="Rimetti la carta in mano" aria-label="Carta offerta: valore ${card.bid}. Clicca per riprenderla" onclick="returnBidCard()"><img src="assets/board/card-back.png" alt="Retro della carta Pescaria" draggable="false"><strong class="offer-bid-value">${card.bid}</strong></button><button id="offerCash" class="offer-cash" onclick="removeBidCoin(event)" title="Riprendi un Ducato" aria-label="Riprendi un Ducato. Ducati aggiunti: ${G.bidCash}" ${G.bidCash?'':'disabled'}>+${G.bidCash} ${G.bidCash===1?'Ducato':'Ducati'}</button></div>`:'<div class="offer-card-empty">SCEGLI<br>UNA CARTA</div>'}</div>`;
   }
   if(G.phase==='draft')return zone('');
-  if(G.phase==='pubblico')return zone(`<button class="player-action-btn" onclick="finishMarket()">TERMINA</button>`);
+  if(G.phase==='pubblico')return zone('');
   if(G.phase==='bilancia')return zone(`<button class="player-action-btn" onclick="finishDayBtn()">${G.day===4?'PUNTEGGIO':'CHIUDI'}</button>`);
   return''
 }
@@ -1380,7 +1387,7 @@ function playerAnnouncement(){
     const winner=G.auctionResult?.[0];
     return`${winner?`${G.players[winner.pid].name} vince l’asta con ${bidScore(winner)}. `:''}${name}, scegli quanti ${fish} comprare e conferma.`;
   }
-  if(G.phase==='pubblico')return`${name} · Mercato. Scegli un contratto completabile dalla mano${me.subsLeft?` · ${me.subsLeft} sostituzioni per contratto`:''}, oppure premi TERMINA.`;
+  if(G.phase==='pubblico')return`${name} · Mercato. Scegli un contratto completabile dalla mano${me.subsLeft?` · ${me.subsLeft} sostituzioni per contratto`:''}, oppure premi Termina il mercato nel riepilogo.`;
   if(G.phase==='conserva')return`${name}, conserva fino a 2 carte per domani e conferma la scelta.`;
   if(G.phase==='bilancia')return`${name} · Fine giornata. ${G.overlay==='favorite'?'Scegli il pesce preferito della Congrega.':`Rendite e migliorie: premi ${G.day===4?'PUNTEGGIO':'CHIUDI'} per continuare.`}`;
   return`${name} · ${me.hand.length} carte in mano.`;
@@ -1418,7 +1425,13 @@ function playerMatHtml(p){
 }
 window.viewPlayerMat=function(id){if(!G||!G.players[id])return;G.viewedPlayer=id;renderBoard()};
 function mobileAuctionLayout(){return !HEADLESS&&matchMedia('(max-width:700px) and (orientation:portrait)').matches}
-function auctionPanelHtml(me){
+function marketPanelHtml(me){
+  const contracts=me.today.contracts;
+  const rows=contracts.map(c=>`<tr><th scope="row">${esc(c.name)}</th><td class="market-income">+${me.today.contractIncome?.[c.id]??payout(me,c)} ◈</td><td>${esc(upName(c))}<small>${esc(CATS[c.cat].name)}</small></td></tr>`).join('');
+  return`<section class="auction-panel market-panel" aria-label="Il tuo mercato"><div class="market-heading"><h3>Il tuo mercato</h3><strong>+${me.today.income} Ducati</strong></div>${rows?`<div class="market-receipts"><table aria-label="Contratti completati oggi"><thead><tr><th>Contratto</th><th>Ducati</th><th>Miglioria</th></tr></thead><tbody>${rows}</tbody></table></div><p>Le migliorie si installano a fine giornata.</p>`:'<p>Consegna il pesce toccando un contratto completabile nella mano. Qui vedrai gli incassi e le migliorie.</p>'}<button class="btn primary market-finish" onclick="finishMarket()">Termina il mercato</button></section>`;
+}
+function actionPanelHtml(me){
+  if(G.phase==='pubblico'&&!G.handoff)return marketPanelHtml(me);
   if(G.phase!=='asta'||G.handoff)return'';
   const f=currentFish();
   if(G.auctionStage==='bid'){
@@ -1460,8 +1473,8 @@ function renderBoard(){
   const raised=mode==='draft'||mode==='market'||mode==='keep'||(mode==='bid'&&!G.selectedBid);
   const viewed=G.players[G.viewedPlayer||0],winner=G.phase==='asta'&&G.auctionStage==='buy'?G.auctionResult?.[0]:null;
   const extra=[copies(viewed,'Esperienza')?`Senza tassa ×${copies(viewed,'Esperienza')}`:'',copies(viewed,'Nuovi Clienti')?`Fortuna ×${copies(viewed,'Nuovi Clienti')}`:'',viewed.subsLeft?`Sottobanco ×${viewed.subsLeft}`:''].filter(Boolean).join(' · ');
-  host.innerHTML=`<div class="sidebar-content">${humanPlayers().length>1?`<div class="active-operator">Turno di ${esc(me.name)}</div>`:''}<div class="hand-meta">${winner?`<div class="auction-winner">${esc(G.players[winner.pid].name)} vince l’asta · ${bidScore(winner)}</div>`:''}${playerMatHtml(viewed)}<div class="player-mat-buttons" role="group" aria-label="Scegli la plancia del giocatore">${G.players.map(p=>`<button class="player-mat-button" style="--player-color:${playerColor(p)}" aria-pressed="${p.id===viewed.id}" onclick="viewPlayerMat(${p.id})"><span>${esc(p.name)}</span><span class="player-ducats">${p.coins}<img src="assets/tokens/moneta.png" alt="Ducati"></span></button>`).join('')}</div>${extra?`<div class="mat-uses">${extra}</div>`:''}</div>${mobileAuctionLayout()?'':auctionPanelHtml(me)}</div>`;
-  const mobile=$('mobileAuctionActions');mobile.innerHTML=mobileAuctionLayout()?auctionPanelHtml(me):'';mobile.classList.toggle('hidden',!mobile.innerHTML);document.body.classList.toggle('mobile-auction',!!mobile.innerHTML);
+  host.innerHTML=`<div class="sidebar-content">${humanPlayers().length>1?`<div class="active-operator">Turno di ${esc(me.name)}</div>`:''}<div class="hand-meta">${winner?`<div class="auction-winner">${esc(G.players[winner.pid].name)} vince l’asta · ${bidScore(winner)}</div>`:''}${playerMatHtml(viewed)}<div class="player-mat-buttons" role="group" aria-label="Scegli la plancia del giocatore">${G.players.map(p=>`<button class="player-mat-button" style="--player-color:${playerColor(p)}" aria-pressed="${p.id===viewed.id}" onclick="viewPlayerMat(${p.id})"><span>${esc(p.name)}</span><span class="player-ducats">${p.coins}<img src="assets/tokens/moneta.png" alt="Ducati"></span></button>`).join('')}</div>${extra?`<div class="mat-uses">${extra}</div>`:''}</div>${mobileAuctionLayout()?'':actionPanelHtml(me)}</div>`;
+  const mobile=$('mobileAuctionActions');mobile.innerHTML=mobileAuctionLayout()?actionPanelHtml(me):'';mobile.setAttribute('aria-label',G.phase==='pubblico'?'Azioni del mercato':'Azioni dell’asta');mobile.classList.toggle('hidden',!mobile.innerHTML);document.body.classList.toggle('mobile-auction',!!mobile.innerHTML);
   const dock=$('floatingHand'),handKey=`${G.day}:${G.phase}:${me.id}:${G.auctionIndex}:${G.auctionStage}:${G.draftRound}:${G.selectedBid}:${G.tutorial?.step??''}`;
   if(G.handViewKey!==handKey){G.handViewKey=handKey;G.handFolded=!raised}
   if(G.tutorial&&!tutorialStep()?.showHand)G.handFolded=!tutorialStep()?.preview;

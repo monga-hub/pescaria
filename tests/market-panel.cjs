@@ -1,0 +1,30 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
+const source=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+const context={assert,console,__PESCARIA_HEADLESS:true,addEventListener(){},document:{getElementById:()=>({}),addEventListener(){}},matchMedia:()=>({matches:false})};context.window=context;
+vm.runInNewContext(source.replace(/\}\)\(\);\s*$/,String.raw`
+startGame({n:2,name:'Test',seed:1,difficulty:'normal',humanBot:false});
+G.phase='pubblico';G.overlay=null;const p=activePlayer();
+assert(actionPanelHtml(p).includes('Termina il mercato'));
+assert(actionPanelHtml(p).includes('Qui vedrai gli incassi'));
+assert(!humanArea(p,'orange').includes('finishMarket()'),'No second finish button on the central board');
+const first=CARDS.find(c=>c.id===7),second=CARDS.find(c=>c.id===4);
+p.hand=[first,second];p.banco={...inv(),Polpi:1,Gamberi:1};
+p.installed=[{...first,id:99}];
+for(const card of [first,second]){
+  const coins=p.coins;
+  assert(completeContract(p,card));
+  const gained=p.coins-coins;
+  assert.equal(p.today.contractIncome[card.id],gained);
+  const panel=actionPanelHtml(p);
+  assert(panel.includes(card.name));assert(panel.includes('+'+gained+' ◈'));
+  assert(panel.includes(upName(card)));assert(panel.includes(CATS[card.cat].name));
+  assert(panel.includes('+'+p.today.income+' Ducati'));
+}
+assert.equal(p.today.contractIncome[7],6,'Include the installed category bonus in the receipt');
+assert.equal(p.today.contractIncome[4],4);
+const panel=actionPanelHtml(p);G=decodeGame(encodeGame(G));assert.equal(actionPanelHtml(activePlayer()),panel,'Receipts survive saves');
+delete activePlayer().today.contractIncome;assert.equal(actionPanelHtml(activePlayer()),panel,'Older market saves render the same receipts');
+G.handoff=true;assert.equal(actionPanelHtml(activePlayer()),'','Do not show the other player’s market during handoff');
+console.log('Mercato: riepilogo progressivo, incassi con bonus, migliorie, salvataggi e comando unico OK');
+})();`),context);
