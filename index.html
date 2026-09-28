@@ -365,11 +365,18 @@
     @media(max-width:700px) and (orientation:portrait){.playing .physical-board{grid-template-rows:40px min(calc((100vw - 28px)*.7072),35dvh) minmax(0,1fr)}}
 
   /* Only the compact tutorial bar reserves space; explanations open over the board. */
-    body.tutorial{--tutorial-height:58px}
+    body.tutorial{--tutorial-height:58px;--tutorial-accent:#62d5ef;--tutorial-glow:#62d5ef88;--tutorial-tone:#07536a;--tutorial-tint:#dcf5fc}
     body.tutorial main{position:absolute;inset:var(--tutorial-height) 0 0;height:auto;margin:0}
     .tutorial-guide{position:fixed;z-index:900;top:6px;left:12px;right:12px;min-height:120px;display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:16px;align-items:center;padding:12px 18px;background:#fff4dd;border:2px solid #b89547;border-radius:14px;box-shadow:0 3px 16px #0005;color:#17343b;overflow:clip}
     .tutorial-progress{font-size:10px;font-weight:900;letter-spacing:.07em;color:#806129}.tutorial-copy h2{font:700 22px Georgia,serif;margin:3px 0 5px}.tutorial-copy p{margin:0;font-size:14px;line-height:1.35}.tutorial-controls{display:grid;gap:9px;text-align:center}.tutorial-controls .btn{padding:10px 8px;font-size:13px}.tutorial-exit{border:0;background:none;color:#5f5140;text-decoration:underline;cursor:pointer;font-size:12px;padding:3px}.tutorial-hint{font-size:12px;font-weight:900;color:#806129}
-    .tutorial-target{outline:4px solid #ffd85e!important;outline-offset:2px}
+    body.tutorial[data-tutorial-mode="act"]{--tutorial-accent:#ffac50;--tutorial-glow:#ff982d99;--tutorial-tone:#773900;--tutorial-tint:#ffe7c8}
+    .tutorial-guide{border-color:var(--tutorial-accent)}
+    .tutorial-topline{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:4px}
+    .tutorial-mode{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:5px;background:var(--tutorial-tint);color:var(--tutorial-tone);font:800 11px/1.2 system-ui;white-space:nowrap;letter-spacing:0}
+    .tutorial-target{outline:5px solid var(--tutorial-accent)!important;outline-offset:2px}
+    body[data-tutorial-mode="act"] .tutorial-target{outline-width:5px!important}
+    .tutorial-guide.collapsed .tutorial-copy{display:flex;align-items:center;gap:8px;min-width:0}.tutorial-guide.collapsed .tutorial-topline{flex:none;margin:0}
+    .tutorial-guide.collapsed .tutorial-copy h2{min-width:0}
     @media(max-width:700px){body.tutorial{--tutorial-height:58px}.tutorial-guide{min-height:0;left:6px;right:6px;padding:10px;grid-template-columns:minmax(0,1fr) 88px;gap:8px}.tutorial-copy h2{font-size:17px}.tutorial-copy p{font-size:12px;line-height:1.3}.tutorial-controls .btn{font-size:11px;padding:9px 4px}.tutorial-hint,.tutorial-exit{font-size:10px}.tutorial-progress{font-size:9px}}
 
     .tutorial-guide.collapsed{min-height:0;height:46px;padding:5px 10px;grid-template-columns:minmax(0,1fr) auto;gap:8px}
@@ -385,12 +392,12 @@
 
     .playing #floatingHand .hand-cards:not(.gsap-hand) .tutorial-explained{animation:none!important;transform:translateX(-50%) translateY(-104px) rotate(0) scale(1.07);z-index:300;opacity:1}
     #floatingHand .hand-cards:has(.tutorial-explained) .card:not(.tutorial-explained){opacity:.55}
-    .tutorial-card-focus{z-index:8;position:absolute;box-sizing:border-box;border:2px solid #ffe36d;border-radius:50%;--tutorial-veil:0 0 0 999px #0006;pointer-events:none}
-    .tutorial-target,.tutorial-card-focus{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 14px #ffdd50,0 0 28px #ffbb3377,inset 0 0 8px #ffe99b66;animation:tutorialGlowPulse 1.6s ease-in-out infinite!important}
-    @keyframes tutorialGlowPulse{0%,100%{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 10px #ffdd50aa,0 0 20px #ffbb3344,inset 0 0 5px #ffe99b44}50%{box-shadow:var(--tutorial-veil,0 0 0 0 transparent),0 0 22px #ffe99b,0 0 42px #ffbb33cc,inset 0 0 16px #ffe99baa}}
-    .tutorial-card-focus{box-shadow:var(--tutorial-veil),0 0 8px #ffdd50aa;animation-name:tutorialSymbolPulse!important}
-    @keyframes tutorialSymbolPulse{0%,100%{box-shadow:var(--tutorial-veil),0 0 5px #ffdd5088}50%{box-shadow:var(--tutorial-veil),0 0 12px #ffe99b}}
-    @media(prefers-reduced-motion:reduce){.tutorial-target,.tutorial-card-focus{animation:none!important}}
+    .tutorial-card-focus{z-index:8;position:absolute;box-sizing:border-box;border:4px solid var(--tutorial-accent);outline:2px solid #073442;outline-offset:1px;border-radius:50%;--tutorial-veil:0 0 0 999px #0006;pointer-events:none}
+    body.tutorial .tutorial-target,body.tutorial #floatingHand .card.tutorial-target{box-shadow:0 0 0 8px #073442b3,0 0 22px 10px var(--tutorial-glow),inset 0 0 14px var(--tutorial-glow);animation:none!important}
+    .tutorial-card-focus{box-shadow:var(--tutorial-veil),0 0 18px 5px var(--tutorial-accent);animation:none!important}
+    body[data-tutorial-mode="act"] .tutorial-target,body.playing[data-tutorial-mode="act"] #floatingHand .hand-cards .card.tutorial-target{animation:tutorialGlowPulse 1.6s ease-in-out infinite!important}
+    @keyframes tutorialGlowPulse{0%,100%{box-shadow:0 0 0 8px #49270db3,0 0 12px 5px var(--tutorial-glow),inset 0 0 4px var(--tutorial-glow)}50%{box-shadow:0 0 0 8px #49270db3,0 0 22px 5px var(--tutorial-accent),0 0 36px var(--tutorial-glow),inset 0 0 12px var(--tutorial-glow)}}
+    @media(prefers-reduced-motion:reduce){body[data-tutorial-mode="act"] .tutorial-target,body.playing[data-tutorial-mode="act"] #floatingHand .hand-cards .card.tutorial-target{animation:none!important}}
     .focus-bid{left:0;top:0;width:24%;height:18%}.focus-income{left:0;top:16.25%;width:24%;aspect-ratio:1}.focus-recipe{left:0;top:31.25%;width:24%;aspect-ratio:1}.focus-upgrade{left:28.5%;top:67.5%;width:43%;aspect-ratio:1}
     #mobileAuctionActions{position:fixed;z-index:700;left:8px;right:8px;bottom:60px;box-shadow:0 3px 20px #0007;border:2px solid #b89547;border-radius:12px;background:#fff4dd;padding:9px;color:#17343b}
     #mobileAuctionActions .auction-panel{padding:0;margin:0;background:none}
@@ -802,7 +809,7 @@ window.loadGameSlot=function(slot){
 
 // A fixed teaching day, using the normal game rules and real actions.
 const TUTORIAL_V2_STEPS=[
-  {title:'Benvenuto a Pescaria',text:'In Pescaria ogni giocatore gestisce una pescheria. Compri pesce al mercato e lo consegni ai clienti per guadagnare. Qui giochi contro Berry, controllato dal computer.',selector:'.player-mat'},
+  {title:'Benvenuto a Pescaria',text:'In Pescaria ogni giocatore gestisce una pescheria. Compri pesce al mercato e lo consegni ai clienti per guadagnare. Qui giochi contro Berry, controllato dal computer. Azzurro “Osserva”: leggi la spiegazione. Arancione “Tocca qui”: fai l’azione indicata.',selector:'.player-mat'},
   {title:'Come si vince',text:'I Ducati sono i soldi del gioco. Parti con 12 Ducati. Dopo quattro giornate vince chi ne ha di più. Qui impariamo giocando soltanto la prima giornata.',selector:'.mat-coins'},
   {title:'Questo è il tuo banco',text:'La plancia con il personaggio è la tua pescheria. Il tuo Banco contiene il pesce che compri: inizialmente può ospitare 6 pesci in totale, di qualsiasi tipo.',selector:'.mat-bank'},
   {title:'Il mercato è di tutti',text:'Sul tabellone centrale trovi il pesce ancora da comprare, diviso per tipo: Polpi, Gamberi, Molluschi, Branzini e Sardine. Questi pesci non sono ancora tuoi.',selector:'.board-fish'},
@@ -910,19 +917,20 @@ window.tutorialNext=function(){const step=tutorialStep();if(!step||step.action||
 let tutorialConfirmed=false;
 window.tutorialDo=function(){const step=tutorialStep();if(!step?.button)return;tutorialConfirmed=true;try{window[step.action](...(step.args||[]))}finally{tutorialConfirmed=false}};
 window.exitTutorial=function(){if(G?.tutorial&&!tutorialStep()?.done&&!confirm('Uscire dal tutorial? Perderai i progressi della partita guidata.'))return;G=null;if(!HEADLESS){clearTutorialUI();restartGame()}};
-function clearTutorialUI(){if(HEADLESS)return;document.body.classList.remove('tutorial');document.body.style.removeProperty('--tutorial-height');$('tutorialGuide').classList.add('hidden');delete $('tutorialGuide').dataset.step;document.querySelectorAll('.tutorial-target').forEach(el=>el.classList.remove('tutorial-target'))}
+function clearTutorialUI(){if(HEADLESS)return;document.body.classList.remove('tutorial');delete document.body.dataset.tutorialMode;document.body.style.removeProperty('--tutorial-height');$('tutorialGuide').classList.add('hidden');delete $('tutorialGuide').dataset.step;document.querySelectorAll('.tutorial-target').forEach(el=>el.classList.remove('tutorial-target'))}
 window.toggleTutorialGuide=function(){if(!G?.tutorial)return;G.tutorial.collapsed=!G.tutorial.collapsed;renderTutorial()};
 function renderTutorial(){
   if(HEADLESS)return;const step=tutorialStep();if(!step){clearTutorialUI();return}
-  document.body.classList.add('tutorial');const guide=$('tutorialGuide');guide.classList.remove('hidden');
+  document.body.classList.add('tutorial');document.body.dataset.tutorialMode=step.action?'act':'observe';const guide=$('tutorialGuide');guide.classList.remove('hidden');
   if(guide.dataset.step!==String(G.tutorial.step)){G.tutorial.collapsed=false;guide.dataset.step=G.tutorial.step}
   guide.classList.toggle('collapsed',!!G.tutorial.collapsed);
-  guide.innerHTML=`<div class="tutorial-copy" role="status"><div class="tutorial-progress">PARTITA GUIDATA · ${G.tutorial.step+1} / ${tutorialSteps().length}</div><h2>${esc(step.title)}</h2><p>${esc(step.text)}</p></div><div class="tutorial-controls"><button class="btn secondary tutorial-back" onclick="tutorialBack()" ${G.tutorial.history?.length?'':'disabled'}>← Indietro</button>${step.done?'<button class="btn primary" onclick="exitTutorial()">Gioca una partita</button>':step.button?`<button class="btn primary" onclick="tutorialDo()">${esc(step.button)}</button>`:!step.action?'<button class="btn primary" onclick="tutorialNext()">Avanti →</button>':''}<button class="btn secondary tutorial-toggle" onclick="toggleTutorialGuide()" aria-expanded="${!G.tutorial.collapsed}" aria-label="${G.tutorial.collapsed?'Riapri la spiegazione':'Riduci la spiegazione'}">${G.tutorial.collapsed?'Mostra testo ▾':'Nascondi testo ↑'}</button><button class="tutorial-exit" onclick="exitTutorial()">Esci dal tutorial</button></div>`;
+  guide.innerHTML=`<div class="tutorial-copy" role="status"><div class="tutorial-topline"><span class="tutorial-mode"><span aria-hidden="true">${step.action?'☝':'◎'}</span> ${step.action?'Tocca qui':'Osserva'}</span><div class="tutorial-progress">PARTITA GUIDATA · ${G.tutorial.step+1} / ${tutorialSteps().length}</div></div><h2>${esc(step.title)}</h2><p>${esc(step.text)}</p></div><div class="tutorial-controls"><button class="btn secondary tutorial-back" onclick="tutorialBack()" ${G.tutorial.history?.length?'':'disabled'}>← Indietro</button>${step.done?'<button class="btn primary" onclick="exitTutorial()">Gioca una partita</button>':step.button?`<button class="btn primary" onclick="tutorialDo()">${esc(step.button)}</button>`:!step.action?'<button class="btn primary" onclick="tutorialNext()">Avanti →</button>':''}<button class="btn secondary tutorial-toggle" onclick="toggleTutorialGuide()" aria-expanded="${!G.tutorial.collapsed}" aria-label="${G.tutorial.collapsed?'Riapri la spiegazione':'Riduci la spiegazione'}">${G.tutorial.collapsed?'Mostra testo ▾':'Nascondi testo ↑'}</button><button class="tutorial-exit" onclick="exitTutorial()">Esci dal tutorial</button></div>`;
   requestAnimationFrame(()=>{
     if(!G?.tutorial)return;
     fitGameContents();
     document.querySelectorAll('.tutorial-target').forEach(el=>el.classList.remove('tutorial-target'));
-    const targets=step.selector?[...document.querySelectorAll(step.selector)]:[],target=targets.find(el=>el.closest('#mobileAuctionActions'))||targets[0];if(target){target.classList.add('tutorial-target');if(target.classList.contains('card'))target.focus({preventScroll:true})}
+    const selector=step.button?'#tutorialGuide .primary':step.selector||(!step.part&&step.preview?'.tutorial-explained':null);
+    const targets=selector?[...document.querySelectorAll(selector)]:[],target=targets.find(el=>el.closest('#mobileAuctionActions'))||targets[0];if(target){target.classList.add('tutorial-target');if(target.classList.contains('card'))target.focus({preventScroll:true})}
   });
 }
 function installTutorialGuards(){
@@ -1411,7 +1419,7 @@ function cardHtml(c,mode='plain',enabled=true,style=''){
   const lesson=tutorialStep(),explained=lesson?.preview===c.id;
   const me=activePlayer(),selected=(mode==='bid'&&G.selectedBid===c.id)||(mode==='keep'&&G.keepSel?.has(c.id)),locked=mode==='draft'&&!enabled,selectable=enabled&&['bid','draft','market','client','keep'].includes(mode),fn={bid:'chooseBid',draft:'pickDraft',market:'serveContract',client:'pickClient',keep:'toggleKeep'}[mode],select=selectable?`role="button" tabindex="0" ${['draft','bid'].includes(mode)?'data-swipe-select':''} onclick="${fn}(${c.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}(${c.id})}"`:'tabindex="0"';
   const pay=mode==='market'&&enabled?payout(me,c):c.value,description=`${c.bid} CLIENTE #${c.id} ${c.name}. ${c.fish}. ${pay} Ducati. ${upName(c)}. ${UPG[c.up].fx}`;
-  return`<article data-card-id="${c.id}" class="card illustrated-card ${explained?'tutorial-explained':''} ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" aria-label="${esc(description)}" title="${esc(description)}" ${style?`style="${style}"`:''} ${select}><img class="card-art" src="assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2" alt="" draggable="false">${explained&&lesson.part?`<span class="tutorial-card-focus focus-${lesson.part}" aria-hidden="true"></span>`:''}${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}${pay!==c.value?`<span class="card-bonus">${pay} Ducati · +${pay-c.value} bonus</span>`:''}</article>`}
+  return`<article data-card-id="${c.id}" class="card illustrated-card ${explained?'tutorial-explained':''} ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" aria-label="${esc(description)}" title="${esc(description)}" ${style?`style="${style}"`:''} ${select}><img class="card-art" src="assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2" alt="" draggable="false">${explained&&lesson.part&&!lesson.action?`<span class="tutorial-card-focus focus-${lesson.part}" aria-hidden="true"></span>`:''}${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}${pay!==c.value?`<span class="card-bonus">${pay} Ducati · +${pay-c.value} bonus</span>`:''}</article>`}
 function phaseTitle(k){if(k==='draft')return'1 · Draft';if(k==='conserva')return'3 · Mercato';return PHASES.find(x=>x[0]===k)?.[1]||''}
 function playerMatHtml(p){
   const [color,character]=PLAYER_MATS[p.character??p.id],fish=FISH.flatMap(f=>Array(p.banco[f]).fill(f));
