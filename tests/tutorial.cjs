@@ -13,7 +13,7 @@ function checkSupply(){
 function advanceLesson(step,before){
   if(!step.action)tutorialNext();
     else if(step.action==='addBidCoin')addBidCoin({currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:1,height:1})}});
-    else if(step.button){window[step.action](...(step.args||[]));assert.equal(encodeGame(G),before,"Reading cards must not confirm the choice");tutorialDo()}
+    else if(step.button){window[step.action](...(step.args||[]));assert.equal(encodeGame(G),before,"Guide navigation requires its own confirmation");tutorialDo()}
     else window[step.action](...(step.args||[]));
 }
 function settleSummaries(reload){
@@ -54,6 +54,16 @@ function playGuide(reload,legacy=false){
     assert(steps++<80,'The guide must terminate');checkSupply();
     if(reload)G=decodeGame(encodeGame(G));
     const before=encodeGame(G),step=tutorialStep();
+    if(['pickDraft','chooseBid','serveContract','toggleKeep'].includes(step.action)){
+      assert.equal(step.button,undefined,'Use the real card, never a tutorial-only action button');
+      assert.equal(step.selector,'.hand-cards [data-card-id="'+step.args[0]+'"]');
+      tutorialDo();assert.equal(encodeGame(G),before,'The guide cannot substitute for the card gesture');
+    }
+    if(step.preview&&!step.action){
+      for(const action of [pickDraft,chooseBid,serveContract,toggleKeep])action(step.preview);
+      assert.equal(encodeGame(G),before,'Reading the highlighted card must not play it');
+    }
+
     pickDraft(-1);submitBid('wrong');chooseBid(-1);viewPlayerMat(1);
     if(step.action!=='addBidCoin')addBidCoin({});
     if(step.action!=='confirmBuy')confirmBuy();
