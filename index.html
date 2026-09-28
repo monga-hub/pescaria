@@ -365,7 +365,7 @@
     @media(max-width:700px){.board-hud{grid-template-columns:auto minmax(0,1fr) 36px;grid-template-rows:1fr;gap:5px}.board-hud>strong{font-size:15px}.board-ticker{grid-column:2;grid-row:1;font-size:12px}.playing .physical-board{grid-template-rows:40px minmax(0,1fr) minmax(0,1fr)}}
     @media(max-width:700px) and (orientation:portrait){.playing .physical-board{grid-template-rows:40px min(calc((100vw - 28px)*.7072),35dvh) minmax(0,1fr)}}
 
-  /* Only the compact tutorial bar reserves space; explanations open over the board. */
+  /* Desktop reserves the full guide height; phones keep the compact overlay. */
     body.tutorial{--tutorial-height:58px;--tutorial-accent:#62d5ef;--tutorial-glow:#62d5ef88;--tutorial-tone:#07536a;--tutorial-tint:#dcf5fc}
     body.tutorial main{position:absolute;inset:var(--tutorial-height) 0 0;height:auto;margin:0}
     .tutorial-guide{position:fixed;z-index:900;top:6px;left:12px;right:12px;min-height:120px;display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:16px;align-items:center;padding:12px 18px;background:#fff4dd;border:2px solid #b89547;border-radius:14px;box-shadow:0 3px 16px #0005;color:#17343b;overflow:clip}
@@ -384,6 +384,7 @@
     .tutorial-guide.collapsed .tutorial-progress,.tutorial-guide.collapsed .tutorial-copy p,.tutorial-guide.collapsed .tutorial-exit,.tutorial-guide.collapsed .tutorial-controls>.primary{display:none}
     .tutorial-guide.collapsed .tutorial-copy h2{margin:0;font:700 14px/1.2 Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .tutorial-guide.collapsed .tutorial-controls{display:block}.tutorial-guide.collapsed .tutorial-toggle{padding:7px 10px;font-size:12px}
+    @media(min-width:701px){.tutorial-guide:not(.collapsed){grid-template-columns:minmax(0,1fr) 340px}.tutorial-guide:not(.collapsed) .tutorial-controls{grid-template-columns:1fr 1fr;align-items:center}}
 
     #auctionSummary{width:min(480px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:auto;padding:20px;border:2px solid #b89547;border-radius:18px;background:#fff4dd;color:var(--ink);overflow:clip;box-shadow:0 16px 60px #0008}
     #auctionSummary::backdrop{background:#071e1bd9;backdrop-filter:blur(4px)}
@@ -1533,6 +1534,10 @@ function tokenGrid(n,width,height,maxSize){
 let fitFrame=0;
 function scheduleFit(){if(HEADLESS||fitFrame)return;fitFrame=requestAnimationFrame(()=>{fitFrame=0;fitGameContents()})}
 function fitGameContents(){
+  if(G?.tutorial){
+    const guide=$('tutorialGuide');
+    document.body.style.setProperty('--tutorial-height',innerWidth>700?`${Math.ceil(guide.getBoundingClientRect().bottom)+6}px`:'58px');
+  }
   const mobileActions=$('mobileAuctionActions');
   document.body.style.setProperty('--mobile-actions-space',mobileActions&&!mobileActions.classList.contains('hidden')?`${mobileActions.offsetHeight+68}px`:'56px');
   const side=document.querySelector('.sidebar-content');
