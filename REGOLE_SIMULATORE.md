@@ -38,7 +38,8 @@ Carte Fortuna con valore d'asta alzato di 2: #6, #9, #10 → 4 · #20, #32, #65 
 - Dopo ogni modifica, di chiunque: `node tests/regole-v5.cjs` e `node tests/auction-upgrades.cjs` devono passare.
 
 ## Variante Solitario e Automa (Congrega dei Mercanti)
-Attiva dal setup con 1 o 2 giocatori (pulsanti «Congrega dei Mercanti»: No / Apprendista / Mercante / Maestro / Doge).
+Con 1 giocatore la Congrega è obbligatoria (Apprendista / Mercante / Maestro / Doge; Apprendista predefinito). Con 2 giocatori resta facoltativa, con anche l’opzione No.
+- In solitario contro la Congrega non si fa il draft: ogni mattina si ricevono direttamente 5 carte, a cui si aggiungono quelle conservate. Con 2 giocatori più Congrega, il draft si svolge tra i due giocatori.
 - La Congrega è un giocatore in più (conta per i 6 pesci del mattino), 12 Ducati, nessuna miglioria, nessun contratto, niente draft.
 - Mazzo di 12 carte, rimescolato ogni giornata: 3 Passa · 3 Offerta +0 (2 pesci) · 3 +2 (3) · 2 +4 (3) · 1 +6 (4).
 - A ogni asta gira una carta: Passa, oppure prima carta del mazzo Clienti coperta + N Ducati sopra. Se vince compra a 1 i pesci indicati; se perde non compra.

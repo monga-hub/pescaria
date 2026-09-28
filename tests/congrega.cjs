@@ -9,6 +9,36 @@ const checks=`
 assert.equal(new Set(CONGREGA_DECK.map(c=>c.image)).size,12);
 CONGREGA_DECK.forEach((c,i)=>assert.equal(c.image,'assets/automa/'+String(i).padStart(2,'0')+'.png'));
 
+// Il solitario non permette di disattivare la Congrega; a due resta facoltativa.
+const originalGetElement=document.getElementById,setupNodes={};
+document.getElementById=id=>setupNodes[id]??=({style:{setProperty(){}},innerHTML:''});
+setSetupCount(1);
+assert.equal(setupCongrega,'apprendista');
+assert(!setupNodes.setupOptions.innerHTML.includes("setSetupCongrega('no')"));
+setSetupCongrega('doge');setSetupCount(2);setSetupCount(1);
+assert.equal(setupCongrega,'doge','mantiene la difficoltà scelta');
+setSetupCongrega('no');assert.equal(setupCongrega,'apprendista');
+setSetupCount(2);setSetupCongrega('no');assert.equal(setupCongrega,'no');
+assert(setupNodes.setupOptions.innerHTML.includes("setSetupCongrega('no')"));
+document.getElementById=originalGetElement;
+
+// Cinque carte assegnate direttamente, più quelle conservate, anche dopo un salvataggio.
+startGame({n:2,name:'Solo',seed:77,difficulty:'normal',humanBot:false,congrega:'apprendista'});
+G.players[0].kept=[drawCard(),drawCard()];
+G=decodeGame(encodeGame(G));
+const keptIds=G.players[0].kept.map(c=>c.id),dealtIds=G.deck.slice(-HAND).reverse().map(c=>c.id);
+assert(overlayHtml().includes('Ricevi le carte e inizia le aste'));
+assert(!overlayHtml().includes('>Al draft<'));
+beginDraft();
+assert.equal(G.phase,'asta');assert.equal(G.auctionStage,'bid');
+assert.deepEqual(G.players[0].hand.map(c=>c.id),[...dealtIds,...keptIds]);
+assert.equal(G.drafted[1].length,0,'la Congrega non riceve carte dalla distribuzione');
+assert(G.players[1].hand.length<=1,'la Congrega può pescare la sola carta per la prima offerta');
+assert.equal(G.players[0].kept.length,0);
+assert.deepEqual([...G.players[0].keptIds],keptIds);
+assert(G.draftPacks.every(pack=>pack.length===0));
+assert(!G.log.some(entry=>entry.phase==='Draft'));
+
 const res={};
 for(const lv of Object.keys(CONGREGA_LEVELS))for(const n of [2,3]){let win=0,g=0;
  for(let s=1;s<=150;s++){startGame({n,name:'B',seed:s*13+n,difficulty:'normal',humanBot:true,congrega:lv});
@@ -32,7 +62,11 @@ for(const humans of [1,2]){
       assert(art.includes('showAutomaCard'),'carta ingrandibile');
     }else assert.equal(art,'','nessuna carta vecchia o non ancora estratta');
     const me=activePlayer();
-    if(G.phase==='rete')beginDraft();
+    if(G.phase==='rete'){
+      const kept=me.kept.length;beginDraft();
+      assert.equal(G.phase,humans===1?'asta':'draft');
+      if(humans===1)assert.equal(me.hand.length,HAND+kept);
+    }
     else if(G.phase==='draft')pickDraft(G.draftPacks[me.id][0].id);
     else if(G.phase==='asta'){
       if(G.auctionStage==='bid'){chooseBid(me.hand[0].id);submitBid();}

@@ -961,7 +961,8 @@ let setupCount=4,setupDifficulty='normal',setupCongrega='no';
 const setupRoster=PLAYER_MATS.map((_,id)=>({name:id?BOTNAMES[id-1]:'Daniele',human:id===0,character:id}));
 window.renderSetupPlayers=function(){
   const n=setupCount,host=$('setupPlayers');host.style.setProperty('--players',n);
-  $('setupOptions').innerHTML=`<div class="setup-choice"><span class="setup-choice-label">Giocatori</span><div class="setup-buttons setup-count" role="group" aria-label="Numero di giocatori">${[1,2,3,4,5].map(count=>`<button type="button" aria-pressed="${n===count}" onclick="setSetupCount(${count})">${count}</button>`).join('')}</div></div><div class="setup-choice"><span class="setup-choice-label">Difficoltà AI</span><div class="setup-buttons" role="group" aria-label="Difficoltà AI">${[['easy','Tranquilla'],['normal','Normale'],['hard','Esperta']].map(([key,label])=>`<button type="button" aria-pressed="${setupDifficulty===key}" onclick="setSetupDifficulty('${key}')">${label}</button>`).join('')}</div></div>${n<=2?`<div class="setup-choice"><span class="setup-choice-label">Congrega dei Mercanti</span><div class="setup-buttons" role="group" aria-label="Congrega dei Mercanti">${[['no','No'],...Object.entries(CONGREGA_LEVELS).map(([k,v])=>[k,v[0]])].map(([key,label])=>`<button type="button" aria-pressed="${setupCongrega===key}" onclick="setSetupCongrega('${key}')">${label}</button>`).join('')}</div></div>`:''}`;
+  if(n===1&&setupCongrega==='no')setupCongrega='apprendista';
+  $('setupOptions').innerHTML=`<div class="setup-choice"><span class="setup-choice-label">Giocatori</span><div class="setup-buttons setup-count" role="group" aria-label="Numero di giocatori">${[1,2,3,4,5].map(count=>`<button type="button" aria-pressed="${n===count}" onclick="setSetupCount(${count})">${count}</button>`).join('')}</div></div><div class="setup-choice"><span class="setup-choice-label">Difficoltà AI</span><div class="setup-buttons" role="group" aria-label="Difficoltà AI">${[['easy','Tranquilla'],['normal','Normale'],['hard','Esperta']].map(([key,label])=>`<button type="button" aria-pressed="${setupDifficulty===key}" onclick="setSetupDifficulty('${key}')">${label}</button>`).join('')}</div></div>${n<=2?`<div class="setup-choice"><span class="setup-choice-label">Congrega dei Mercanti</span><div class="setup-buttons" role="group" aria-label="Congrega dei Mercanti">${[...(n===1?[]:[['no','No']]),...Object.entries(CONGREGA_LEVELS).map(([k,v])=>[k,v[0]])].map(([key,label])=>`<button type="button" aria-pressed="${setupCongrega===key}" onclick="setSetupCongrega('${key}')">${label}</button>`).join('')}</div></div>`:''}`;
   host.innerHTML=setupRoster.slice(0,n).map((p,id)=>`<fieldset class="setup-player" style="--player:${COLORS[p.character]}">
     <legend>Mercante ${id+1}</legend><img src="assets/players/ritratto-${PLAYER_MATS[p.character][0]}.png" alt="${PLAYER_MATS[p.character][1]}">
     <div class="setup-player-fields">
@@ -984,6 +985,7 @@ window.newGame=function(){
   const n=setupCount,roster=setupRoster.slice(0,n).map(p=>({...p,name:p.name.trim()}));
   const missing=roster.findIndex(p=>!p.name);if(missing>=0){const input=$('setupPlayers').querySelectorAll('input')[missing];input.value='';input.reportValidity();return}
   document.body.classList.add('playing');$('setup').classList.add('hidden');$('end').classList.add('hidden');$('game').classList.remove('hidden');
+  if(n===1&&setupCongrega==='no')setupCongrega='apprendista';
   let total=n,congrega=null;
   if(n<=2&&setupCongrega!=='no'){const used=new Set(roster.map(p=>p.character));const ch=PLAYER_MATS.findIndex((_,i)=>!used.has(i));roster.push({name:'Congrega',human:false,character:ch,congrega:true});total=n+1;congrega=setupCongrega}
   startGame({n:total,roster,difficulty:setupDifficulty,humanBot:false,congrega});render();
@@ -1027,8 +1029,12 @@ function startDay(){
 }
 window.beginDraft=function(){if(!G||G.phase!=='rete')return;G.overlay=null;startDraft();render()};
 
+const soloCongrega=()=>!!G.congregaLevel&&G.players.filter(p=>!p.congrega).length===1;
 function startDraft(){
   G.phase='draft';G.draftRound=1;G.drafted=G.players.map(()=>[]);G.draftChoices={};G.draftPacks=G.players.map(p=>p.congrega?[]:Array.from({length:HAND},drawCard).filter(Boolean));
+  if(soloCongrega()){
+    G.drafted=G.draftPacks;G.draftPacks=G.players.map(()=>[]);finishDraft();return;
+  }
   log('Draft','Inizia il draft: pacchetti di 5 carte, si passa a sinistra.');
   if(humanPlayers().length)setActivePlayer(humanPlayers()[0].id);
   else while(G.phase==='draft')draftStep(null);
@@ -1055,7 +1061,7 @@ window.pickDraft=function(id){
 };
 function finishDraft(){
   for(const p of G.players){p.hand.push(...G.drafted[p.id],...p.kept);p.keptIds=new Set(p.kept.map(c=>c.id));p.kept=[];p.plan=null}
-  log('Draft','Draft completato: ognuno riprende in mano anche le carte conservate.');
+  log(soloCongrega()?'Carte':'Draft',soloCongrega()?'Ricevi 5 nuove carte e riprendi in mano quelle conservate.':'Draft completato: ognuno riprende in mano anche le carte conservate.');
   G.phase='asta';G.auctionIndex=-1;G.aOrder=[...FISH];nextAuction();
 }
 
@@ -1375,9 +1381,9 @@ function overlayHtml(){
   if(G.handoff)return box('Passa il dispositivo',`Tocca a ${esc(me.name)}`,`<img class="handoff-portrait" src="assets/players/ritratto-${PLAYER_MATS[me.character??me.id][0]}.png" alt=""><p>Le carte restano nascoste finché non sei pronto.</p><button class="btn primary" onclick="acceptHandoff()">Sono ${esc(me.name)}, cominciamo</button>`);
   if(G.overlay==='morning'){
     const lots=FISH.map(f=>`<div class="net-pick" style="cursor:default"><img src="${ASSET.fish[f]}" alt=""><span>${G.market[f]} ${f}</span></div>`).join(''),mine=G.fiutoLog.filter(x=>x.pid===0).map(x=>`${ICON[x.f]} ${x.f}`).join(', ');
-    const intro=G.day===1?`<p class="game-intro-copy">La partita dura quattro giornate. Ogni mattina arriva il pescato, poi <b>scegli 5 carte con il draft</b>: ne tieni una e passi le altre al vicino. Puoi usare ogni carta <b>per fare un’offerta all’asta</b> oppure <b>per completare il suo contratto</b>. I contratti completati diventano <b>migliorie permanenti</b> a fine giornata. Ogni contratto rende 1 Ducato in più per ogni miglioria già installata della stessa categoria.</p>`:'';
-    return box(`Giorno ${G.day} · Pesca del mattino`,'Il pescato di oggi',`${intro}<div class="net-picks">${lots}</div>${mine?`<p style="margin-top:12px">Fiuto per il Pescato: ricevi ${mine}.</p>`:''}<button class="btn primary" onclick="beginDraft()">Al draft</button>`)}
-  if(G.overlay==='keep')return box('Fine del mercato','Conserva fino a 2 carte',`<p>Le carte conservate restano da parte durante il draft di domani e poi tornano nella tua mano. Le altre vengono scartate.</p><div class="cards" style="text-align:left">${me.hand.map(c=>cardHtml(c,'keep',true)).join('')}</div><button class="btn primary" onclick="confirmKeep()">Conferma (${G.keepSel.size}/2)</button>`);
+    const intro=G.day===1?`<p class="game-intro-copy">La partita dura quattro giornate. Ogni mattina arriva il pescato, poi ${soloCongrega()?'<b>ricevi direttamente 5 carte</b>. Contro la Congrega giochi senza draft.':'<b>scegli 5 carte con il draft</b>: ne tieni una e passi le altre al vicino.'} Puoi usare ogni carta <b>per fare un’offerta all’asta</b> oppure <b>per completare il suo contratto</b>. I contratti completati diventano <b>migliorie permanenti</b> a fine giornata. Ogni contratto rende 1 Ducato in più per ogni miglioria già installata della stessa categoria.</p>`:'';
+    return box(`Giorno ${G.day} · Pesca del mattino`,'Il pescato di oggi',`${intro}<div class="net-picks">${lots}</div>${mine?`<p style="margin-top:12px">Fiuto per il Pescato: ricevi ${mine}.</p>`:''}<button class="btn primary" onclick="beginDraft()">${soloCongrega()?'Ricevi le carte e inizia le aste':'Al draft'}</button>`)}
+  if(G.overlay==='keep')return box('Fine del mercato','Conserva fino a 2 carte',`<p>${soloCongrega()?'Domani riprenderai queste carte insieme alle 5 nuove carte.':'Le carte conservate restano da parte durante il draft di domani e poi tornano nella tua mano.'} Le altre vengono scartate.</p><div class="cards" style="text-align:left">${me.hand.map(c=>cardHtml(c,'keep',true)).join('')}</div><button class="btn primary" onclick="confirmKeep()">Conferma (${G.keepSel.size}/2)</button>`);
   if(G.overlay==='favorite')return box('La Congrega','Scegli il pesce preferito',`<p>Il pesce scelto viene preso dal sacchetto e messo sulla carta. Ogni contratto che richiede quel tipo di pesce renderà 2 Ducati in più.</p><div class="net-picks">${FISH.map(f=>`<button class="net-pick" onclick="pickFavorite('${f}')"><img src="${ASSET.fish[f]}" alt=""><span>${f}</span></button>`).join('')}</div>`);
   if(G.overlay==='summary'){
     const rows=G.players.map(p=>`<div class="rankrow"><div class="place"><i class="dot" style="background:${playerColor(p)}"></i></div><div class="who">${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.today.contracts.length} contratti +${p.today.income} · Bilancia +${p.today.bilancia.reduce((s,x)=>s+x.v,0)} · ${p.coins} ◈</b></div>`).join('');
@@ -1394,7 +1400,7 @@ function playerAnnouncement(){
   if(G.tutorial)return `Tutorial · ${tutorialStep().title}. Segui la spiegazione in alto.`;
   const me=activePlayer(),name=me.name;
   if(G.handoff)return`Passa il dispositivo a ${name}. Conferma quando sei pronto.`;
-  if(G.phase==='rete')return`${name}, ecco il pescato di oggi. Vai al draft per scegliere le carte.`;
+  if(G.phase==='rete')return`${name}, ecco il pescato di oggi. ${soloCongrega()?'Ricevi le carte e inizia le aste.':'Vai al draft per scegliere le carte.'}`;
   if(G.phase==='draft')return`${name} · Draft · Carte scelte: ${G.drafted[me.id].length}/5. Scegli dal ventaglio una carta senza lucchetto.`;
   if(G.phase==='asta'){
     const fish=currentFish();
