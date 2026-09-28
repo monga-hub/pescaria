@@ -17,7 +17,8 @@ for(const card of [first,second]){
   const gained=p.coins-coins;
   assert.equal(p.today.contractIncome[card.id],gained);
   const panel=actionPanelHtml(p);
-  assert(panel.includes(card.name));assert(panel.includes('+'+gained+' ◈'));
+  assert(panel.includes(card.name));assert(panel.includes('+'+gained+' <img class="ducat-icon ducat-inline"'));
+  assert(panel.includes('src="assets/tokens/moneta.png"'));
   assert(panel.includes(upName(card)));assert(panel.includes(CATS[card.cat].name));
   assert(panel.includes('+'+p.today.income+' Ducati'));
 }
