@@ -1058,20 +1058,20 @@ window.beginDraft=function(){if(!G||G.phase!=='rete')return;G.overlay=null;start
 const soloCongrega=()=>!!G.congregaLevel&&G.players.filter(p=>!p.congrega).length===1;
 const directCardsToday=()=>soloCongrega()||(G.day===1&&(!G.tutorial||G.tutorial.version>=5));
 function startDraft(){
-  const active=turnOrder().filter(id=>!G.players[id].congrega),available=G.deck.length+G.discard.length;
-  if(available<HAND*active.length){
+  const active=turnOrder().filter(id=>!G.players[id].congrega),available=G.deck.length+G.discard.length,handSize=G.simConfig?.handSize??HAND;
+  if(available<handSize*active.length){
     const perPlayer=Math.floor(available/active.length);
     G.phase='draft';G.draftRound=0;G.drafted=G.players.map(()=>[]);G.draftPacks=G.players.map(()=>[]);G.draftChoices={};
     for(let round=0;round<perPlayer;round++)for(const id of active)G.drafted[id].push(drawCard());
     (G.deckShortages??=[]).push({day:G.day,available,dealt:perPlayer*active.length,perPlayer});
-    log('Mazzo',`Carte insufficienti: ${perPlayer} per giocatore invece di ${HAND}.`);
+    log('Mazzo',`Carte insufficienti: ${perPlayer} per giocatore invece di ${handSize}.`);
     finishDraft();return;
   }
-  const direct=directCardsToday();G.phase='draft';G.draftRound=direct?0:1;G.drafted=G.players.map(()=>[]);G.draftChoices={};G.draftPacks=G.players.map(p=>p.congrega?[]:Array.from({length:HAND},drawCard).filter(Boolean));
+  const direct=directCardsToday();G.phase='draft';G.draftRound=direct?0:1;G.drafted=G.players.map(()=>[]);G.draftChoices={};G.draftPacks=G.players.map(p=>p.congrega?[]:Array.from({length:handSize},drawCard).filter(Boolean));
   if(direct){
     G.drafted=G.draftPacks;G.draftPacks=G.players.map(()=>[]);finishDraft();return;
   }
-  log('Draft','Inizia il draft: pacchetti di 5 carte, si passa a sinistra.');
+  log('Draft',`Inizia il draft: pacchetti di ${handSize} carte, si passa a sinistra.`);
   if(humanPlayers().length)setActivePlayer(humanPlayers()[0].id);
   else while(G.phase==='draft')draftStep(null);
 }
@@ -1097,7 +1097,7 @@ window.pickDraft=function(id){
 };
 function finishDraft(){
   for(const p of G.players){p.hand.push(...G.drafted[p.id],...p.kept);p.keptIds=new Set(p.kept.map(c=>c.id));p.kept=[];p.plan=null}
-  if(G.deckShortages?.at(-1)?.day!==G.day)log(G.draftRound===0?'Carte':'Draft',G.draftRound===0?'Ricevi 5 nuove carte e riprendi in mano quelle conservate.':'Draft completato: ognuno riprende in mano anche le carte conservate.');
+  if(G.deckShortages?.at(-1)?.day!==G.day)log(G.draftRound===0?'Carte':'Draft',G.draftRound===0?`Ricevi ${G.simConfig?.handSize??HAND} nuove carte e riprendi in mano quelle conservate.`:'Draft completato: ognuno riprende in mano anche le carte conservate.');
   G.phase='asta';G.auctionIndex=-1;G.aOrder=[...FISH];nextAuction();
 }
 
@@ -1117,7 +1117,7 @@ function advanceBidders(){
   while(G.bidPos<G.bidOrder.length){
     const p=G.players[G.bidOrder[G.bidPos]];
     if(p.human&&!p.passedAll&&p.hand.length){setActivePlayer(p.id);return}
-    if(!p.human){const b=botBid(p,currentFish(),G.bids);if(b)G.bids.push(b)}
+    if(!p.human){const b=botBid(p,currentFish(),G.bids)??(G.simConfig?.mandatoryBid&&!p.congrega&&p.hand.length?{pid:p.id,card:[...p.hand].sort((a,b)=>botCardValue(p,a)-botCardValue(p,b))[0],cash:0,infl:0}:null);if(b)G.bids.push(b)}
     G.bidDone.push(p.id);G.bidPos++;
   }
   resolveBids(G.bids);
@@ -1129,6 +1129,7 @@ window.returnBidCard=function(){if(G.phase!=='asta'||G.auctionStage!=='bid')retu
 window.addInfluence=function(){const me=activePlayer();if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid)return;G.bidInfl=G.bidInfl>=me.influence?0:G.bidInfl+1;render()};
 window.submitBid=function(mode='bid'){
   if(G.phase!=='asta'||G.auctionStage!=='bid'||G.handoff)return;const me=activePlayer();
+  if(G.simConfig?.mandatoryBid&&me.hand.length&&mode!=='bid')return;
   if(mode==='all'){me.passedAll=true;log('Asta',`${me.name} non partecipa alle aste rimaste oggi.`)}
   if(mode==='bid'){const card=me.hand.find(c=>c.id===G.selectedBid);if(!card)return;G.bids.push({pid:me.id,card,cash:Math.min(G.bidCash,me.coins),infl:Math.min(G.bidInfl,me.influence)})}
   G.bidDone.push(me.id);G.bidPos++;advanceBidders();render();
@@ -1559,7 +1560,7 @@ function actionPanelHtml(me){
   const f=currentFish();
   if(G.auctionStage==='bid'){
     const card=me.hand.find(c=>c.id===G.selectedBid);
-    return`<section class="auction-panel auction-bid-actions" aria-label="La tua offerta">${mobileAuctionLayout()?`<div class="mobile-bid-coins"><button id="mobileBidCoin" class="btn secondary" onclick="addBidCoin(event)" ${card&&me.coins>G.bidCash?'':'disabled'}>Aggiungi 1 Ducato</button><button id="mobileBidCash" class="btn secondary" onclick="removeBidCoin(event)" ${G.bidCash?'':'disabled'} aria-label="Riprendi un Ducato">− <span>${G.bidCash}</span> <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"></button></div>`:''}<div class="auction-panel-buttons"><button class="btn primary offer-submit" ${card?'':'disabled'} onclick="submitBid()">OFFRI</button><button class="btn secondary" title="Non partecipi a quest’asta" onclick="submitBid('pass')">PASSA</button><button class="btn secondary" title="Non partecipi alle aste rimaste oggi" onclick="submitBid('all')">TUTTE</button></div></section>`;
+    return`<section class="auction-panel auction-bid-actions" aria-label="La tua offerta">${mobileAuctionLayout()?`<div class="mobile-bid-coins"><button id="mobileBidCoin" class="btn secondary" onclick="addBidCoin(event)" ${card&&me.coins>G.bidCash?'':'disabled'}>Aggiungi 1 Ducato</button><button id="mobileBidCash" class="btn secondary" onclick="removeBidCoin(event)" ${G.bidCash?'':'disabled'} aria-label="Riprendi un Ducato">− <span>${G.bidCash}</span> <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"></button></div>`:''}<div class="auction-panel-buttons"><button class="btn primary offer-submit" ${card?'':'disabled'} onclick="submitBid()">OFFRI</button>${G.simConfig?.mandatoryBid?'':`<button class="btn secondary" title="Non partecipi a quest’asta" onclick="submitBid('pass')">PASSA</button><button class="btn secondary" title="Non partecipi alle aste rimaste oggi" onclick="submitBid('all')">TUTTE</button>`}</div></section>`;
   }
   const q=G.buyQueue?.[G.buyPos];
   if(G.auctionStage!=='buy'||q?.pid!==me.id)return'';

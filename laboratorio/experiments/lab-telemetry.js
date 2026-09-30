@@ -14,7 +14,7 @@ startDraft=function(){
 };
 const labBeginBids=beginBids;
 beginBids=function(){
-  if(!G.mcRollout)G.lab.current={day:G.day,fish:currentFish(),lot:G.market[currentFish()],bidders:0,winnerScore:0,bought:0,spent:0,extra:0,buys:[]};
+  if(!G.mcRollout)G.lab.current={day:G.day,fish:currentFish(),lot:G.market[currentFish()],eligible:G.players.filter(p=>!p.congrega&&p.hand.length).map(p=>p.id),bidders:0,winnerScore:0,bought:0,spent:0,extra:0,buys:[]};
   return labBeginBids();
 };
 const labResolveBids=resolveBids;

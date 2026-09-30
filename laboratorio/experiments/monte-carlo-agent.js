@@ -43,7 +43,7 @@ botBid=function(p,f,seen){
   if(G.mcRollout)return originalBid(p,f,seen);
   if(!p.hand.length||(!roomBanco(p)&&!auctionChoiceOn()))return originalBid(p,f,seen);
   const baseline=originalBid(p,f,seen);
-  const opts=[null],keys=new Set(['pass']);
+  const opts=G.simConfig?.mandatoryBid?[]:[null],keys=new Set();
   const add=b=>{if(!b)return;const key=b.card.id+'/'+b.cash+'/'+b.infl;if(!keys.has(key)&&b.cash<=p.coins){keys.add(key);opts.push({id:b.card.id,cash:b.cash,infl:b.infl})}};
   add(baseline);
   if(baseline)add({...baseline,cash:Math.min(p.coins,baseline.cash+2)});
