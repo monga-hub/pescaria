@@ -1058,6 +1058,15 @@ window.beginDraft=function(){if(!G||G.phase!=='rete')return;G.overlay=null;start
 const soloCongrega=()=>!!G.congregaLevel&&G.players.filter(p=>!p.congrega).length===1;
 const directCardsToday=()=>soloCongrega()||(G.day===1&&(!G.tutorial||G.tutorial.version>=5));
 function startDraft(){
+  const active=turnOrder().filter(id=>!G.players[id].congrega),available=G.deck.length+G.discard.length;
+  if(available<HAND*active.length){
+    const perPlayer=Math.floor(available/active.length);
+    G.phase='draft';G.draftRound=0;G.drafted=G.players.map(()=>[]);G.draftPacks=G.players.map(()=>[]);G.draftChoices={};
+    for(let round=0;round<perPlayer;round++)for(const id of active)G.drafted[id].push(drawCard());
+    (G.deckShortages??=[]).push({day:G.day,available,dealt:perPlayer*active.length,perPlayer});
+    log('Mazzo',`Carte insufficienti: ${perPlayer} per giocatore invece di ${HAND}.`);
+    finishDraft();return;
+  }
   const direct=directCardsToday();G.phase='draft';G.draftRound=direct?0:1;G.drafted=G.players.map(()=>[]);G.draftChoices={};G.draftPacks=G.players.map(p=>p.congrega?[]:Array.from({length:HAND},drawCard).filter(Boolean));
   if(direct){
     G.drafted=G.draftPacks;G.draftPacks=G.players.map(()=>[]);finishDraft();return;
@@ -1088,7 +1097,7 @@ window.pickDraft=function(id){
 };
 function finishDraft(){
   for(const p of G.players){p.hand.push(...G.drafted[p.id],...p.kept);p.keptIds=new Set(p.kept.map(c=>c.id));p.kept=[];p.plan=null}
-  log(G.draftRound===0?'Carte':'Draft',G.draftRound===0?'Ricevi 5 nuove carte e riprendi in mano quelle conservate.':'Draft completato: ognuno riprende in mano anche le carte conservate.');
+  if(G.deckShortages?.at(-1)?.day!==G.day)log(G.draftRound===0?'Carte':'Draft',G.draftRound===0?'Ricevi 5 nuove carte e riprendi in mano quelle conservate.':'Draft completato: ognuno riprende in mano anche le carte conservate.');
   G.phase='asta';G.auctionIndex=-1;G.aOrder=[...FISH];nextAuction();
 }
 
