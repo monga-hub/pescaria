@@ -31,24 +31,25 @@
           <label class="field">Scenari per scelta<input name="samples" type="number" min="1" max="12" step="1" value="6" required></label>
           <label class="field wide">Peso del rivale più forte<select name="aggression"><option value="0">0 · guarda solo al proprio guadagno</option><option value="0.5">0,5 · prudente</option><option value="1" selected>1 · equilibrato</option><option value="1.5">1,5 · aggressivo</option><option value="2">2 · molto aggressivo</option></select></label>
         </div>
-        <fieldset><legend>Fasce di prezzo</legend><label class="switch"><input name="tieredPricing" type="checkbox">Usa le fasce basate sulla puntata</label><div class="fields">
-          <label class="field">Prima fascia fino a<input name="threshold1" type="number" min="1" max="19" step="1" value="4" required></label>
+        <fieldset><legend>Fasce di prezzo</legend><label class="switch"><input name="tieredPricing" type="checkbox" checked>Usa le fasce basate sulla puntata</label><div class="fields">
+          <label class="field">Prima fascia fino a<input name="threshold1" type="number" min="1" max="19" step="1" value="3" required></label>
           <label class="field">Prezzo prima fascia<input name="price1" type="number" min="0" max="10" step="1" value="1" required></label>
           <label class="field">Seconda fascia fino a<input name="threshold2" type="number" min="2" max="20" step="1" value="7" required></label>
           <label class="field">Prezzo seconda fascia<input name="price2" type="number" min="1" max="10" step="1" value="2" required></label>
           <label class="field wide">Prezzo oltre la seconda fascia<input name="price3" type="number" min="1" max="10" step="1" value="3" required></label>
         </div></fieldset>
-        <fieldset><legend>Prezzo per posizione nell’asta</legend><label class="switch"><input name="winnerPricing" type="checkbox" checked>Il vincitore paga un prezzo, gli altri un altro</label><div class="fields">
+        <fieldset><legend>Prezzo per posizione nell’asta</legend><label class="switch"><input name="winnerPricing" type="checkbox">Il vincitore paga un prezzo, gli altri un altro</label><div class="fields">
           <label class="field">Prezzo del vincitore<input name="winnerPrice" type="number" min="0" max="10" step="1" value="3" required></label>
           <label class="field">Prezzo degli altri partecipanti<input name="otherPrice" type="number" min="0" max="10" step="1" value="1" required></label>
         </div></fieldset>
         <fieldset><legend>Economia iniziale</legend><div class="fields">
           <label class="field">Ducati iniziali<input name="startCoins" type="number" min="0" max="50" step="1" value="12" required></label>
-          <label class="field">Pesci per giocatore al giorno<input name="fishPerPlayer" type="number" min="1" max="12" step="1" value="6" required></label>
+          <label class="field">Pesci per giocatore al giorno<input name="fishPerPlayer" type="number" min="1" max="12" step="1" value="7" required></label>
         </div></fieldset>
-        <fieldset><legend>Ricompensa dei contratti</legend><label class="switch"><input name="contractOnlyCoins" type="checkbox" checked>I contratti conclusi danno solo Ducati</label><label class="switch"><input name="contractChoice" type="checkbox" checked>Scegli Ducati oppure miglioria</label><p class="switch-note">Con “Solo Ducati” disattivato, puoi scegliere la ricompensa. Disattiva anche il secondo toggle per ottenere entrambe.</p></fieldset>
-        <fieldset><legend>Carta puntata nell’asta</legend><label class="switch"><input name="auctionLoserChoice" type="checkbox" checked>Chi perde compra pesci e installa la miglioria</label><p class="switch-note">Il vincitore compra per primo. Ogni partecipante che perde può comprare i pesci rimasti e installa subito la carta, anche se non compra pesci.</p></fieldset>
-        <fieldset><legend>Variante precedente: tutti scelgono</legend><label class="switch"><input name="auctionCardChoice" type="checkbox">Scegli pesci oppure miglioria al tuo turno</label><p class="switch-note">Vale se disattivi la variante per i soli perdenti.</p></fieldset>
+        <fieldset><legend>Ricompensa dei contratti</legend><label class="switch"><input name="contractOnlyCoins" type="checkbox">I contratti conclusi danno solo Ducati</label><label class="switch"><input name="contractChoice" type="checkbox">Scegli Ducati oppure miglioria</label><p class="switch-note">Con entrambi i toggle disattivati, ogni contratto dà Ducati e miglioria.</p></fieldset>
+        <fieldset><legend>Effetti delle migliorie</legend><label class="field">Ducati per miglioria della stessa categoria nei contratti<input name="categoryBonusPerUpgrade" type="number" min="0" max="3" step="1" value="0" required></label><label class="switch"><input name="limitMerchantIncome" type="checkbox" checked>Limita la rendita giornaliera di ogni Mercante</label><label class="field">Massimo Ducati per Mercante al giorno<input name="merchantIncomeCap" type="number" min="0" max="30" step="1" value="2" required></label></fieldset>
+        <fieldset><legend>Variante: perdenti comprano e installano</legend><label class="switch"><input name="auctionLoserChoice" type="checkbox">Chi perde compra pesci e installa la miglioria</label><p class="switch-note">Il vincitore compra per primo. Ogni partecipante che perde può comprare i pesci rimasti e installa subito la carta, anche se non compra pesci.</p></fieldset>
+        <fieldset><legend>Carta puntata nell’asta</legend><label class="switch"><input name="auctionCardChoice" type="checkbox" checked>Scegli pesci oppure miglioria al tuo turno</label><p class="switch-note">Vale se disattivi la variante per i soli perdenti.</p></fieldset>
         <fieldset><legend>Variante precedente: lotto esaurito</legend><label class="switch"><input name="auctionUpgradeOnNoFish" type="checkbox" checked>La carta puntata diventa subito una miglioria</label><p class="switch-note">Vale solo se disattivi entrambe le varianti di scelta.</p></fieldset>
         <details><summary>Riproducibilità</summary><label class="field">Seme iniziale<input name="seed" type="number" min="1" max="4000000000" step="1" value="20260929" required></label></details>
         <div class="config-actions"><button id="exportConfig" type="button">Esporta regole JSON</button><button id="importConfig" type="button">Importa regole JSON</button><input id="configFile" type="file" accept=".json,application/json" hidden></div>

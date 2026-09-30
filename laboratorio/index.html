@@ -694,7 +694,7 @@ const capBanco=p=>BANCO_BASE+copies(p,'Banco Ampliato');
 const roomBanco=p=>Math.max(0,capBanco(p)-count(p.banco));
 // La Congrega: ogni carta installata ha il suo pesce preferito; +2 per ogni carta il cui pesce è nel contratto.
 const congregaBonus=(p,card)=>2*p.installed.filter(c=>c.up==='Favorito della Gilda'&&c.favFish&&card.recipe[c.favFish]).length;
-const catBonus=(p,card)=>p.installed.filter(c=>c.cat===card.cat).length;
+const catBonus=(p,card)=>(G?.simConfig?.categoryBonusPerUpgrade??1)*p.installed.filter(c=>c.cat===card.cat).length;
 const fishText=r=>Object.entries(r).map(([f,n])=>`<span class="recipe-item"><b>${n}</b><img class="recipe-fish" src="${ASSET.fish[f]}" alt="${f}"></span>`).join('');
 const SING={Polpi:'Polpo',Gamberi:'Gambero',Molluschi:'Mollusco',Branzini:'Branzino',Sardine:'Sardina'};
 const upName=c=>DISPLAY[c.up]||c.up;
@@ -1264,8 +1264,8 @@ window.confirmKeep=function(){if(G.overlay!=='keep')return;keepCards(activePlaye
 // ---------------- Fase 4 · Fine giornata ----------------
 const MAESTRO={'Maestro della Pescaria':'A','Maestro delle Aste':'E','Maestro del Mercato':'C'},MAESTRO_X=2;
 function bilanciaIncome(p){
-  // Ogni Maestro: +2 per ogni carta installata della sua categoria, nessuna soglia.
-  return p.installed.filter(c=>c.cat==='B').map(c=>{const k=MAESTRO[c.up];return{card:c,v:MAESTRO_X*catCount(p,k)}});
+  // La regola originale non ha limiti; il Laboratorio può limitarne la rendita.
+  return p.installed.filter(c=>c.cat==='B').map(c=>{const k=MAESTRO[c.up],income=MAESTRO_X*catCount(p,k);return{card:c,v:G?.simConfig?.limitMerchantIncome?Math.min(income,G.simConfig.merchantIncomeCap??2):income}});
 }
 function startEndOfDay(){
   G.phase='bilancia';G.favQueue=[];
@@ -1312,14 +1312,14 @@ function finishGame(){
 // ---------------- Bot ----------------
 const noise=()=>G.difficulty==='easy'?G.rng.next()*8:G.rng.next()*(G.difficulty==='hard'?1:3);
 function botUpgradeValue(p,c){
-  const daysLeft=4-G.day,cat=c.cat;let v=daysLeft*.6; // +1 ai contratti futuri della stessa categoria
+  const daysLeft=4-G.day,cat=c.cat;let v=daysLeft*.6; // Valore generale delle possibilità offerte da una miglioria.
   if(c.up==='Banco Ampliato')v+=daysLeft*.6;
   if(c.up==='Fiuto per il Pescato')v+=daysLeft*1.8;
   if(c.up==='Esperienza')v+=daysLeft*2;
   if(c.up==='Nuovi Clienti')v+=daysLeft*1;
   if(c.up==='Contrattazione Sottobanco')v+=daysLeft*1;
   if(c.up==='Favorito della Gilda')v+=daysLeft*2;
-  if(cat==='B'){const k=MAESTRO[c.up],have=catCount(p,k)+p.pending.filter(x=>x.cat===k).length;v+=(daysLeft+1)*MAESTRO_X*Math.max(.5,have)}
+  if(cat==='B'){const k=MAESTRO[c.up],have=catCount(p,k)+p.pending.filter(x=>x.cat===k).length,income=MAESTRO_X*Math.max(.5,have);v+=(daysLeft+1)*(G.simConfig?.limitMerchantIncome?Math.min(income,G.simConfig.merchantIncomeCap??2):income)}
   return v;
 }
 function availability(p,c){const stock=mix(mix(p.banco,p.cesta),G.market);let miss=0,need=0;for(const [f,n] of Object.entries(c.recipe)){need+=n;miss+=Math.max(0,n-(stock[f]||0))}return need?1-miss/need:1}

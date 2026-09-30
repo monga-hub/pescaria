@@ -21,11 +21,16 @@ function readConfig(){
   return{games:n('games'),players:n('players'),mode:selected,depth:n('depth'),samples:n('samples'),aggression:n('aggression'),
     tieredPricing:fields.namedItem('tieredPricing').checked,winnerPricing:fields.namedItem('winnerPricing').checked,
     threshold1:n('threshold1'),threshold2:n('threshold2'),price1:n('price1'),price2:n('price2'),price3:n('price3'),winnerPrice:n('winnerPrice'),otherPrice:n('otherPrice'),
-    startCoins:n('startCoins'),fishPerPlayer:n('fishPerPlayer'),contractOnlyCoins:fields.namedItem('contractOnlyCoins').checked,contractChoice:fields.namedItem('contractChoice').checked,auctionLoserChoice:fields.namedItem('auctionLoserChoice').checked,auctionCardChoice:fields.namedItem('auctionCardChoice').checked,auctionUpgradeOnNoFish:fields.namedItem('auctionUpgradeOnNoFish').checked,seed:n('seed')};
+    startCoins:n('startCoins'),fishPerPlayer:n('fishPerPlayer'),contractOnlyCoins:fields.namedItem('contractOnlyCoins').checked,contractChoice:fields.namedItem('contractChoice').checked,
+    categoryBonusPerUpgrade:n('categoryBonusPerUpgrade'),limitMerchantIncome:fields.namedItem('limitMerchantIncome').checked,merchantIncomeCap:n('merchantIncomeCap'),
+    auctionLoserChoice:fields.namedItem('auctionLoserChoice').checked,auctionCardChoice:fields.namedItem('auctionCardChoice').checked,auctionUpgradeOnNoFish:fields.namedItem('auctionUpgradeOnNoFish').checked,seed:n('seed')};
 }
 function contractFields(){form.elements.namedItem('contractChoice').disabled=form.elements.namedItem('contractOnlyCoins').checked}
 form.elements.namedItem('contractOnlyCoins').addEventListener('change',contractFields);
 contractFields();
+function merchantFields(){form.elements.namedItem('merchantIncomeCap').disabled=!form.elements.namedItem('limitMerchantIncome').checked}
+form.elements.namedItem('limitMerchantIncome').addEventListener('change',merchantFields);
+merchantFields();
 function choiceFields(){
   const loser=form.elements.namedItem('auctionLoserChoice'),all=form.elements.namedItem('auctionCardChoice');
   if(loser.checked)all.checked=false;
@@ -58,7 +63,7 @@ modeFields();
 const configFile=document.getElementById('configFile');
 document.getElementById('exportConfig').addEventListener('click',()=>{
   const current=readConfig();if(!current)return;
-  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:1,config:current},null,2),'application/json');
+  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:2,config:current},null,2),'application/json');
   status.textContent='Regole esportate in JSON.';
 });
 document.getElementById('importConfig').addEventListener('click',()=>configFile.click());
@@ -68,12 +73,17 @@ configFile.addEventListener('change',async()=>{
     if(file.size>1_000_000)throw new Error('Il file è troppo grande per contenere soltanto le regole.');
     const parsed=JSON.parse(await file.text());
     const imported=parsed?.config??parsed;
+    if(imported&&typeof imported==='object'&&!Array.isArray(imported)){
+      if(imported.categoryBonusPerUpgrade===undefined)imported.categoryBonusPerUpgrade=1;
+      if(imported.limitMerchantIncome===undefined)imported.limitMerchantIncome=false;
+      if(imported.merchantIncomeCap===undefined)imported.merchantIncomeCap=2;
+    }
     if(!validImportedConfig(imported))throw new Error('Il file non contiene parametri del Laboratorio validi.');
     for(const field of form.querySelectorAll('[name]')){
       if(field.type==='checkbox')field.checked=imported[field.name];
       else field.value=imported[field.name];
     }
-    pricingFields();choiceFields();contractFields();modeFields();
+    pricingFields();choiceFields();contractFields();merchantFields();modeFields();
     status.textContent='Regole importate. Avvia una simulazione per applicarle al report.';
   }catch(error){status.textContent='Importazione non riuscita: '+error.message}
   finally{configFile.value=''}
@@ -102,6 +112,8 @@ function ruleSnapshot(c){
     ['Prezzo dei pesci',c.winnerPricing?`Vincitore ${c.winnerPrice} Ducati per pesce; altri partecipanti ${c.otherPrice}`:`Puntata 1–${c.threshold1}: ${c.price1} Ducati; ${c.threshold1+1}–${c.threshold2}: ${c.price2}; da ${c.threshold2+1}: ${c.price3}`],
     ['Carta puntata',c.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano subito la carta':c.auctionCardChoice?'Ogni partecipante sceglie se comprare pesci o installare subito la carta':c.auctionUpgradeOnNoFish?'Se il lotto è esaurito prima dell’acquisto, la carta diventa subito una miglioria':'Le carte puntate non utilizzate vengono scartate'],
     ['Contratti',c.contractOnlyCoins?'Solo Ducati; carta scartata':c.contractChoice?'Scelta tra Ducati oppure miglioria':'Ducati e miglioria insieme'],
+    ['Bonus di categoria',`${c.categoryBonusPerUpgrade} Ducati per miglioria installata della stessa categoria`],
+    ['Rendita dei Mercanti',c.limitMerchantIncome?`Massimo ${c.merchantIncomeCap} Ducati al giorno per Mercante`:'2 Ducati per miglioria della categoria indicata, senza limite'],
     ['IA',c.mode==='mc6'?`Monte Carlo · ${c.depth} mosse · ${c.samples} scenari per scelta · aggressività ${c.aggression}`:'Standard'],
     ['Seme iniziale',String(c.seed)]
   ];
