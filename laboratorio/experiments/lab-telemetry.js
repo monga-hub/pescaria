@@ -57,7 +57,7 @@ completeContract=function(p,card,reward){
 };
 const labStartMarket=startMarket;
 startMarket=function(){
-  if(!G.mcRollout)G.lab.marketOpen=G.players.map(p=>({cards:p.hand.length,ready:p.hand.filter(c=>canContract(p,c)).length,fish:count(mix(p.banco,p.cesta))}));
+  if(!G.mcRollout)G.lab.marketOpen=G.players.map(p=>{const cards=[...p.hand,...(p.auctionReturns||[])];return{cards:cards.length,ready:cards.filter(c=>canContract(p,c)).length,fish:count(mix(p.banco,p.cesta))}});
   return labStartMarket();
 };
 const labFinishDay=finishDay;

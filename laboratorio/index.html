@@ -1257,10 +1257,19 @@ function closePlayerMarket(p){
 function finishMarket(){
   if(G.contractChoice)return;
   const me=activePlayer();closePlayerMarket(me);
+  if(G.simConfig?.installRemainingCards){keepCards(me,[]);nextMarketPlayer();return}
   if(me.hand.length&&G.day<4){G.phase='conserva';G.keepSel=new Set();G.overlay='keep';return}
   keepCards(me,[]);nextMarketPlayer();
 }
 function keepCards(p,ids){
+  if(G.simConfig?.installRemainingCards){
+    if(p.hand.length){
+      p.pending.push(...p.hand);
+      (G.handUpgrades??=[]).push(...p.hand.map(card=>({day:G.day,pid:p.id,card:card.id,upgrade:card.up})));
+      log('Migliorie',`${p.name} installa a fine giornata ${p.hand.length} carte rimaste in mano.`);
+    }
+    p.hand=[];p.kept=[];return;
+  }
   const keep=p.hand.filter(c=>ids.includes(c.id)).slice(0,KEEP_MAX);
   for(const c of p.hand)if(!keep.includes(c))discard(c);
   p.kept=keep;p.hand=[];p.keptTot=(p.keptTot||0)+keep.length;
