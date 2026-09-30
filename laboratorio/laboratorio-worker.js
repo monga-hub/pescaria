@@ -23,7 +23,7 @@ self.onmessage=async({data})=>{
       const {G,ranking}=self.__pescaria.simulate({n:players,seed:gameSeed,difficulty:'normal',simConfig});
       if(!G.finished||G.lab.days.length!==4)throw new Error('Partita '+(i+1)+' incompleta');
       rows.push({index:i,seed:gameSeed,initialCaptain:G.lab.initialCaptain,gap:ranking[0].coins-ranking.at(-1).coins,
-        players:ranking.map(p=>({id:p.id,coins:p.coins,orders:p.orders,upgrades:p.installed.length+p.pending.length,wasted:p.wasted,bilancia:p.bilanciaTot})),
+        players:ranking.map(p=>({id:p.id,coins:p.coins,orders:p.orders,upgrades:p.installed.length+p.pending.length,wasted:p.wasted,bilancia:p.bilanciaTot,marketBonus:p.marketEndBonus||0})),
         auctions:G.lab.auctions,contracts:G.lab.contracts,days:G.lab.days,fiuto:G.lab.fiuto,passive:G.lab.passive});
       done++;
       if(done%5===0||done===total)self.postMessage({type:'progress',done,total,rows:rows.splice(0)});
