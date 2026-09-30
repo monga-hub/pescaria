@@ -1270,7 +1270,7 @@ window.confirmKeep=function(){if(G.overlay!=='keep')return;keepCards(activePlaye
 const MAESTRO={'Maestro della Pescaria':'A','Maestro delle Aste':'E','Maestro del Mercato':'C'},MAESTRO_X=2;
 function bilanciaIncome(p,includePending=false){
   const cards=includePending?[...p.installed,...p.pending]:p.installed;
-  return cards.filter(c=>c.cat==='B').map(c=>{const k=MAESTRO[c.up],income=MAESTRO_X*cards.filter(other=>other.cat===k).length;return{card:c,v:G?.simConfig?.limitMerchantIncome&&!G.simConfig.deferMerchantIncome?Math.min(income,G.simConfig.merchantIncomeCap??2):income}});
+  return cards.filter(c=>c.cat==='B').map(c=>{const k=MAESTRO[c.up],income=(G?.simConfig?.deferMerchantIncome?G.simConfig.merchantCardValue??MAESTRO_X:MAESTRO_X)*cards.filter(other=>other.cat===k).length;return{card:c,v:G?.simConfig?.limitMerchantIncome&&!G.simConfig.deferMerchantIncome?Math.min(income,G.simConfig.merchantIncomeCap??2):income}});
 }
 function startEndOfDay(){
   G.phase='bilancia';G.favQueue=[];
@@ -1330,7 +1330,7 @@ function botUpgradeValue(p,c){
   if(c.up==='Contrattazione Sottobanco')v+=daysLeft*1;
   if(c.up==='Favorito della Gilda')v+=daysLeft*2;
   if(cat==='B'){
-    const k=MAESTRO[c.up],have=catCount(p,k)+p.pending.filter(x=>x.cat===k).length,income=MAESTRO_X*Math.max(.5,have);
+    const k=MAESTRO[c.up],have=catCount(p,k)+p.pending.filter(x=>x.cat===k).length,income=(G.simConfig?.deferMerchantIncome?G.simConfig.merchantCardValue??MAESTRO_X:MAESTRO_X)*Math.max(.5,have);
     if(G.simConfig?.marketSetBonus)v+=G.simConfig.marketSetBase*Math.max(.25,Math.floor(have/G.simConfig.marketSetThreshold));
     else if(G.simConfig?.deferMerchantIncome)v+=income;
     else v+=(daysLeft+1)*(G.simConfig?.limitMerchantIncome?Math.min(income,G.simConfig.merchantIncomeCap??2):income);

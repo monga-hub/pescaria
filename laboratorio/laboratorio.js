@@ -22,7 +22,7 @@ function readConfig(){
     tieredPricing:fields.namedItem('tieredPricing').checked,winnerPricing:fields.namedItem('winnerPricing').checked,
     threshold1:n('threshold1'),threshold2:n('threshold2'),price1:n('price1'),price2:n('price2'),price3:n('price3'),winnerPrice:n('winnerPrice'),otherPrice:n('otherPrice'),
     startCoins:n('startCoins'),fishPerPlayer:n('fishPerPlayer'),contractOnlyCoins:fields.namedItem('contractOnlyCoins').checked,contractChoice:fields.namedItem('contractChoice').checked,
-    categoryBonusPerUpgrade:n('categoryBonusPerUpgrade'),deferMerchantIncome:fields.namedItem('deferMerchantIncome').checked,limitMerchantIncome:false,
+    categoryBonusPerUpgrade:n('categoryBonusPerUpgrade'),deferMerchantIncome:fields.namedItem('deferMerchantIncome').checked,merchantCardValue:n('merchantCardValue'),limitMerchantIncome:false,
     marketSetBonus:fields.namedItem('marketSetBonus').checked,marketSetThreshold:n('marketSetThreshold'),marketSetBase:n('marketSetBase'),
     auctionLoserChoice:fields.namedItem('auctionLoserChoice').checked,auctionCardChoice:fields.namedItem('auctionCardChoice').checked,auctionUpgradeOnNoFish:fields.namedItem('auctionUpgradeOnNoFish').checked,seed:n('seed')};
 }
@@ -34,6 +34,7 @@ function rewardFields(changed){
   if(changed==='perCard'&&perCard.checked)groups.checked=false;
   if(changed==='groups'&&groups.checked)perCard.checked=false;
   if(!perCard.checked&&!groups.checked)(changed==='perCard'?groups:perCard).checked=true;
+  form.elements.namedItem('merchantCardValue').disabled=!perCard.checked;
   for(const name of ['marketSetThreshold','marketSetBase'])form.elements.namedItem(name).disabled=!groups.checked;
 }
 form.elements.namedItem('deferMerchantIncome').addEventListener('change',()=>rewardFields('perCard'));
@@ -71,7 +72,7 @@ modeFields();
 const configFile=document.getElementById('configFile');
 document.getElementById('exportConfig').addEventListener('click',()=>{
   const current=readConfig();if(!current)return;
-  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:5,config:current},null,2),'application/json');
+  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:6,config:current},null,2),'application/json');
   status.textContent='Regole esportate in JSON.';
 });
 document.getElementById('importConfig').addEventListener('click',()=>configFile.click());
@@ -85,6 +86,7 @@ configFile.addEventListener('change',async()=>{
     if(imported&&typeof imported==='object'&&!Array.isArray(imported)){
       if(imported.categoryBonusPerUpgrade===undefined)imported.categoryBonusPerUpgrade=1;
       if(imported.deferMerchantIncome===undefined)imported.deferMerchantIncome=false;
+      if(imported.merchantCardValue===undefined)imported.merchantCardValue=2;
       if(imported.marketSetBonus===undefined)imported.marketSetBonus=false;
       if(imported.marketSetThreshold===undefined)imported.marketSetThreshold=3;
       if(imported.marketSetBase===undefined)imported.marketSetBase=10;
@@ -127,7 +129,7 @@ function ruleSnapshot(c){
     ['Carta puntata',c.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano subito la carta':c.auctionCardChoice?'Ogni partecipante sceglie se comprare pesci o installare subito la carta':c.auctionUpgradeOnNoFish?'Se il lotto è esaurito prima dell’acquisto, la carta diventa subito una miglioria':'Le carte puntate non utilizzate vengono scartate'],
     ['Contratti',c.contractOnlyCoins?'Solo Ducati; carta scartata':c.contractChoice?'Scelta tra Ducati oppure miglioria':'Ducati e miglioria insieme'],
     ['Bonus di categoria',`${c.categoryBonusPerUpgrade} Ducati per miglioria installata della stessa categoria`],
-    ['Mercanti della Bilancia',c.marketSetBonus?`${c.marketSetBase} Ducati per ogni gruppo completo di ${c.marketSetThreshold} carte della categoria indicata, per ogni Mercante; pagamento solo a fine partita`:'2 Ducati per carta della categoria indicata, per ogni Mercante; pagamento solo a fine partita'],
+    ['Mercanti della Bilancia',c.marketSetBonus?`${c.marketSetBase} Ducati per ogni gruppo completo di ${c.marketSetThreshold} carte della categoria indicata, per ogni Mercante; pagamento solo a fine partita`:`${c.merchantCardValue} Ducati per carta della categoria indicata, per ogni Mercante; pagamento solo a fine partita`],
     ['IA',c.mode==='mc6'?`Monte Carlo · ${c.depth} mosse · ${c.samples} scenari per scelta · aggressività ${c.aggression}`:'Standard'],
     ['Seme iniziale',String(c.seed)]
   ];
