@@ -696,8 +696,9 @@ const roomBanco=p=>Math.max(0,capBanco(p)-count(p.banco));
 const congregaBonus=(p,card)=>2*p.installed.filter(c=>c.up==='Favorito della Gilda'&&c.favFish&&card.recipe[c.favFish]).length;
 const catBonus=(p,card)=>(G?.simConfig?.categoryBonusPerUpgrade??1)*p.installed.filter(c=>c.cat===card.cat).length;
 function marketSetReward(p,includePending=false){
-  const c=G?.simConfig,n=catCount(p,'C')+(includePending?p.pending.filter(card=>card.cat==='C').length:0);
-  return c?.marketSetBonus&&n>=c.marketSetThreshold?c.marketSetBase+(n-c.marketSetThreshold)*c.marketSetExtra:0;
+  const c=G?.simConfig;if(!c?.marketSetBonus)return 0;
+  const cards=includePending?[...p.installed,...p.pending]:p.installed;
+  return cards.filter(card=>card.cat==='B').reduce((total,card)=>total+Math.floor(cards.filter(other=>other.cat===MAESTRO[card.up]).length/c.marketSetThreshold)*c.marketSetBase,0);
 }
 const fishText=r=>Object.entries(r).map(([f,n])=>`<span class="recipe-item"><b>${n}</b><img class="recipe-fish" src="${ASSET.fish[f]}" alt="${f}"></span>`).join('');
 const SING={Polpi:'Polpo',Gamberi:'Gambero',Molluschi:'Mollusco',Branzini:'Branzino',Sardine:'Sardina'};
@@ -1267,9 +1268,9 @@ window.confirmKeep=function(){if(G.overlay!=='keep')return;keepCards(activePlaye
 
 // ---------------- Fase 4 · Fine giornata ----------------
 const MAESTRO={'Maestro della Pescaria':'A','Maestro delle Aste':'E','Maestro del Mercato':'C'},MAESTRO_X=2;
-function bilanciaIncome(p){
-  // La regola originale non ha limiti; il Laboratorio può limitarne la rendita.
-  return p.installed.filter(c=>c.cat==='B').map(c=>{const k=MAESTRO[c.up],income=MAESTRO_X*catCount(p,k);return{card:c,v:G?.simConfig?.limitMerchantIncome?Math.min(income,G.simConfig.merchantIncomeCap??2):income}});
+function bilanciaIncome(p,includePending=false){
+  const cards=includePending?[...p.installed,...p.pending]:p.installed;
+  return cards.filter(c=>c.cat==='B').map(c=>{const k=MAESTRO[c.up],income=MAESTRO_X*cards.filter(other=>other.cat===k).length;return{card:c,v:G?.simConfig?.limitMerchantIncome&&!G.simConfig.deferMerchantIncome?Math.min(income,G.simConfig.merchantIncomeCap??2):income}});
 }
 function startEndOfDay(){
   G.phase='bilancia';G.favQueue=[];
@@ -1292,10 +1293,9 @@ function placeFavorite(p,c,f){
 function endOfDayIncome(){
   for(const p of G.players){
     // 2. Rendite dei Mercanti.
-    const inc=bilanciaIncome(p),tot=inc.reduce((s,x)=>s+x.v,0);p.bilanciaTot+=tot;p.today.bilancia=inc;
-    if(G.simConfig?.deferMerchantIncome)p.bilanciaDeferred=(p.bilanciaDeferred||0)+tot;
-    else p.coins+=tot;
-    if(tot)log('Rendite',`${p.name}: i Mercanti ${G.simConfig?.deferMerchantIncome?'accantonano':'rendono'} ${tot} Ducati.`);
+    if(G.simConfig?.deferMerchantIncome||G.simConfig?.marketSetBonus){p.today.bilancia=[];continue}
+    const inc=bilanciaIncome(p),tot=inc.reduce((s,x)=>s+x.v,0);p.coins+=tot;p.bilanciaTot+=tot;p.today.bilancia=inc;
+    if(tot)log('Rendite',`${p.name}: i Mercanti rendono ${tot} Ducati.`);
   }
   G.overlay=humanPlayers().length?'summary':null;
   if(!humanPlayers().length)finishDay();
@@ -1309,13 +1309,13 @@ function finishDay(){
 function ranking(){return[...G.players].sort((a,b)=>b.coins-a.coins||(b.installed.length+b.pending.length)-(a.installed.length+a.pending.length))}
 function finishGame(){
   if(!G.finished)for(const p of G.players){
-    if(G.simConfig?.deferMerchantIncome){p.coins+=p.bilanciaDeferred||0;p.bilanciaDeferred=0}
-    p.marketEndBonus=marketSetReward(p);p.coins+=p.marketEndBonus;
+    if(G.simConfig?.marketSetBonus){p.marketEndBonus=marketSetReward(p);p.coins+=p.marketEndBonus}
+    else if(G.simConfig?.deferMerchantIncome){p.bilanciaTot=bilanciaIncome(p).reduce((sum,x)=>sum+x.v,0);p.coins+=p.bilanciaTot}
   }
   G.finished=true;G.phase='fine';const ranked=ranking();if(HEADLESS)return;
   document.body.classList.remove('playing');$('game').classList.add('hidden');$('end').classList.remove('hidden');
   const human=humanPlayers().length===1,solo=humanPlayers()[0]?.id;
-  $('end').innerHTML=`<div class="trophy">${human&&ranked[0].id===solo?'🏆':'⚓'}</div><div class="eyebrow">Partita conclusa</div><h2>${human&&ranked[0].id===solo?'Hai vinto!':esc(ranked[0].name)+' vince'}</h2><p>Dopo quattro giornate di mercato, il miglior mercante della Laguna ha ${ranked[0].coins} Ducati.</p><div class="rank">${ranked.map((p,i)=>`<div class="rankrow"><div class="place">${i+1}°</div><div class="who"><i class="dot" style="background:${playerColor(p)}"></i>${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.coins} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"> · ${p.orders} contratti · ${p.installed.length+p.pending.length} migliorie · Bilancia ${p.bilanciaTot}${G.simConfig?.marketSetBonus?` · Premio Mercato +${p.marketEndBonus||0}`:''}</b></div>`).join('')}</div><button class="btn primary" onclick="restartGame()">Gioca ancora</button><button class="btn secondary" onclick="openGameMenu()">Menu</button>`;
+  $('end').innerHTML=`<div class="trophy">${human&&ranked[0].id===solo?'🏆':'⚓'}</div><div class="eyebrow">Partita conclusa</div><h2>${human&&ranked[0].id===solo?'Hai vinto!':esc(ranked[0].name)+' vince'}</h2><p>Dopo quattro giornate di mercato, il miglior mercante della Laguna ha ${ranked[0].coins} Ducati.</p><div class="rank">${ranked.map((p,i)=>`<div class="rankrow"><div class="place">${i+1}°</div><div class="who"><i class="dot" style="background:${playerColor(p)}"></i>${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.coins} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"> · ${p.orders} contratti · ${p.installed.length+p.pending.length} migliorie · ${G.simConfig?.marketSetBonus?`Mercanti a gruppi +${p.marketEndBonus||0}`:`Bilancia +${p.bilanciaTot}`}</b></div>`).join('')}</div><button class="btn primary" onclick="restartGame()">Gioca ancora</button><button class="btn secondary" onclick="openGameMenu()">Menu</button>`;
   scheduleFit();
 }
 
@@ -1329,7 +1329,12 @@ function botUpgradeValue(p,c){
   if(c.up==='Nuovi Clienti')v+=daysLeft*1;
   if(c.up==='Contrattazione Sottobanco')v+=daysLeft*1;
   if(c.up==='Favorito della Gilda')v+=daysLeft*2;
-  if(cat==='B'){const k=MAESTRO[c.up],have=catCount(p,k)+p.pending.filter(x=>x.cat===k).length,income=MAESTRO_X*Math.max(.5,have);v+=(daysLeft+1)*(G.simConfig?.limitMerchantIncome?Math.min(income,G.simConfig.merchantIncomeCap??2):income)}
+  if(cat==='B'){
+    const k=MAESTRO[c.up],have=catCount(p,k)+p.pending.filter(x=>x.cat===k).length,income=MAESTRO_X*Math.max(.5,have);
+    if(G.simConfig?.marketSetBonus)v+=G.simConfig.marketSetBase*Math.max(.25,Math.floor(have/G.simConfig.marketSetThreshold));
+    else if(G.simConfig?.deferMerchantIncome)v+=income;
+    else v+=(daysLeft+1)*(G.simConfig?.limitMerchantIncome?Math.min(income,G.simConfig.merchantIncomeCap??2):income);
+  }
   return v;
 }
 function availability(p,c){const stock=mix(mix(p.banco,p.cesta),G.market);let miss=0,need=0;for(const [f,n] of Object.entries(c.recipe)){need+=n;miss+=Math.max(0,n-(stock[f]||0))}return need?1-miss/need:1}
@@ -1459,9 +1464,9 @@ function overlayHtml(){
   if(G.overlay==='keep')return box('Fine del mercato','Conserva fino a 2 carte',`<p>${soloCongrega()?'Domani riprenderai queste carte insieme alle 5 nuove carte.':'Le carte conservate restano da parte durante il draft di domani e poi tornano nella tua mano.'} Le altre vengono scartate.</p><div class="cards" style="text-align:left">${me.hand.map(c=>cardHtml(c,'keep',true)).join('')}</div><button class="btn primary" onclick="confirmKeep()">Conferma (${G.keepSel.size}/2)</button>`);
   if(G.overlay==='favorite')return box('La Congrega','Scegli il pesce preferito',`<p>Il pesce scelto viene preso dal sacchetto e messo sulla carta. Ogni contratto che richiede quel tipo di pesce renderà 2 Ducati in più.</p><div class="net-picks">${FISH.map(f=>`<button class="net-pick" onclick="pickFavorite('${f}')"><img src="${ASSET.fish[f]}" alt=""><span>${f}</span></button>`).join('')}</div>`);
   if(G.overlay==='summary'){
-    const rows=G.players.map(p=>`<div class="rankrow"><div class="place"><i class="dot" style="background:${playerColor(p)}"></i></div><div class="who">${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.today.contracts.length} contratti +${p.today.income} · Bilancia ${G.simConfig?.deferMerchantIncome?'accantonata +':'+'}${p.today.bilancia.reduce((s,x)=>s+x.v,0)} · ${p.coins} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"></b></div>`).join('');
+    const rows=G.players.map(p=>`<div class="rankrow"><div class="place"><i class="dot" style="background:${playerColor(p)}"></i></div><div class="who">${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.today.contracts.length} contratti +${p.today.income} · ${G.simConfig?.deferMerchantIncome||G.simConfig?.marketSetBonus?'Mercanti: premio finale':`Bilancia +${p.today.bilancia.reduce((s,x)=>s+x.v,0)}`} · ${p.coins} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"></b></div>`).join('');
     const mine=me.today.bilancia.map(x=>`${esc(x.card.up)}: +${x.v}`).join(' · ');
-    return box(`Giorno ${G.day} · Fine giornata`,G.day===4?'Ultima giornata conclusa':'Il mercato chiude',`<div class="rank" style="text-align:left">${rows}</div>${mine?`<p>Le tue rendite: ${mine}${G.simConfig?.deferMerchantIncome?` · Totale da incassare a fine partita: ${me.bilanciaDeferred||0} Ducati`:''}</p>`:''}<button class="btn primary" onclick="finishDayBtn()">${G.day===4?'Vedi il punteggio':'Nuova giornata'}</button>`)}
+    return box(`Giorno ${G.day} · Fine giornata`,G.day===4?'Ultima giornata conclusa':'Il mercato chiude',`<div class="rank" style="text-align:left">${rows}</div>${mine?`<p>Le tue rendite: ${mine}</p>`:''}<button class="btn primary" onclick="finishDayBtn()">${G.day===4?'Vedi il punteggio':'Nuova giornata'}</button>`)}
   return'';
 }
 function pileHtml(cards,faceUp){

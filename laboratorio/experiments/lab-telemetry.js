@@ -68,7 +68,11 @@ finishDay=function(){
   }
   const result=labFinishDay();
   if(!G.mcRollout&&G.finished){
-    G.lab.days.at(-1).players.forEach((snapshot,pid)=>{snapshot.coins=G.players[pid].coins;snapshot.marketBonusIncome=G.players[pid].marketEndBonus||0;if(G.simConfig?.deferMerchantIncome)snapshot.passiveIncome=G.players[pid].bilanciaTot});
+    G.lab.days.at(-1).players.forEach((snapshot,pid)=>{snapshot.coins=G.players[pid].coins;snapshot.marketBonusIncome=G.players[pid].marketEndBonus||0;if(G.simConfig?.deferMerchantIncome){snapshot.passiveIncome=G.players[pid].bilanciaTot;snapshot.bilancia=G.players[pid].bilanciaTot}});
+    if(G.simConfig?.deferMerchantIncome||G.simConfig?.marketSetBonus)for(const p of G.players){
+      const earnings=G.simConfig.marketSetBonus?p.installed.filter(card=>card.cat==='B').map(card=>({card,v:Math.floor(catCount(p,MAESTRO[card.up])/G.simConfig.marketSetThreshold)*G.simConfig.marketSetBase})):bilanciaIncome(p);
+      G.lab.passive.push(...earnings.map(x=>({day:4,pid:p.id,upgrade:x.card.up,gain:x.v})));
+    }
   }
   return result;
 };

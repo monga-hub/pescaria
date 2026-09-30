@@ -22,19 +22,23 @@ function readConfig(){
     tieredPricing:fields.namedItem('tieredPricing').checked,winnerPricing:fields.namedItem('winnerPricing').checked,
     threshold1:n('threshold1'),threshold2:n('threshold2'),price1:n('price1'),price2:n('price2'),price3:n('price3'),winnerPrice:n('winnerPrice'),otherPrice:n('otherPrice'),
     startCoins:n('startCoins'),fishPerPlayer:n('fishPerPlayer'),contractOnlyCoins:fields.namedItem('contractOnlyCoins').checked,contractChoice:fields.namedItem('contractChoice').checked,
-    categoryBonusPerUpgrade:n('categoryBonusPerUpgrade'),deferMerchantIncome:fields.namedItem('deferMerchantIncome').checked,limitMerchantIncome:fields.namedItem('limitMerchantIncome').checked,merchantIncomeCap:n('merchantIncomeCap'),
-    marketSetBonus:fields.namedItem('marketSetBonus').checked,marketSetThreshold:n('marketSetThreshold'),marketSetBase:n('marketSetBase'),marketSetExtra:n('marketSetExtra'),
+    categoryBonusPerUpgrade:n('categoryBonusPerUpgrade'),deferMerchantIncome:fields.namedItem('deferMerchantIncome').checked,limitMerchantIncome:false,
+    marketSetBonus:fields.namedItem('marketSetBonus').checked,marketSetThreshold:n('marketSetThreshold'),marketSetBase:n('marketSetBase'),
     auctionLoserChoice:fields.namedItem('auctionLoserChoice').checked,auctionCardChoice:fields.namedItem('auctionCardChoice').checked,auctionUpgradeOnNoFish:fields.namedItem('auctionUpgradeOnNoFish').checked,seed:n('seed')};
 }
 function contractFields(){form.elements.namedItem('contractChoice').disabled=form.elements.namedItem('contractOnlyCoins').checked}
 form.elements.namedItem('contractOnlyCoins').addEventListener('change',contractFields);
 contractFields();
-function merchantFields(){form.elements.namedItem('merchantIncomeCap').disabled=!form.elements.namedItem('limitMerchantIncome').checked}
-form.elements.namedItem('limitMerchantIncome').addEventListener('change',merchantFields);
-merchantFields();
-function marketSetFields(){for(const name of ['marketSetThreshold','marketSetBase','marketSetExtra'])form.elements.namedItem(name).disabled=!form.elements.namedItem('marketSetBonus').checked}
-form.elements.namedItem('marketSetBonus').addEventListener('change',marketSetFields);
-marketSetFields();
+function rewardFields(changed){
+  const perCard=form.elements.namedItem('deferMerchantIncome'),groups=form.elements.namedItem('marketSetBonus');
+  if(changed==='perCard'&&perCard.checked)groups.checked=false;
+  if(changed==='groups'&&groups.checked)perCard.checked=false;
+  if(!perCard.checked&&!groups.checked)(changed==='perCard'?groups:perCard).checked=true;
+  for(const name of ['marketSetThreshold','marketSetBase'])form.elements.namedItem(name).disabled=!groups.checked;
+}
+form.elements.namedItem('deferMerchantIncome').addEventListener('change',()=>rewardFields('perCard'));
+form.elements.namedItem('marketSetBonus').addEventListener('change',()=>rewardFields('groups'));
+rewardFields();
 function choiceFields(){
   const loser=form.elements.namedItem('auctionLoserChoice'),all=form.elements.namedItem('auctionCardChoice');
   if(loser.checked)all.checked=false;
@@ -67,7 +71,7 @@ modeFields();
 const configFile=document.getElementById('configFile');
 document.getElementById('exportConfig').addEventListener('click',()=>{
   const current=readConfig();if(!current)return;
-  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:4,config:current},null,2),'application/json');
+  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:5,config:current},null,2),'application/json');
   status.textContent='Regole esportate in JSON.';
 });
 document.getElementById('importConfig').addEventListener('click',()=>configFile.click());
@@ -77,23 +81,24 @@ configFile.addEventListener('change',async()=>{
     if(file.size>1_000_000)throw new Error('Il file è troppo grande per contenere soltanto le regole.');
     const parsed=JSON.parse(await file.text());
     const imported=parsed?.config??parsed;
+    let converted=false;
     if(imported&&typeof imported==='object'&&!Array.isArray(imported)){
       if(imported.categoryBonusPerUpgrade===undefined)imported.categoryBonusPerUpgrade=1;
       if(imported.deferMerchantIncome===undefined)imported.deferMerchantIncome=false;
-      if(imported.limitMerchantIncome===undefined)imported.limitMerchantIncome=false;
-      if(imported.merchantIncomeCap===undefined)imported.merchantIncomeCap=2;
       if(imported.marketSetBonus===undefined)imported.marketSetBonus=false;
       if(imported.marketSetThreshold===undefined)imported.marketSetThreshold=3;
       if(imported.marketSetBase===undefined)imported.marketSetBase=10;
-      if(imported.marketSetExtra===undefined)imported.marketSetExtra=1;
+      const combined=imported.deferMerchantIncome===imported.marketSetBonus;
+      converted=combined||(parsed?.format==='pescaria-laboratorio-regole'&&parsed.version<5)||'marketSetExtra' in imported;
+      if(combined)imported.deferMerchantIncome=!imported.marketSetBonus;
     }
     if(!validImportedConfig(imported))throw new Error('Il file non contiene parametri del Laboratorio validi.');
     for(const field of form.querySelectorAll('[name]')){
       if(field.type==='checkbox')field.checked=imported[field.name];
       else field.value=imported[field.name];
     }
-    pricingFields();choiceFields();contractFields();merchantFields();marketSetFields();modeFields();
-    status.textContent='Regole importate. Avvia una simulazione per applicarle al report.';
+    pricingFields();choiceFields();contractFields();rewardFields();modeFields();
+    status.textContent=converted?'Regole importate: i Mercanti useranno una sola formula, calcolata a fine partita. Controlla la scelta prima di simulare.':'Regole importate. Avvia una simulazione per applicarle al report.';
   }catch(error){status.textContent='Importazione non riuscita: '+error.message}
   finally{configFile.value=''}
 });
@@ -110,7 +115,7 @@ function validImportedConfig(c){
       if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max||Math.abs((value-min)/step-Math.round((value-min)/step))>1e-8)return false;
     }
   }
-  return c.tieredPricing!==c.winnerPricing&&(!c.tieredPricing||c.threshold2>c.threshold1)&&!(c.auctionLoserChoice&&c.auctionCardChoice);
+  return c.tieredPricing!==c.winnerPricing&&(!c.tieredPricing||c.threshold2>c.threshold1)&&!(c.auctionLoserChoice&&c.auctionCardChoice)&&c.deferMerchantIncome!==c.marketSetBonus;
 }
 
 function ruleSnapshot(c){
@@ -122,9 +127,7 @@ function ruleSnapshot(c){
     ['Carta puntata',c.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano subito la carta':c.auctionCardChoice?'Ogni partecipante sceglie se comprare pesci o installare subito la carta':c.auctionUpgradeOnNoFish?'Se il lotto è esaurito prima dell’acquisto, la carta diventa subito una miglioria':'Le carte puntate non utilizzate vengono scartate'],
     ['Contratti',c.contractOnlyCoins?'Solo Ducati; carta scartata':c.contractChoice?'Scelta tra Ducati oppure miglioria':'Ducati e miglioria insieme'],
     ['Bonus di categoria',`${c.categoryBonusPerUpgrade} Ducati per miglioria installata della stessa categoria`],
-    ['Rendita dei Mercanti',c.limitMerchantIncome?`Massimo ${c.merchantIncomeCap} Ducati al giorno per Mercante`:'2 Ducati per miglioria della categoria indicata, senza limite'],
-    ['Pagamento della Bilancia',c.deferMerchantIncome?'Rendita accumulata ogni giorno e pagata tutta a fine partita':'Rendita pagata a fine giornata'],
-    ['Premio finale Mercato',c.marketSetBonus?`${c.marketSetBase} Ducati con almeno ${c.marketSetThreshold} migliorie Mercato, poi +${c.marketSetExtra} per carta aggiuntiva`:'Disattivato'],
+    ['Mercanti della Bilancia',c.marketSetBonus?`${c.marketSetBase} Ducati per ogni gruppo completo di ${c.marketSetThreshold} carte della categoria indicata, per ogni Mercante; pagamento solo a fine partita`:'2 Ducati per carta della categoria indicata, per ogni Mercante; pagamento solo a fine partita'],
     ['IA',c.mode==='mc6'?`Monte Carlo · ${c.depth} mosse · ${c.samples} scenari per scelta · aggressività ${c.aggression}`:'Standard'],
     ['Seme iniziale',String(c.seed)]
   ];
@@ -246,14 +249,14 @@ function renderReport(data){
     <div class="kpis"><div class="kpi"><b>${round(mean(gaps))}</b><span>Distacco medio · Ducati</span></div><div class="kpi"><b>${round(percentile(gaps,.5))}</b><span>Distacco mediano</span></div><div class="kpi"><b>${round(mean(r.map(x=>x.players[0].coins)))}</b><span>Primo · Ducati medi</span></div><div class="kpi"><b>${round(mean(r.map(x=>x.players.at(-1).coins)))}</b><span>Ultimo · Ducati medi</span></div></div>
     <h3>Carte installate come migliorie</h3><div class="kpis"><div class="kpi"><b>${round(installedCards/r.length)}</b><span>Per partita · tutti i giocatori</span></div><div class="kpi"><b>${round(installedCards/(r.length*c.players))}</b><span>Per giocatore e partita</span></div><div class="kpi"><b>${round(auctionUpgrades.length/r.length)}</b><span>Da aste per partita</span></div><div class="kpi"><b>${round(contractUpgrades.length/r.length)}</b><span>Da contratti per partita</span></div></div><p class="hint">Media finale per ciascun giocatore nell’ordine al tavolo, indipendentemente dalla posizione in classifica. Ogni carta è contata una volta sola, anche se produce effetti più volte.</p><div class="table-wrap"><table><thead><tr><th>Giocatore</th><th>Migliorie medie</th><th>Da aste</th><th>Da contratti</th></tr></thead><tbody>${installedBySeat.map(p=>`<tr><td>${p.player}</td><td>${round(p.total)}</td><td>${round(p.auction)}</td><td>${round(p.contract)}</td></tr>`).join('')}</tbody></table></div>
     <div><h3>Distacco finale</h3><p class="hint">10°–90° percentile: ${percentile(gaps,.1)}–${percentile(gaps,.9)} Ducati · ${gaps.filter(x=>x<=10).length} entro 10 · ${gaps.filter(x=>x>=30).length} da almeno 30.</p>${distribution.map(b=>`<div class="chart-row"><span>${b.label}</span><div class="bar-track"><span class="bar" style="width:${100*b.count/r.length}%"></span></div><b>${b.count}</b></div>`).join('')}</div>
-    <h3>Classifica media</h3><div class="table-wrap"><table><thead><tr><th>Posto</th><th>Ducati</th><th>Contratti</th><th>Contratti con Ducati</th><th>Contratti con miglioria</th><th>Pesci comprati</th><th>Extra</th><th>Spesa</th><th>Giorni senza contratto</th><th>Rendite</th><th>Premio Mercato</th><th>Sprechi</th></tr></thead><tbody>${places.map(p=>`<tr><td>${p.place}°</td><td>${round(p.coins)}</td><td>${round(p.orders)}</td><td>${round(p.cash)}</td><td>${round(p.power)}</td><td>${round(p.fish)}</td><td>${round(p.extra)}</td><td>${round(p.spend)}</td><td>${round(p.dry)}</td><td>${round(p.bilancia)}</td><td>${round(p.marketBonus)}</td><td>${round(p.wasted)}</td></tr>`).join('')}</tbody></table></div><p class="hint">Medie per giocatore in quel posto. “Spesa” comprende le offerte vinte e i pesci acquistati.</p>
+    <h3>Classifica media</h3><div class="table-wrap"><table><thead><tr><th>Posto</th><th>Ducati</th><th>Contratti</th><th>Contratti con Ducati</th><th>Contratti con miglioria</th><th>Pesci comprati</th><th>Extra</th><th>Spesa</th><th>Giorni senza contratto</th><th>Mercanti per carta</th><th>Mercanti a gruppi</th><th>Sprechi</th></tr></thead><tbody>${places.map(p=>`<tr><td>${p.place}°</td><td>${round(p.coins)}</td><td>${round(p.orders)}</td><td>${round(p.cash)}</td><td>${round(p.power)}</td><td>${round(p.fish)}</td><td>${round(p.extra)}</td><td>${round(p.spend)}</td><td>${round(p.dry)}</td><td>${round(p.bilancia)}</td><td>${round(p.marketBonus)}</td><td>${round(p.wasted)}</td></tr>`).join('')}</tbody></table></div><p class="hint">Medie per giocatore in quel posto. “Spesa” comprende le offerte vinte e i pesci acquistati.</p>
     <h3>Come cresce il distacco</h3><div class="table-wrap"><table><thead><tr><th>Giorno</th><th>Primo medio</th><th>Ultimo medio</th><th>Distacco medio</th><th>Contratti per partita</th></tr></thead><tbody>${days.map(d=>`<tr><td>${d.day}</td><td>${round(d.leader)}</td><td>${round(d.last)}</td><td>${round(d.gap)}</td><td>${round(d.contracts)}</td></tr>`).join('')}</tbody></table></div>
     <h3>Cambi al primo posto tra giornate</h3><p class="hint">${round(mean(changesPerGame))} cambi per partita · ${changesPerGame.filter(n=>n>0).length} partite su ${r.length} con almeno un cambio.</p>${changeDistribution.map(x=>`<div class="chart-row"><span>${x.label}</span><div class="bar-track"><span class="bar" style="width:${100*x.count/r.length}%"></span></div><b>${x.count}</b></div>`).join('')}<p class="hint" style="margin-top:11px">Dal giorno 1 al 2: ${changesByDay[0]} cambi · dal 2 al 3: ${changesByDay[1]} · dal 3 al 4: ${changesByDay[2]}. Conta il primo a fine giornata. A parità di Ducati, decide il numero di migliorie; se persiste, l’ordine al tavolo.</p>
     <h3>Cambi di posizione</h3><p class="hint">${round(sum(movesByDay)/r.length)} spostamenti di giocatori per partita. La tabella somma i passaggi tra giornate consecutive; ogni casella indica quante volte un giocatore è passato dalla posizione della riga a quella della colonna.</p><div class="table-wrap"><table><thead><tr><th>Da ↓ / a →</th>${Array.from({length:c.players},(_,i)=>`<th>${i+1}°</th>`).join('')}</tr></thead><tbody>${positionMoves.map((row,from)=>`<tr><td>${from+1}°</td>${row.map((n,to)=>`<td${from===to?' style="color:#817965"':''}>${n}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p class="hint" style="margin-top:11px">Giocatori che cambiano posizione: giorno 1→2: ${movesByDay[0]} · 2→3: ${movesByDay[1]} · 3→4: ${movesByDay[2]}. La diagonale mostra chi resta nello stesso posto.</p>
     <p class="hint" style="margin-top:11px">Rimonte: il vincitore non era in testa dopo il giorno 2 in ${comeback(2)} partite e dopo il giorno 3 in ${comeback(3)}. In ${fromLastDay2} ${fromLastDay2===1?'partita era':'partite era'} ultimo dopo il giorno 2. ${withoutContracts} giocatori su ${r.length*c.players} hanno chiuso senza contratti.</p>
     <h3>Possibilità di recupero</h3><div class="kpis"><div class="kpi"><b>${round(100*gaps.filter(x=>x<=10).length/r.length)}%</b><span>Finali entro 10 Ducati</span></div><div class="kpi"><b>${round(100*comeback(2)/r.length)}%</b><span>Vincitori non primi al giorno 2</span></div><div class="kpi"><b>${round(100*dryDays/playerDays.length)}%</b><span>Giornate senza contratti</span></div><div class="kpi"><b>${round(100*fishlessDays/playerDays.length)}%</b><span>Giornate senza pesci acquistati</span></div></div>
     <p class="hint" style="margin-top:11px">In ${round(100*unreadyDays/playerDays.length)}% delle giornate il giocatore entra al mercato con carte, ma senza nessuna completabile. Le carte completabili sono contate una alla volta. Il Capitano iniziale vince ${captainWins} ${captainWins===1?'partita':'partite'} su ${r.length} (atteso con giocatori equivalenti: ${round(100/c.players)}%). Vittorie per posto al tavolo: ${seatWins.map((n,i)=>`giocatore ${i+1}: ${n}`).join(' · ')}.</p>
-    <h3>Da dove arrivano e dove vanno i Ducati</h3><p class="hint">Medie per giocatore e giornata. La spesa d’offerta è pagata solo dal vincitore dell’asta.${c.deferMerchantIncome?' Le rendite della Bilancia si accumulano ogni giorno e compaiono come incasso solo al giorno 4.':''}</p><div class="table-wrap"><table><thead><tr><th>Giorno</th><th>Contratti +</th><th>Rendite +</th><th>Premio Mercato +</th><th>Pesci −</th><th>Offerte −</th><th>Saldo</th></tr></thead><tbody>${economy.map(x=>`<tr><td>${x.day}</td><td>${round(x.contracts)}</td><td>${round(x.passive)}</td><td>${round(x.marketBonus)}</td><td>${round(x.fish)}</td><td>${round(x.bids)}</td><td>${round(x.net)}</td></tr>`).join('')}</tbody></table></div>
+    <h3>Da dove arrivano e dove vanno i Ducati</h3><p class="hint">Medie per giocatore e giornata. La spesa d’offerta è pagata solo dal vincitore dell’asta. I Mercanti pagano una sola volta al giorno 4; nessuna rendita si accumula nei giorni precedenti.</p><div class="table-wrap"><table><thead><tr><th>Giorno</th><th>Contratti +</th><th>Mercanti per carta +</th><th>Mercanti a gruppi +</th><th>Pesci −</th><th>Offerte −</th><th>Saldo</th></tr></thead><tbody>${economy.map(x=>`<tr><td>${x.day}</td><td>${round(x.contracts)}</td><td>${round(x.passive)}</td><td>${round(x.marketBonus)}</td><td>${round(x.fish)}</td><td>${round(x.bids)}</td><td>${round(x.net)}</td></tr>`).join('')}</tbody></table></div>
     <h3>Ricompense dei contratti</h3><p class="hint">Medie per partita. ${c.contractOnlyCoins?'Ogni contratto concluso dà solo Ducati; la carta viene scartata e non diventa una miglioria.':c.contractChoice===false?'Ogni contratto dà sia Ducati sia una miglioria; i Ducati rinunciati sono zero.':'Chi sceglie la miglioria rinuncia all’incasso del contratto.'}</p><div class="table-wrap"><table><thead><tr><th>Giorno</th><th>Contratti con Ducati</th><th>Contratti con miglioria</th><th>Ducati rinunciati</th></tr></thead><tbody>${choicesByDay.map(x=>`<tr><td>${x.day}</td><td>${round(x.money)}</td><td>${round(x.upgrades)}</td><td>${round(x.foregone)}</td></tr>`).join('')}</tbody></table></div>
     <h3>Aste e acquisti</h3><div class="kpis"><div class="kpi"><b>${round(contested.length/r.length)}</b><span>Aste contese per partita</span></div><div class="kpi"><b>${round(denials.length/r.length)}</b><span>Lotti presi interamente dal vincitore con rivali</span></div><div class="kpi"><b>${round(extra/r.length)}</b><span>Pesci comprati oltre il piano per partita</span></div><div class="kpi"><b>${round(wasted/r.length)}</b><span>Pesci scartati per partita</span></div></div>
     <p class="hint" style="margin-top:11px">${auctions.length} aste con pesce · ${round(100*sum(auctions.map(x=>x.bought))/sum(auctions.map(x=>x.lot)))}% dei pesci offerti comprato · ${round(sum(buys.map(x=>x.cost))/r.length)} Ducati spesi in acquisti per partita · ${emptyBidders} partecipazioni dal 2° posto in poi senza pesci acquistati · ${auctionUpgrades.length} carte d’asta installate come migliorie${c.auctionLoserChoice?` dai perdenti, di cui ${auctionUpgradesAfterPurchase} dopo aver comprato pesci`:c.auctionCardChoice?` (${auctionUpgrades.filter(x=>x.reason==='choice').length} scelte, ${auctionUpgrades.filter(x=>x.reason==='empty').length} per lotto esaurito, ${auctionUpgrades.filter(x=>x.reason==='unavailable').length} senza acquisto possibile)`:' per lotto esaurito'}.</p>
@@ -269,7 +272,7 @@ function renderReport(data){
     download('pescaria-laboratorio.csv',[head.join(','),...lines].join('\n'),'text/csv');
   });
   document.getElementById('downloadDaysCsv').addEventListener('click',()=>{
-    const head=['seme','giorno','giocatore','posto_finale','posto_giorno','posti_guadagnati','ducati_inizio','ducati_fine','contratti_oggi','contratti_con_ducati','contratti_con_miglioria','migliorie_da_aste','incasso_contratti','rendite','premio_mercato','spesa_pesci','spesa_offerte','aste_vinte','pesci_acquistati','pesci_extra','pesci_al_mercato','pesci_scartati','carte_completabili','carte_al_mercato','pesci_conservati','carte_conservate'];
+    const head=['seme','giorno','giocatore','posto_finale','posto_giorno','posti_guadagnati','ducati_inizio','ducati_fine','contratti_oggi','contratti_con_ducati','contratti_con_miglioria','migliorie_da_aste','incasso_contratti','premio_per_carta','premio_gruppi','spesa_pesci','spesa_offerte','aste_vinte','pesci_acquistati','pesci_extra','pesci_al_mercato','pesci_scartati','carte_completabili','carte_al_mercato','pesci_conservati','carte_conservate'];
     const lines=playerDays.map(x=>[x.seed,x.day,x.pid+1,x.finalPlace,x.dayPlace,x.placesGained,x.startCoins,x.coins,x.contractsToday,x.moneyChoices,x.upgradeChoices,x.auctionUpgrades,x.contractIncome,x.passiveIncome,x.marketBonusIncome||0,x.fishSpent,x.bidSpent,x.auctionWins,x.fishBought,x.extraBought,x.fishAtMarket,x.wastedToday,x.readyAtMarket,x.cardsAtMarket,x.fishKept,x.cardsKept].join(','));
     download('pescaria-giornate.csv',[head.join(','),...lines].join('\n'),'text/csv');
   });
