@@ -22,7 +22,7 @@ function readConfig(){
     tieredPricing:fields.namedItem('tieredPricing').checked,winnerPricing:fields.namedItem('winnerPricing').checked,
     threshold1:n('threshold1'),threshold2:n('threshold2'),price1:n('price1'),price2:n('price2'),price3:n('price3'),winnerPrice:n('winnerPrice'),otherPrice:n('otherPrice'),
     startCoins:n('startCoins'),fishPerPlayer:n('fishPerPlayer'),contractOnlyCoins:fields.namedItem('contractOnlyCoins').checked,contractChoice:fields.namedItem('contractChoice').checked,
-    categoryBonusPerUpgrade:n('categoryBonusPerUpgrade'),limitMerchantIncome:fields.namedItem('limitMerchantIncome').checked,merchantIncomeCap:n('merchantIncomeCap'),
+    categoryBonusPerUpgrade:n('categoryBonusPerUpgrade'),deferMerchantIncome:fields.namedItem('deferMerchantIncome').checked,limitMerchantIncome:fields.namedItem('limitMerchantIncome').checked,merchantIncomeCap:n('merchantIncomeCap'),
     auctionLoserChoice:fields.namedItem('auctionLoserChoice').checked,auctionCardChoice:fields.namedItem('auctionCardChoice').checked,auctionUpgradeOnNoFish:fields.namedItem('auctionUpgradeOnNoFish').checked,seed:n('seed')};
 }
 function contractFields(){form.elements.namedItem('contractChoice').disabled=form.elements.namedItem('contractOnlyCoins').checked}
@@ -63,7 +63,7 @@ modeFields();
 const configFile=document.getElementById('configFile');
 document.getElementById('exportConfig').addEventListener('click',()=>{
   const current=readConfig();if(!current)return;
-  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:2,config:current},null,2),'application/json');
+  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:3,config:current},null,2),'application/json');
   status.textContent='Regole esportate in JSON.';
 });
 document.getElementById('importConfig').addEventListener('click',()=>configFile.click());
@@ -75,6 +75,7 @@ configFile.addEventListener('change',async()=>{
     const imported=parsed?.config??parsed;
     if(imported&&typeof imported==='object'&&!Array.isArray(imported)){
       if(imported.categoryBonusPerUpgrade===undefined)imported.categoryBonusPerUpgrade=1;
+      if(imported.deferMerchantIncome===undefined)imported.deferMerchantIncome=false;
       if(imported.limitMerchantIncome===undefined)imported.limitMerchantIncome=false;
       if(imported.merchantIncomeCap===undefined)imported.merchantIncomeCap=2;
     }
@@ -114,6 +115,7 @@ function ruleSnapshot(c){
     ['Contratti',c.contractOnlyCoins?'Solo Ducati; carta scartata':c.contractChoice?'Scelta tra Ducati oppure miglioria':'Ducati e miglioria insieme'],
     ['Bonus di categoria',`${c.categoryBonusPerUpgrade} Ducati per miglioria installata della stessa categoria`],
     ['Rendita dei Mercanti',c.limitMerchantIncome?`Massimo ${c.merchantIncomeCap} Ducati al giorno per Mercante`:'2 Ducati per miglioria della categoria indicata, senza limite'],
+    ['Pagamento della Bilancia',c.deferMerchantIncome?'Rendita accumulata ogni giorno e pagata tutta a fine partita':'Rendita pagata a fine giornata'],
     ['IA',c.mode==='mc6'?`Monte Carlo · ${c.depth} mosse · ${c.samples} scenari per scelta · aggressività ${c.aggression}`:'Standard'],
     ['Seme iniziale',String(c.seed)]
   ];
@@ -242,7 +244,7 @@ function renderReport(data){
     <p class="hint" style="margin-top:11px">Rimonte: il vincitore non era in testa dopo il giorno 2 in ${comeback(2)} partite e dopo il giorno 3 in ${comeback(3)}. In ${fromLastDay2} ${fromLastDay2===1?'partita era':'partite era'} ultimo dopo il giorno 2. ${withoutContracts} giocatori su ${r.length*c.players} hanno chiuso senza contratti.</p>
     <h3>Possibilità di recupero</h3><div class="kpis"><div class="kpi"><b>${round(100*gaps.filter(x=>x<=10).length/r.length)}%</b><span>Finali entro 10 Ducati</span></div><div class="kpi"><b>${round(100*comeback(2)/r.length)}%</b><span>Vincitori non primi al giorno 2</span></div><div class="kpi"><b>${round(100*dryDays/playerDays.length)}%</b><span>Giornate senza contratti</span></div><div class="kpi"><b>${round(100*fishlessDays/playerDays.length)}%</b><span>Giornate senza pesci acquistati</span></div></div>
     <p class="hint" style="margin-top:11px">In ${round(100*unreadyDays/playerDays.length)}% delle giornate il giocatore entra al mercato con carte, ma senza nessuna completabile. Le carte completabili sono contate una alla volta. Il Capitano iniziale vince ${captainWins} ${captainWins===1?'partita':'partite'} su ${r.length} (atteso con giocatori equivalenti: ${round(100/c.players)}%). Vittorie per posto al tavolo: ${seatWins.map((n,i)=>`giocatore ${i+1}: ${n}`).join(' · ')}.</p>
-    <h3>Da dove arrivano e dove vanno i Ducati</h3><p class="hint">Medie per giocatore e giornata. La spesa d’offerta è pagata solo dal vincitore dell’asta.</p><div class="table-wrap"><table><thead><tr><th>Giorno</th><th>Contratti +</th><th>Rendite +</th><th>Pesci −</th><th>Offerte −</th><th>Saldo</th></tr></thead><tbody>${economy.map(x=>`<tr><td>${x.day}</td><td>${round(x.contracts)}</td><td>${round(x.passive)}</td><td>${round(x.fish)}</td><td>${round(x.bids)}</td><td>${round(x.net)}</td></tr>`).join('')}</tbody></table></div>
+    <h3>Da dove arrivano e dove vanno i Ducati</h3><p class="hint">Medie per giocatore e giornata. La spesa d’offerta è pagata solo dal vincitore dell’asta.${c.deferMerchantIncome?' Le rendite della Bilancia si accumulano ogni giorno e compaiono come incasso solo al giorno 4.':''}</p><div class="table-wrap"><table><thead><tr><th>Giorno</th><th>Contratti +</th><th>Rendite +</th><th>Pesci −</th><th>Offerte −</th><th>Saldo</th></tr></thead><tbody>${economy.map(x=>`<tr><td>${x.day}</td><td>${round(x.contracts)}</td><td>${round(x.passive)}</td><td>${round(x.fish)}</td><td>${round(x.bids)}</td><td>${round(x.net)}</td></tr>`).join('')}</tbody></table></div>
     <h3>Ricompense dei contratti</h3><p class="hint">Medie per partita. ${c.contractOnlyCoins?'Ogni contratto concluso dà solo Ducati; la carta viene scartata e non diventa una miglioria.':c.contractChoice===false?'Ogni contratto dà sia Ducati sia una miglioria; i Ducati rinunciati sono zero.':'Chi sceglie la miglioria rinuncia all’incasso del contratto.'}</p><div class="table-wrap"><table><thead><tr><th>Giorno</th><th>Contratti con Ducati</th><th>Contratti con miglioria</th><th>Ducati rinunciati</th></tr></thead><tbody>${choicesByDay.map(x=>`<tr><td>${x.day}</td><td>${round(x.money)}</td><td>${round(x.upgrades)}</td><td>${round(x.foregone)}</td></tr>`).join('')}</tbody></table></div>
     <h3>Aste e acquisti</h3><div class="kpis"><div class="kpi"><b>${round(contested.length/r.length)}</b><span>Aste contese per partita</span></div><div class="kpi"><b>${round(denials.length/r.length)}</b><span>Lotti presi interamente dal vincitore con rivali</span></div><div class="kpi"><b>${round(extra/r.length)}</b><span>Pesci comprati oltre il piano per partita</span></div><div class="kpi"><b>${round(wasted/r.length)}</b><span>Pesci scartati per partita</span></div></div>
     <p class="hint" style="margin-top:11px">${auctions.length} aste con pesce · ${round(100*sum(auctions.map(x=>x.bought))/sum(auctions.map(x=>x.lot)))}% dei pesci offerti comprato · ${round(sum(buys.map(x=>x.cost))/r.length)} Ducati spesi in acquisti per partita · ${emptyBidders} partecipazioni dal 2° posto in poi senza pesci acquistati · ${auctionUpgrades.length} carte d’asta installate come migliorie${c.auctionLoserChoice?` dai perdenti, di cui ${auctionUpgradesAfterPurchase} dopo aver comprato pesci`:c.auctionCardChoice?` (${auctionUpgrades.filter(x=>x.reason==='choice').length} scelte, ${auctionUpgrades.filter(x=>x.reason==='empty').length} per lotto esaurito, ${auctionUpgrades.filter(x=>x.reason==='unavailable').length} senza acquisto possibile)`:' per lotto esaurito'}.</p>

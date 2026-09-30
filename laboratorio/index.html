@@ -1288,8 +1288,10 @@ function placeFavorite(p,c,f){
 function endOfDayIncome(){
   for(const p of G.players){
     // 2. Rendite dei Mercanti.
-    const inc=bilanciaIncome(p),tot=inc.reduce((s,x)=>s+x.v,0);p.coins+=tot;p.bilanciaTot+=tot;p.today.bilancia=inc;
-    if(tot)log('Rendite',`${p.name}: i Mercanti rendono ${tot} Ducati.`);
+    const inc=bilanciaIncome(p),tot=inc.reduce((s,x)=>s+x.v,0);p.bilanciaTot+=tot;p.today.bilancia=inc;
+    if(G.simConfig?.deferMerchantIncome)p.bilanciaDeferred=(p.bilanciaDeferred||0)+tot;
+    else p.coins+=tot;
+    if(tot)log('Rendite',`${p.name}: i Mercanti ${G.simConfig?.deferMerchantIncome?'accantonano':'rendono'} ${tot} Ducati.`);
   }
   G.overlay=humanPlayers().length?'summary':null;
   if(!humanPlayers().length)finishDay();
@@ -1302,6 +1304,7 @@ function finishDay(){
 }
 function ranking(){return[...G.players].sort((a,b)=>b.coins-a.coins||(b.installed.length+b.pending.length)-(a.installed.length+a.pending.length))}
 function finishGame(){
+  if(G.simConfig?.deferMerchantIncome)for(const p of G.players){p.coins+=p.bilanciaDeferred||0;p.bilanciaDeferred=0}
   G.finished=true;G.phase='fine';const ranked=ranking();if(HEADLESS)return;
   document.body.classList.remove('playing');$('game').classList.add('hidden');$('end').classList.remove('hidden');
   const human=humanPlayers().length===1,solo=humanPlayers()[0]?.id;
@@ -1449,9 +1452,9 @@ function overlayHtml(){
   if(G.overlay==='keep')return box('Fine del mercato','Conserva fino a 2 carte',`<p>${soloCongrega()?'Domani riprenderai queste carte insieme alle 5 nuove carte.':'Le carte conservate restano da parte durante il draft di domani e poi tornano nella tua mano.'} Le altre vengono scartate.</p><div class="cards" style="text-align:left">${me.hand.map(c=>cardHtml(c,'keep',true)).join('')}</div><button class="btn primary" onclick="confirmKeep()">Conferma (${G.keepSel.size}/2)</button>`);
   if(G.overlay==='favorite')return box('La Congrega','Scegli il pesce preferito',`<p>Il pesce scelto viene preso dal sacchetto e messo sulla carta. Ogni contratto che richiede quel tipo di pesce renderà 2 Ducati in più.</p><div class="net-picks">${FISH.map(f=>`<button class="net-pick" onclick="pickFavorite('${f}')"><img src="${ASSET.fish[f]}" alt=""><span>${f}</span></button>`).join('')}</div>`);
   if(G.overlay==='summary'){
-    const rows=G.players.map(p=>`<div class="rankrow"><div class="place"><i class="dot" style="background:${playerColor(p)}"></i></div><div class="who">${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.today.contracts.length} contratti +${p.today.income} · Bilancia +${p.today.bilancia.reduce((s,x)=>s+x.v,0)} · ${p.coins} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"></b></div>`).join('');
+    const rows=G.players.map(p=>`<div class="rankrow"><div class="place"><i class="dot" style="background:${playerColor(p)}"></i></div><div class="who">${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.today.contracts.length} contratti +${p.today.income} · Bilancia ${G.simConfig?.deferMerchantIncome?'accantonata +':'+'}${p.today.bilancia.reduce((s,x)=>s+x.v,0)} · ${p.coins} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"></b></div>`).join('');
     const mine=me.today.bilancia.map(x=>`${esc(x.card.up)}: +${x.v}`).join(' · ');
-    return box(`Giorno ${G.day} · Fine giornata`,G.day===4?'Ultima giornata conclusa':'Il mercato chiude',`<div class="rank" style="text-align:left">${rows}</div>${mine?`<p>Le tue rendite: ${mine}</p>`:''}<button class="btn primary" onclick="finishDayBtn()">${G.day===4?'Vedi il punteggio':'Nuova giornata'}</button>`)}
+    return box(`Giorno ${G.day} · Fine giornata`,G.day===4?'Ultima giornata conclusa':'Il mercato chiude',`<div class="rank" style="text-align:left">${rows}</div>${mine?`<p>Le tue rendite: ${mine}${G.simConfig?.deferMerchantIncome?` · Totale da incassare a fine partita: ${me.bilanciaDeferred||0} Ducati`:''}</p>`:''}<button class="btn primary" onclick="finishDayBtn()">${G.day===4?'Vedi il punteggio':'Nuova giornata'}</button>`)}
   return'';
 }
 function pileHtml(cards,faceUp){
