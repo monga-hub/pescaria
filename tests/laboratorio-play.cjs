@@ -21,6 +21,14 @@ for(const seed of [1,2,3]){
 assert.match(upgradeDescription('Maestro delle Aste'),/A fine partita guadagni 1 Ducato/);
 G.simConfig={...LAB_DEFAULT_RULES,deferMerchantIncome:false,marketSetBonus:true,marketSetBase:10,marketSetThreshold:3};
 assert.match(upgradeDescription('Maestro delle Aste'),/10 Ducati per ogni gruppo di 3/);
+startGame({n:2,roster:[{name:'Umano',human:true,character:0},{name:'Bot',human:false,character:1}],seed:42,simConfig:LAB_DEFAULT_RULES});
+const favorite=CARDS.find(c=>c.up==='Favorito della Gilda');
+G.players[0].pending.push(favorite);
+startEndOfDay();
+assert.equal(G.overlay,'favorite');
+pickFavorite('Molluschi');
+assert.equal(G.overlay,'summary');
+assert.equal(favorite.favFish,'Molluschi');
 console.log('Partita Laboratorio: regole e salvataggi separati OK');
 `;
 context.assert=assert;
