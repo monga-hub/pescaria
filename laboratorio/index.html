@@ -1157,7 +1157,7 @@ function buy(p,f,n,price){n=Math.max(0,Math.min(n,maxBuy(p,f,price)));if(n){cons
 function auctionChoiceOn(){return !!(G.simConfig?.auctionCardChoice||G.simConfig?.auctionLoserChoice)}
 function auctionContractVariantOn(){return !!(G.simConfig?.auctionContractsVariant&&G.simConfig?.auctionCardChoice&&!G.simConfig?.auctionLoserChoice)}
 function loserGetsUpgrade(q){return !!(G.simConfig?.auctionLoserChoice&&q.rank>0)}
-function canUpgradeAuctionCard(){return !!(G.simConfig?.auctionCardChoice&&!G.simConfig?.auctionLoserChoice&&(!auctionContractVariantOn()||G.players[G.buyQueue[G.buyPos].pid].today.auctionUpgrades<2))}
+function canUpgradeAuctionCard(){return !!(G.simConfig?.auctionCardChoice&&!G.simConfig?.auctionLoserChoice&&(!auctionContractVariantOn()||G.players[G.buyQueue[G.buyPos].pid].today.auctionUpgrades<(G.simConfig?.auctionUpgradeCap??2)))}
 function installAuctionUpgrade(q,reason='choice'){
   const p=G.players[q.pid];p.today.auctionUpgrades++;p.installed.push(q.card);(G.auctionZeroUpgrades??=[]).push({pid:p.id,card:q.card,reason});
   if(q.card.up==='Nuovi Clienti'&&q.rank>0)G.clientsQueue.push({pid:p.id,k:1});
@@ -1397,7 +1397,7 @@ function botBid(p,f,seen=[]){
   if(p.congrega)return congregaBid(p);
   if(!p.hand.length||(!roomBanco(p)&&!auctionChoiceOn()))return null;
   const keep=botPlan(p),need=Math.min(needOf(p,f,keep),G.market[f]);
-  if(auctionChoiceOn()&&(!auctionContractVariantOn()||p.today.auctionUpgrades<2)&&(!need||!roomBanco(p))){
+  if(auctionChoiceOn()&&(!auctionContractVariantOn()||p.today.auctionUpgrades<(G.simConfig?.auctionUpgradeCap??2))&&(!need||!roomBanco(p))){
     const card=p.hand.filter(c=>!keep.has(c.id)).sort((a,b)=>botUpgradeValue(p,b)-botUpgradeValue(p,a))[0];
     return card&&botUpgradeValue(p,card)>1.5?{pid:p.id,card,cash:0,infl:0}:null;
   }
