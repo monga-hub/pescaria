@@ -1038,7 +1038,7 @@ window.restartGame=function(){if(G&&!G.finished&&!confirm('Abbandonare la partit
 
 // ---------------- Fase 1 · Pesca del mattino ----------------
 function startDay(){
-  for(const p of G.players){p.influence=0;p.subsLeft=copies(p,'Contrattazione Sottobanco');p.fortunaLeft=copies(p,'Nuovi Clienti');p.passedAll=false;p.today={contracts:[],income:0,bilancia:[]}}
+  for(const p of G.players){p.influence=0;p.subsLeft=copies(p,'Contrattazione Sottobanco');p.fortunaLeft=copies(p,'Nuovi Clienti');p.passedAll=false;p.today={contracts:[],income:0,bilancia:[],auctionUpgrades:0};p.auctionReturns=[]}
   G.phase='rete';G.market=inv();
   if(G.congregaLevel)G.congregaDeck=G.rng.shuffle(CONGREGA_DECK.map(c=>({...c})));
   const n=(G.simConfig?.fishPerPlayer??6)*G.players.length;let drawn=0;
@@ -1145,14 +1145,16 @@ function costOf(p,n,price){const c=Math.min(n,cheapN(p,price));return c+(n-c)*pr
 function maxBuy(p,f,price){let n=Math.min(G.market[f],roomBanco(p));while(n>0&&costOf(p,n,price)>p.coins)n--;return n}
 function buy(p,f,n,price){n=Math.max(0,Math.min(n,maxBuy(p,f,price)));if(n){const cost=costOf(p,n,price);p.coins-=cost;p.banco[f]+=n;G.market[f]-=n;(G.auctionPurchases??={})[p.id]=(G.auctionPurchases[p.id]||0)+n;log('Acquisto',`${p.name} compra ${n} ${f} per ${cost} Ducat${cost===1?'o':'i'}.`)}return n}
 function auctionChoiceOn(){return !!(G.simConfig?.auctionCardChoice||G.simConfig?.auctionLoserChoice)}
+function auctionContractVariantOn(){return !!(G.simConfig?.auctionContractsVariant&&G.simConfig?.auctionCardChoice&&!G.simConfig?.auctionLoserChoice)}
 function loserGetsUpgrade(q){return !!(G.simConfig?.auctionLoserChoice&&q.rank>0)}
-function canUpgradeAuctionCard(){return !!(G.simConfig?.auctionCardChoice&&!G.simConfig?.auctionLoserChoice)}
+function canUpgradeAuctionCard(){return !!(G.simConfig?.auctionCardChoice&&!G.simConfig?.auctionLoserChoice&&(!auctionContractVariantOn()||G.players[G.buyQueue[G.buyPos].pid].today.auctionUpgrades<2))}
 function installAuctionUpgrade(q,reason='choice'){
-  const p=G.players[q.pid];p.installed.push(q.card);(G.auctionZeroUpgrades??=[]).push({pid:p.id,card:q.card,reason});
+  const p=G.players[q.pid];p.today.auctionUpgrades++;p.installed.push(q.card);(G.auctionZeroUpgrades??=[]).push({pid:p.id,card:q.card,reason});
   if(q.card.up==='Nuovi Clienti'&&q.rank>0)G.clientsQueue.push({pid:p.id,k:1});
   if(q.card.up==='Favorito della Gilda'){if(p.human)G.favQueue.push({pid:p.id,card:q.card});else placeFavorite(p,q.card,botFavorite(p))}
   log('Migliorie',`${p.name} usa la carta puntata “${q.card.name}” come ${upName(q.card)}.`);
 }
+function settleAuctionCard(q){const p=G.players[q.pid];if(auctionContractVariantOn()&&(G.auctionPurchases?.[q.pid]||0)>0)p.auctionReturns.push(q.card);else discard(q.card)}
 function advanceBuys(){
   const f=currentFish();
   while(G.buyPos<G.buyQueue.length&&(G.market[f]||auctionChoiceOn())){const q=G.buyQueue[G.buyPos],p=G.players[q.pid];
@@ -1161,14 +1163,14 @@ function advanceBuys(){
     if(p.human){if(available>0){setActivePlayer(p.id);G.buyQty=Math.min(available,Math.max(q.rank===0?1:0,needOf(p,f)));return}G.buyPos++;continue}
     botBuy(p,f,q.price,q.rank);
     if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');
-    else if(auctionChoiceOn()&&!G.auctionZeroUpgrades.some(x=>x.pid===q.pid))discard(q.card);
+    else if(auctionChoiceOn()&&!G.auctionZeroUpgrades.some(x=>x.pid===q.pid))settleAuctionCard(q);
     G.buyPos++}
   if(!G.market[f])for(const q of G.buyQueue.slice(G.buyPos))(G.auctionBlockedByEmpty??={})[q.pid]=true;
   if(G.market[f]){returnFish(f,G.market[f]);log('Asta',`Lotto ${f}: i ${G.market[f]} pesci invenduti tornano nel sacchetto.`);G.market[f]=0}
   afterAuction();
 }
 window.toggleBuyToken=function(n){G.buyQty=G.buyQty===n?n-1:n;render()};
-window.confirmBuy=function(){const q=G.buyQueue[G.buyPos];if(canUpgradeAuctionCard()&&!G.buyQty)installAuctionUpgrade(q);else{buy(G.players[q.pid],currentFish(),G.buyQty||0,q.price);if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');else if(auctionChoiceOn())discard(q.card)}G.buyPos++;advanceBuys();render()};
+window.confirmBuy=function(){const q=G.buyQueue[G.buyPos];if(canUpgradeAuctionCard()&&!G.buyQty)installAuctionUpgrade(q);else{buy(G.players[q.pid],currentFish(),G.buyQty||0,q.price);if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');else if(auctionChoiceOn())settleAuctionCard(q)}G.buyPos++;advanceBuys();render()};
 function afterAuction(){
   if(!auctionChoiceOn())G.favQueue=[];
   for(const b of G.auctionResult||[]){const p=G.players[b.pid];
@@ -1220,6 +1222,7 @@ function showAuctionSummary(){
 
 // ---------------- Fase 3 · Mercato ----------------
 function startMarket(){
+  if(auctionContractVariantOn())for(const p of G.players){p.hand.push(...p.auctionReturns);p.auctionReturns=[]}
   G.phase='pubblico';G.overlay=null;G.contractChoice=null;log('Mercato','Apre il Mercato: ogni mercante completa i propri contratti.');
   for(const p of G.players)if(p.congrega)congregaSell(p);else if(!p.human){botMarket(p);closePlayerMarket(p);keepCards(p,botKeep(p))}
   G.marketQueue=turnOrder().filter(id=>G.players[id].human);nextMarketPlayer();
@@ -1359,7 +1362,7 @@ function lostFish(p,c){const stock=mix(p.banco,p.cesta);let m=0;for(const [g,n] 
 // Un contratto è ancora realizzabile se i pesci ormai persi si possono coprire con Sottobanco (1 sostituzione per copia).
 function feasible(p,c){const m=lostFish(p,c);return m===0||m<=copies(p,'Contrattazione Sottobanco')}
 function needOf(p,f,keepIds){
-  const keep=keepIds?p.hand.filter(c=>keepIds.has(c.id)&&(G.phase!=='asta'||feasible(p,c))):p.hand;let need=0;for(const c of keep)need+=c.recipe[f]||0;
+  const keep=[...(keepIds?p.hand.filter(c=>keepIds.has(c.id)&&(G.phase!=='asta'||feasible(p,c))):p.hand),...(p.auctionReturns||[])];let need=0;for(const c of keep)need+=c.recipe[f]||0;
   // Sottobanco: se un pesce del contratto è perso (asta già passata o persa), compro 2 pesci in più dell'asta in corso per sostituirlo.
   if(G.phase==='asta'&&copies(p,'Contrattazione Sottobanco')){
     const stock=mix(p.banco,p.cesta);let lost=0;for(const c of keep)lost+=lostFish(p,c);
@@ -1375,7 +1378,7 @@ function botBid(p,f,seen=[]){
   if(p.congrega)return congregaBid(p);
   if(!p.hand.length||(!roomBanco(p)&&!auctionChoiceOn()))return null;
   const keep=botPlan(p),need=Math.min(needOf(p,f,keep),G.market[f]);
-  if(auctionChoiceOn()&&(!need||!roomBanco(p))){
+  if(auctionChoiceOn()&&(!auctionContractVariantOn()||p.today.auctionUpgrades<2)&&(!need||!roomBanco(p))){
     const card=p.hand.filter(c=>!keep.has(c.id)).sort((a,b)=>botUpgradeValue(p,b)-botUpgradeValue(p,a))[0];
     return card&&botUpgradeValue(p,card)>1.5?{pid:p.id,card,cash:0,infl:0}:null;
   }

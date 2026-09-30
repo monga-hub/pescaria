@@ -5,7 +5,7 @@ function cloneGame(){const g=structuredClone(G);Object.setPrototypeOf(g.rng,RNG.
 function checkpoint(){if(G.mcRollout&&--G.mcMoves<0)throw STOP}
 function strength(p){
   const stock=mix(p.banco,p.cesta);
-  const cards=[...p.hand,...p.kept];
+  const cards=[...p.hand,...p.kept,...(p.auctionReturns||[])];
   const useful=FISH.reduce((total,f)=>total+Math.min(stock[f],cards.reduce((need,c)=>need+(c.recipe[f]||0),0)),0);
   // Un pesce senza contratto non rende Ducati; ha solo un piccolo valore futuro se può essere conservato.
   const fish=useful*.4+(count(stock)-useful)*(G.day<4 ? .25 : 0);
@@ -73,7 +73,7 @@ botBuy=function(p,f,price,rank){
     const v=runCandidate(p.id,f.length*13+n,()=>{
       const q=G.buyQueue[G.buyPos];
       if(!n&&canUpgradeAuctionCard())installAuctionUpgrade(q);
-      else{buy(G.players[p.id],f,n,price);if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');else if(auctionChoiceOn())discard(q.card)}
+      else{buy(G.players[p.id],f,n,price);if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');else if(auctionChoiceOn())settleAuctionCard(q)}
       G.buyPos++;advanceBuys();
     });
     if(v>value){value=v;best=n}
