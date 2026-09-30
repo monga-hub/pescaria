@@ -26,6 +26,12 @@ function readConfig(){
     marketSetBonus:fields.namedItem('marketSetBonus').checked,marketSetThreshold:n('marketSetThreshold'),marketSetBase:n('marketSetBase'),
     auctionLoserChoice:fields.namedItem('auctionLoserChoice').checked,auctionCardChoice:fields.namedItem('auctionCardChoice').checked,auctionContractsVariant:fields.namedItem('auctionContractsVariant').checked,auctionUpgradeCap:n('auctionUpgradeCap'),auctionUpgradeOnNoFish:fields.namedItem('auctionUpgradeOnNoFish').checked,seed:n('seed')};
 }
+const playLab=()=>{
+  const current=readConfig();if(!current)return;
+  const {games,players,mode,depth,samples,aggression,seed,...rules}=current;
+  location.href='index.html?players='+players+'&rules='+encodeURIComponent(JSON.stringify(rules));
+};
+document.querySelectorAll('[data-play-lab]').forEach(button=>button.addEventListener('click',playLab));
 function contractFields(){form.elements.namedItem('contractChoice').disabled=form.elements.namedItem('contractOnlyCoins').checked}
 form.elements.namedItem('contractOnlyCoins').addEventListener('change',contractFields);
 contractFields();

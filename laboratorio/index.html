@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <base href="../">
   <link rel="icon" type="image/png" href="assets/fish/sardina.png?v=20260925">
   <link rel="apple-touch-icon" href="assets/fish/sardina.png?v=20260925">
-  <title>Pescaria — Gioca</title>
+  <title>Pescaria — Partita Laboratorio</title>
   <style>
     :root{--ink:#17343b;--muted:#708083;--paper:#f5efe3;--cream:#fffaf0;--teal:#0e6569;--sea:#dcece7;--coral:#dc654b;--gold:#d5a33a;--line:#ded4c2;--shadow:0 14px 38px #17343b18;--r:18px}
     html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -228,6 +229,7 @@
     .illustrated-card .card-art{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
     .playing .hand-cards .card.illustrated-card::before{display:none}
     .card-bonus{position:absolute;left:6px;right:6px;top:17%;padding:4px;border:1px solid #c4ad83;border-radius:6px;background:#fff8df;color:#155d5a;font-size:12px;font-weight:900;text-align:center}
+    .lab-card-note{position:absolute;left:3px;right:3px;bottom:3px;padding:4px;border:1px solid #c4ad83;border-radius:5px;background:#fff8dfee;color:#17443d;font-size:10px;line-height:1.15;font-weight:900;text-align:center}
     /* Schermata fissa: contenuti adattati al riquadro, senza scorrimento. */
     html,body{height:100%;overflow:clip}
     main{height:100dvh;margin:0 auto;padding:12px 20px;overflow:clip}
@@ -499,11 +501,11 @@
 
   <main>
     <section id="setup" class="panel setup">
-      <div class="setup-heading"><div class="eyebrow">Il mercato della laguna</div><h1>PESCARIA</h1><h2>Chi apre il banco oggi?</h2><p>Scegli i mercanti, assegna i personaggi e preparati all’asta.</p></div>
+      <div class="setup-heading"><div class="eyebrow">Partita di prova · Laboratorio</div><h1>PESCARIA</h1><h2>Chi apre il banco oggi?</h2><p>Gioca dal telefono con le regole scelte nel Laboratorio. Le partite salvate qui restano separate dal gioco originale.</p><p><a href="laboratorio/laboratorio.html">← Torna ai parametri</a></p></div>
       <div id="setupOptions" class="setup-options"></div>
       <div id="setupPlayers" class="setup-players"></div>
       <p class="setup-note">I giocatori umani si passano lo stesso dispositivo. Ogni personaggio è unico: scegliendone uno già assegnato, i due mercanti se lo scambiano.</p>
-      <button class="btn primary wide" onclick="newGame()">Apri il mercato</button><button class="btn secondary setup-menu" onclick="startTutorial()">Impara a giocare · Tutorial guidato</button><button class="btn secondary setup-menu" onclick="window.open('laboratorio.html','_blank')">Laboratorio · Simula e analizza</button><button class="btn secondary setup-menu" onclick="openGameMenu()">Menu · Carica partita</button>
+      <button class="btn primary wide" onclick="newGame()">Gioca questa variante</button><button class="btn secondary setup-menu" onclick="window.open('laboratorio/laboratorio.html','_blank')">Laboratorio · Parametri e report</button><button class="btn secondary setup-menu" onclick="openGameMenu()">Menu · Carica partita di prova</button>
     </section>
 
     <section id="game" class="hidden" tabindex="-1">
@@ -685,6 +687,18 @@ const CARDS=RAW.trim().split('\n').map(line=>{const [id,name,bid,value,fish,cat,
 class RNG{constructor(seed){this.s=(seed>>>0)||1}next(){this.s=(this.s+0x6D2B79F5)|0;let t=this.s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}int(n){return Math.floor(this.next()*n)}shuffle(a){for(let i=a.length-1;i>0;i--){const j=this.int(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}}
 let G=null;
 const HEADLESS=typeof window.__PESCARIA_HEADLESS!=='undefined';
+const LAB_DEFAULT_RULES={tieredPricing:true,winnerPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:3,otherPrice:1,startCoins:12,fishPerPlayer:8,handSize:7,mandatoryBid:true,contractOnlyCoins:true,contractChoice:false,installRemainingCards:false,categoryBonusPerUpgrade:0,deferMerchantIncome:true,merchantCardValue:1,limitMerchantIncome:false,marketSetBonus:false,marketSetThreshold:3,marketSetBase:10,auctionLoserChoice:false,auctionCardChoice:true,auctionContractsVariant:true,auctionUpgradeCap:3,auctionUpgradeOnNoFish:false};
+function selectedLabRules(){
+  const raw=new URLSearchParams(location.search).get('rules');if(!raw)return LAB_DEFAULT_RULES;
+  try{
+    if(raw.length>3000)throw Error('Regole troppo lunghe');
+    const selected=JSON.parse(raw);
+    if(!selected||typeof selected!=='object'||Object.entries(LAB_DEFAULT_RULES).some(([key,value])=>typeof selected[key]!==typeof value||(typeof value==='number'&&(!Number.isInteger(selected[key])||selected[key]<0||selected[key]>100))))throw Error('Regole non valide');
+    if(selected.handSize>12||selected.fishPerPlayer>12||selected.threshold1>=selected.threshold2||selected.threshold2>20||selected.auctionUpgradeCap>5)throw Error('Regole fuori intervallo');
+    return Object.fromEntries(Object.keys(LAB_DEFAULT_RULES).map(key=>[key,selected[key]]));
+  }catch{alert('Il collegamento contiene regole non valide. Torno al Laboratorio.');location.replace('laboratorio/laboratorio.html');return LAB_DEFAULT_RULES}
+}
+const LAB_PLAY_RULES=HEADLESS?null:selectedLabRules();
 const inv=()=>Object.fromEntries(FISH.map(f=>[f,0]));
 const count=o=>FISH.reduce((n,f)=>n+(o[f]||0),0);
 const mix=(a,b)=>Object.fromEntries(FISH.map(f=>[f,(a[f]||0)+(b[f]||0)]));
@@ -739,7 +753,7 @@ function completeContract(p,card,reward='coins'){
 }
 
 // Three local save slots. Card references are shared again after JSON restoration.
-const SAVE_PREFIX='pescaria.save.',SAVE_VERSION=1;
+const SAVE_PREFIX='pescaria.laboratorio.save.',SAVE_VERSION=1;
 function encodeGame(state){return JSON.stringify(state,(_,v)=>v instanceof Set?{_set:[...v]}:v)}
 function decodeGame(raw){
   const cards=new Map();
@@ -764,7 +778,7 @@ function readSave(slot){
   return entry;
 }
 let menuPage='home',audioEnabled=false,audioVolume=.3,audioContext=null;
-if(!HEADLESS)try{const settings=JSON.parse(localStorage.getItem('pescaria.audio')||'null');if(settings){audioEnabled=settings.enabled===true;audioVolume=Math.max(0,Math.min(1,Number(settings.volume)||0))}}catch{}
+if(!HEADLESS)try{const settings=JSON.parse(localStorage.getItem('pescaria.laboratorio.audio')||'null');if(settings){audioEnabled=settings.enabled===true;audioVolume=Math.max(0,Math.min(1,Number(settings.volume)||0))}}catch{}
 function playSound(kind='coin'){
   if(HEADLESS||!audioEnabled||!audioVolume)return;
   try{
@@ -778,7 +792,7 @@ function playSound(kind='coin'){
 }
 window.setGameAudio=function(enabled,volume=audioVolume){
   audioEnabled=enabled;audioVolume=Math.max(0,Math.min(1,Number(volume)||0));
-  try{localStorage.setItem('pescaria.audio',JSON.stringify({enabled:audioEnabled,volume:audioVolume}))}catch{}
+  try{localStorage.setItem('pescaria.laboratorio.audio',JSON.stringify({enabled:audioEnabled,volume:audioVolume}))}catch{}
   renderGameMenu('audio');playSound('coin');
 };
 function fitGameMenu(){const box=$('gameMenu').querySelector('.menu-inner');if(!box||!$('gameMenu').open)return;box.style.zoom=1;box.style.zoom=Math.min(1,(innerHeight-64)/box.scrollHeight)}
@@ -791,7 +805,7 @@ window.renderGameMenu=function(page='home',message=''){
       return`<section class="save-slot" aria-label="Slot ${slot}"><div><b>Slot ${slot}</b><small>${esc(info)}</small></div><button class="btn primary" onclick="saveGameSlot(${slot})" ${G?'':'disabled'} aria-label="Salva nello slot ${slot}">Salva</button><button class="btn secondary" onclick="loadGameSlot(${slot})" ${exists?'':'disabled'} aria-label="Carica lo slot ${slot}">Carica</button></section>`;
     }).join('')+'</div>';
   }else if(page==='audio')body=`<p class="menu-note">Effetti sonori per i cambi di fase e le monete.</p><button class="btn secondary menu-item" aria-pressed="${audioEnabled}" onclick="setGameAudio(${!audioEnabled})">Audio ${audioEnabled?'attivo':'disattivato'}</button><label class="menu-volume">Volume <input type="range" min="0" max="100" value="${Math.round(audioVolume*100)}" aria-label="Volume audio" onchange="setGameAudio(audioEnabledFromMenu(),this.value/100)"></label>`;
-  else body=`<button class="btn primary menu-item" onclick="restartGame()">Nuova partita</button><button class="btn secondary menu-item" onclick="window.open('laboratorio.html','_blank')">Laboratorio · Simula e analizza</button><button class="btn secondary menu-item" onclick="renderGameMenu('saves')">Carica / salva partita</button><button class="btn secondary menu-item" onclick="renderGameMenu('audio')">Audio</button><button class="btn secondary menu-item" disabled>Credits · Prossimamente</button>`;
+  else body=`<button class="btn primary menu-item" onclick="restartGame()">Nuova partita</button><button class="btn secondary menu-item" onclick="window.open('laboratorio/laboratorio.html','_blank')">Laboratorio · Parametri e report</button><button class="btn secondary menu-item" onclick="renderGameMenu('saves')">Carica / salva partita</button><button class="btn secondary menu-item" onclick="renderGameMenu('audio')">Audio</button><button class="btn secondary menu-item" disabled>Credits · Prossimamente</button>`;
   $('gameMenu').innerHTML=`<div class="menu-inner"><div class="menu-heading"><h2 id="gameMenuTitle">${page==='saves'?'Carica / salva partita':page==='audio'?'Audio':'Menu'}</h2><form method="dialog"><button class="menu-close" aria-label="Chiudi menu">×</button></form></div>${body}<p class="menu-message" role="status">${esc(message)}</p>${page!=='home'?'<button class="btn secondary menu-item" onclick="renderGameMenu()">← Indietro</button>':''}</div>`;
   fitGameMenu();
 };
@@ -983,7 +997,8 @@ function installTutorialGuards(){
 }
 
 // ---------------- Setup ----------------
-let setupCount=4,setupDifficulty='normal',setupCongrega='no';
+const requestedPlayers=HEADLESS?4:Number(new URLSearchParams(location.search).get('players'));
+let setupCount=[2,3,4,5].includes(requestedPlayers)?requestedPlayers:4,setupDifficulty='normal',setupCongrega='no';
 const setupRoster=PLAYER_MATS.map((_,id)=>({name:id?BOTNAMES[id-1]:'Daniele',human:id===0,character:id}));
 window.renderSetupPlayers=function(){
   const n=setupCount,host=$('setupPlayers');host.style.setProperty('--players',n);
@@ -1014,7 +1029,7 @@ window.newGame=function(){
   if(n===1&&setupCongrega==='no')setupCongrega='apprendista';
   let total=n,congrega=null;
   if(n<=2&&setupCongrega!=='no'){const used=new Set(roster.map(p=>p.character));const ch=PLAYER_MATS.findIndex((_,i)=>!used.has(i));roster.push({name:'Congrega',human:false,character:ch,congrega:true});total=n+1;congrega=setupCongrega}
-  startGame({n:total,roster,difficulty:setupDifficulty,humanBot:false,congrega});render();
+  startGame({n:total,roster,difficulty:setupDifficulty,humanBot:false,congrega,simConfig:LAB_PLAY_RULES});render();
 };
 const activePlayer=()=>G.players[G.activePlayer??0];
 const humanPlayers=()=>G.players.filter(p=>p.human);
@@ -1290,6 +1305,13 @@ window.confirmKeep=function(){if(G.overlay!=='keep')return;keepCards(activePlaye
 
 // ---------------- Fase 4 · Fine giornata ----------------
 const MAESTRO={'Maestro della Pescaria':'A','Maestro delle Aste':'E','Maestro del Mercato':'C'},MAESTRO_X=2;
+function upgradeDescription(up){
+  const cat=MAESTRO[up],rules=G?.simConfig??LAB_PLAY_RULES;if(!cat)return UPG[up].fx;
+  const name=CATS[cat].name;
+  if(rules?.marketSetBonus)return`A fine partita guadagni ${rules.marketSetBase} ${rules.marketSetBase===1?'Ducato':'Ducati'} per ogni gruppo di ${rules.marketSetThreshold} ${rules.marketSetThreshold===1?'miglioria':'migliorie'} ${name} installate.`;
+  if(rules?.deferMerchantIncome)return`A fine partita guadagni ${rules.merchantCardValue} ${rules.merchantCardValue===1?'Ducato':'Ducati'} per ogni miglioria ${name} installata.`;
+  return UPG[up].fx;
+}
 function bilanciaIncome(p,includePending=false){
   const cards=includePending?[...p.installed,...p.pending]:p.installed;
   return cards.filter(c=>c.cat==='B').map(c=>{const k=MAESTRO[c.up],income=(G?.simConfig?.deferMerchantIncome?G.simConfig.merchantCardValue??MAESTRO_X:MAESTRO_X)*cards.filter(other=>other.cat===k).length;return{card:c,v:G?.simConfig?.limitMerchantIncome&&!G.simConfig.deferMerchantIncome?Math.min(income,G.simConfig.merchantIncomeCap??2):income}});
@@ -1483,7 +1505,7 @@ function overlayHtml(){
   if(G.overlay==='morning'){
     const lots=FISH.map(f=>`<div class="net-pick" style="cursor:default"><img src="${ASSET.fish[f]}" alt=""><span>${G.market[f]} ${f}</span></div>`).join(''),mine=G.fiutoLog.filter(x=>x.pid===0).map(x=>`${ICON[x.f]} ${x.f}`).join(', ');
     return box(`Giorno ${G.day} · Pesca del mattino`,'Il pescato di oggi',`<div class="net-picks">${lots}</div>${mine?`<p style="margin-top:12px">Fiuto per il Pescato: ricevi ${mine}.</p>`:''}<button class="btn primary" onclick="beginDraft()">${directCardsToday()?'Ricevi le carte e inizia le aste':'Al draft'}</button>`)}
-  if(G.overlay==='keep')return box('Fine del mercato','Conserva fino a 2 carte',`<p>${soloCongrega()?'Domani riprenderai queste carte insieme alle 5 nuove carte.':'Le carte conservate restano da parte durante il draft di domani e poi tornano nella tua mano.'} Le altre vengono scartate.</p><div class="cards" style="text-align:left">${me.hand.map(c=>cardHtml(c,'keep',true)).join('')}</div><button class="btn primary" onclick="confirmKeep()">Conferma (${G.keepSel.size}/2)</button>`);
+  if(G.overlay==='keep')return box('Fine del mercato','Conserva fino a 2 carte',`<p>${soloCongrega()?`Domani riprenderai queste carte insieme alle ${G.simConfig?.handSize??HAND} nuove carte.`:'Le carte conservate restano da parte durante il draft di domani e poi tornano nella tua mano.'} Le altre vengono scartate.</p><div class="cards" style="text-align:left">${me.hand.map(c=>cardHtml(c,'keep',true)).join('')}</div><button class="btn primary" onclick="confirmKeep()">Conferma (${G.keepSel.size}/2)</button>`);
   if(G.overlay==='favorite')return box('La Congrega','Scegli il pesce preferito',`<p>Il pesce scelto viene preso dal sacchetto e messo sulla carta. Ogni contratto che richiede quel tipo di pesce renderà 2 Ducati in più.</p><div class="net-picks">${FISH.map(f=>`<button class="net-pick" onclick="pickFavorite('${f}')"><img src="${ASSET.fish[f]}" alt=""><span>${f}</span></button>`).join('')}</div>`);
   if(G.overlay==='summary'){
     const rows=G.players.map(p=>`<div class="rankrow"><div class="place"><i class="dot" style="background:${playerColor(p)}"></i></div><div class="who">${esc(p.name)}${p.human?' · giocatore':''}</div><b>${p.today.contracts.length} contratti +${p.today.income} · ${G.simConfig?.deferMerchantIncome||G.simConfig?.marketSetBonus?'Mercanti: premio finale':`Bilancia +${p.today.bilancia.reduce((s,x)=>s+x.v,0)}`} · ${p.coins} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"></b></div>`).join('');
@@ -1502,10 +1524,10 @@ function playerAnnouncement(){
   if(G.handoff)return`Passa il dispositivo a ${name}. Conferma quando sei pronto.`;
   if(G.overlay==='favorite')return`${name} · Scegli il pesce preferito per la miglioria La Congrega.`;
   if(G.phase==='rete')return`${name}, ecco il pescato di oggi. ${directCardsToday()?'Ricevi le carte e inizia le aste.':'Vai al draft per scegliere le carte.'}`;
-  if(G.phase==='draft')return`${name} · Draft · Carte scelte: ${G.drafted[me.id].length}/5. Scegli dal ventaglio una carta senza lucchetto.`;
+  if(G.phase==='draft')return`${name} · Draft · Carte scelte: ${G.drafted[me.id].length}/${G.simConfig?.handSize??HAND}. Scegli dal ventaglio una carta senza lucchetto.`;
   if(G.phase==='asta'){
     const fish=currentFish();
-    if(G.auctionStage==='bid')return G.selectedBid?`${name} · Asta: ${fish}. Tocca la moneta sul tuo banco per aggiungere Ducati, poi premi OFFRI. Tocca i Ducati sulla carta per riprenderli.`:`${name} · Asta: ${fish}. Scegli una carta per l’offerta oppure premi PASSA. Premi TUTTE per saltare tutte le aste rimaste oggi.`;
+    if(G.auctionStage==='bid')return G.selectedBid?`${name} · Asta: ${fish}. Tocca la moneta sul tuo banco per aggiungere Ducati, poi premi OFFRI. Tocca i Ducati sulla carta per riprenderli.`:G.simConfig?.mandatoryBid?`${name} · Asta: ${fish}. Scegli una carta: l’offerta è obbligatoria quando hai carte in mano.`:`${name} · Asta: ${fish}. Scegli una carta per l’offerta oppure premi PASSA. Premi TUTTE per saltare tutte le aste rimaste oggi.`;
     const winner=G.auctionResult?.[0];
     return`${winner?`Vincitore: ${G.players[winner.pid].name}, con un’offerta di ${bidScore(winner)}. `:''}${name}, ${G.buyQueue?.[G.buyPos]&&loserGetsUpgrade(G.buyQueue[G.buyPos])?'scegli quanti pesci comprare: installerai anche la carta come miglioria.':canUpgradeAuctionCard()?'scegli se comprare pesci o installare la carta come miglioria.':'scegli quanti pesci comprare e conferma.'}`;
   }
@@ -1532,13 +1554,13 @@ function inventoryHtml(stock,muted=false){const x=FISH.flatMap(f=>Array.from({le
 function cardHtml(c,mode='plain',enabled=true,style=''){
   const lesson=tutorialStep(),explained=lesson?.preview===c.id;
   const me=activePlayer(),selected=(mode==='bid'&&G.selectedBid===c.id)||(mode==='market'&&G.contractChoice===c.id)||(mode==='keep'&&G.keepSel?.has(c.id)),locked=mode==='draft'&&!enabled,selectable=enabled&&['bid','draft','market','client','keep'].includes(mode),fn={bid:'chooseBid',draft:'pickDraft',market:'serveContract',client:'pickClient',keep:'toggleKeep'}[mode],select=selectable?`role="button" tabindex="0" ${['draft','bid'].includes(mode)?'data-swipe-select':''} onclick="${fn}(${c.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}(${c.id})}"`:'tabindex="0"';
-  const pay=mode==='market'&&enabled?payout(me,c):c.value,description=`${c.bid} CLIENTE #${c.id} ${c.name}. ${c.fish}. ${pay} Ducati oppure ${upName(c)}. ${UPG[c.up].fx}`;
-  return`<article data-card-id="${c.id}" class="card illustrated-card ${explained?'tutorial-explained':''} ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" aria-label="${esc(description)}" title="${esc(description)}" ${style?`style="${style}"`:''} ${select}><img class="card-art" src="assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2" alt="" draggable="false">${explained&&lesson.part&&!lesson.action?`<span class="tutorial-card-focus focus-${lesson.part}" aria-hidden="true"></span>`:''}${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}${pay!==c.value?`<span class="card-bonus">${pay} Ducati · +${pay-c.value} bonus</span>`:''}</article>`}
+  const pay=mode==='market'&&enabled?payout(me,c):c.value,description=`${c.bid} CLIENTE #${c.id} ${c.name}. ${c.fish}. Contratto: ${pay} Ducati. Miglioria: ${upName(c)}. ${upgradeDescription(c.up)}`;
+  return`<article data-card-id="${c.id}" class="card illustrated-card ${explained?'tutorial-explained':''} ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" aria-label="${esc(description)}" title="${esc(description)}" ${style?`style="${style}"`:''} ${select}><img class="card-art" src="assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2" alt="" draggable="false">${explained&&lesson.part&&!lesson.action?`<span class="tutorial-card-focus focus-${lesson.part}" aria-hidden="true"></span>`:''}${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}${pay!==c.value?`<span class="card-bonus">${pay} Ducati · +${pay-c.value} bonus</span>`:''}${c.cat==='B'?`<span class="lab-card-note">LAB · ${esc(upgradeDescription(c.up))}</span>`:''}</article>`}
 function phaseTitle(k){if(k==='draft')return'1 · Draft';if(k==='conserva')return'3 · Mercato';return PHASES.find(x=>x[0]===k)?.[1]||''}
 function playerMatHtml(p){
   const [color,character]=PLAYER_MATS[p.character??p.id],fish=FISH.flatMap(f=>Array(p.banco[f]).fill(f));
   const trays=Array.from({length:3},(_,i)=>{const stock=inv();fish.filter((_,j)=>j%3===i).forEach(f=>stock[f]++);return`<div class="bank-tray">${count(stock)?inventoryHtml(stock):''}</div>`}).join('');
-  const lanes=Object.entries(CATS).map(([key,cat])=>{const cards=p.installed.filter(c=>c.cat===key);return`<section class="mat-upgrade-lane" aria-label="Migliorie ${cat.name}"><h4>${cat.name} <span>${cards.length}</span></h4>${cards.map(c=>`<details class="mat-upgrade"><summary>${esc(upName(c))}</summary><p>${esc(c.name)}<br>${esc(UPG[c.up].fx)}${c.favFish?`<br>Pesce preferito: ${esc(c.favFish)}`:''}</p></details>`).join('')||'<span class="mat-empty">—</span>'}</section>`}).join('');
+  const lanes=Object.entries(CATS).map(([key,cat])=>{const cards=p.installed.filter(c=>c.cat===key);return`<section class="mat-upgrade-lane" aria-label="Migliorie ${cat.name}"><h4>${cat.name} <span>${cards.length}</span></h4>${cards.map(c=>`<details class="mat-upgrade"><summary>${esc(upName(c))}</summary><p>${esc(c.name)}<br>${esc(upgradeDescription(c.up))}${c.favFish?`<br>Pesce preferito: ${esc(c.favFish)}`:''}</p></details>`).join('')||'<span class="mat-empty">—</span>'}</section>`}).join('');
   const bidding=G.phase==='asta'&&G.auctionStage==='bid'&&!G.handoff&&p.id===activePlayer().id;
   const available=bidding?Math.max(0,p.coins-G.bidCash):p.coins;
   const coins=bidding?`<button id="bidCoinSource" class="mat-coins mat-bid-coins" onclick="addBidCoin(event)" title="Aggiungi i Ducati alla tua offerta" aria-label="Aggiungi un Ducato all'offerta. ${available} Ducati disponibili" ${G.selectedBid&&available?'':'disabled'}>${available}</button>`:`<span class="mat-coins" aria-label="${p.coins} Ducati">${p.coins}</span>`;
@@ -1768,7 +1790,8 @@ if(!HEADLESS){setupHandSwipe($('floatingHand'));renderSetupPlayers();scheduleFit
 document.addEventListener('pointermove',e=>{const c=e.target.closest?.('.hand-cards .card');if(!c||reducedMotion||window.gsap)return;const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.setProperty('--tilt-y',`${x*11}deg`);c.style.setProperty('--tilt-x',`${y*-8}deg`)});
 document.addEventListener('pointerout',e=>{const c=e.target.closest?.('.hand-cards .card');if(!c||window.gsap||c.contains(e.relatedTarget))return;c.style.removeProperty('--tilt-x');c.style.removeProperty('--tilt-y')});
 
-$('rules').innerHTML=`<div class="rule"><b>Contratti</b>Se hai i pesci richiesti, scegli i Ducati oppure la miglioria indicata dalla carta. Se scegli i Ducati, aggiungi 1 per ogni miglioria già installata della stessa categoria.</div><div class="rule"><b>Lotto esaurito</b>Se hai puntato una carta e il lotto finisce prima del tuo turno di acquisto, la carta entra subito nelle tue migliorie. Se ci sono ancora pesci ma non puoi comprarli, oppure scegli zero, la carta viene scartata.</div><div class="rule"><b>A consumo</b>Fortuna e Sottobanco: una volta per giornata per carta.</div>`+Object.entries(UPG).map(([n,u])=>`<div class="rule"><b>${CATS[u.cat].icon} ${esc(DISPLAY[n])}</b>${esc(u.fx)}</div>`).join('');
+const shownRules=LAB_PLAY_RULES??{};
+$('rules').innerHTML=`<div class="rule"><b>Contratti</b>${shownRules.contractOnlyCoins?'I contratti completati danno solo Ducati; la carta viene scartata.':shownRules.contractChoice?'Scegli Ducati oppure miglioria quando completi un contratto.':'Ogni contratto completato dà Ducati e miglioria.'}</div><div class="rule"><b>Carte puntate</b>${shownRules.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano la carta.':shownRules.auctionCardChoice?'Al tuo turno scegli se comprare pesci o installare la carta. Se compri, recuperi la carta al mercato quando la variante è attiva.':'Se il lotto finisce prima del tuo turno, la carta può diventare una miglioria.'}</div><div class="rule"><b>A consumo</b>Fortuna e Sottobanco: una volta per giornata per carta.</div>`+Object.entries(UPG).map(([n,u])=>`<div class="rule"><b>${CATS[u.cat].icon} ${esc(DISPLAY[n])}</b>${esc(upgradeDescription(n))}</div>`).join('');
 
 // Autocontrollo del mazzo V4.1: 100 carte, 25 per categoria, Fiuto 2-3-2-3-2 e sempre un pesce del contratto.
 const fiuto=CARDS.filter(c=>c.up==='Fiuto per il Pescato');
