@@ -1113,10 +1113,37 @@ window.pickDraft=function(id){
 function finishDraft(){
   for(const p of G.players){p.hand.push(...G.drafted[p.id],...p.kept);p.keptIds=new Set(p.kept.map(c=>c.id));p.kept=[];p.plan=null}
   if(G.deckShortages?.at(-1)?.day!==G.day)log(G.draftRound===0?'Carte':'Draft',G.draftRound===0?`Ricevi ${G.simConfig?.handSize??HAND} nuove carte e riprendi in mano quelle conservate.`:'Draft completato: ognuno riprende in mano anche le carte conservate.');
-  G.phase='asta';G.auctionIndex=-1;G.aOrder=[...FISH];nextAuction();
+  G.phase='asta';G.auctionIndex=-1;G.aOrder=[...FISH];
+  if(G.simConfig?.simultaneousBids)planSimultaneousBids();
+  nextAuction();
 }
 
 // ---------------- Fase 2 · Aste ----------------
+const batchBid=botBid;
+function planSimultaneousBids(){
+  G.committedBids=Object.fromEntries(FISH.map(f=>[f,[]]));
+  G.bidReservations=G.players.map(()=>0);
+  G.simCaptain=G.captain;
+  for(const p of G.players){
+    const hand=p.hand,coins=p.coins,influence=p.influence;
+    p.hand=[...hand];
+    for(let i=0;i<FISH.length;i++){
+      const f=FISH[i];if(!G.market[f]||!p.hand.length)continue;
+      G.auctionIndex=i;
+      let bid=batchBid(p,f,[]);
+      if(!bid&&G.simConfig.mandatoryBid)bid={pid:p.id,card:[...p.hand].sort((a,b)=>botCardValue(p,a)-botCardValue(p,b))[0],cash:0,infl:0};
+      if(!bid)continue;
+      bid.cash=Math.max(0,Math.min(bid.cash,p.coins));
+      bid.infl=Math.max(0,Math.min(bid.infl,p.influence));
+      G.committedBids[f].push(bid);
+      G.bidReservations[p.id]+=bid.cash;
+      p.coins-=bid.cash;p.influence-=bid.infl;
+      p.hand.splice(p.hand.indexOf(bid.card),1);
+    }
+    p.hand=hand;p.coins=coins;p.influence=influence;p.plan=null;
+  }
+  G.auctionIndex=-1;
+}
 function currentFish(){return (G.aOrder||FISH)[G.auctionIndex]}
 function nextAuction(){
   G.selectedBid=null;G.bidCash=0;G.bidInfl=0;G.buyQty=0;G.auctionPurchases={};G.auctionBlockedByEmpty={};G.auctionZeroUpgrades=[];G.auctionLot=0;G.auctionResult=null;G.buyQueue=null;
@@ -1126,6 +1153,10 @@ function nextAuction(){
   beginBids();
 }
 function beginBids(){
+  if(G.simConfig?.simultaneousBids){
+    G.auctionStage='bid';G.bids=G.committedBids[currentFish()];G.bidDone=turnOrder();G.bidOrder=turnOrder();G.bidPos=G.bidOrder.length;
+    resolveBids(G.bids);return;
+  }
   G.auctionStage='bid';G.bids=[];G.bidDone=[];G.bidOrder=turnOrder();G.bidPos=0;advanceBidders();
 }
 function advanceBidders(){
@@ -1150,7 +1181,8 @@ window.submitBid=function(mode='bid'){
   G.bidDone.push(me.id);G.bidPos++;advanceBidders();render();
 };
 function resolveBids(bids){
-  const f=currentFish(),order=turnOrder();G.auctionLot=G.market[f];G.clientsQueue=[];G.favQueue=[];
+  const f=currentFish(),order=G.simConfig?.simultaneousBids?Array.from({length:G.players.length},(_,i)=>(G.simCaptain+i)%G.players.length):turnOrder();G.auctionLot=G.market[f];G.clientsQueue=[];G.favQueue=[];
+  if(G.bidReservations)for(const b of bids)G.bidReservations[b.pid]-=b.cash;
   for(const b of bids){const p=G.players[b.pid];p.hand.splice(p.hand.indexOf(b.card),1);if(G.tutorial||(!auctionChoiceOn()&&G.simConfig?.auctionUpgradeOnNoFish===false))discard(b.card)}
   if(!bids.length){log('Asta',`Asta: ${f}. Nessuno partecipa: il pesce torna nel sacchetto.`);returnFish(f,G.market[f]);G.market[f]=0;G.auctionResult=[];afterAuction();return}
   bids.sort((a,b)=>bidScore(b)-bidScore(a)||order.indexOf(a.pid)-order.indexOf(b.pid));
@@ -1167,7 +1199,7 @@ function resolveBids(bids){
 // Senza tassa: se il prezzo supera 1 Ducato, un pesce per copia costa 1; il resto costa il prezzo pieno.
 const cheapN=(p,price)=>price>1?copies(p,'Esperienza'):0;
 function costOf(p,n,price){const c=Math.min(n,cheapN(p,price));return c+(n-c)*price}
-function maxBuy(p,f,price){let n=Math.min(G.market[f],roomBanco(p));while(n>0&&costOf(p,n,price)>p.coins)n--;return n}
+function maxBuy(p,f,price){let n=Math.min(G.market[f],roomBanco(p));while(n>0&&costOf(p,n,price)>p.coins-(G.bidReservations?.[p.id]||0))n--;return n}
 function buy(p,f,n,price){n=Math.max(0,Math.min(n,maxBuy(p,f,price)));if(n){const cost=costOf(p,n,price);p.coins-=cost;p.banco[f]+=n;G.market[f]-=n;(G.auctionPurchases??={})[p.id]=(G.auctionPurchases[p.id]||0)+n;log('Acquisto',`${p.name} compra ${n} ${f} per ${cost} Ducat${cost===1?'o':'i'}.`)}return n}
 function auctionChoiceOn(){return !!(G.simConfig?.auctionCardChoice||G.simConfig?.auctionLoserChoice)}
 function auctionContractVariantOn(){return !!(G.simConfig?.auctionContractsVariant&&G.simConfig?.auctionCardChoice&&!G.simConfig?.auctionLoserChoice)}
