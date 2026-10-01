@@ -1,5 +1,6 @@
 const MC={samples:6,depth:6,choices:0,rollouts:0,marketChoices:0};
 const STOP={};
+const PLAN_HORIZON_BONUS=30;
 const originalDraft=botDraft,originalBid=botBid,originalBuy=botBuy;
 function cloneGame(){const g=structuredClone(G);Object.setPrototypeOf(g.rng,RNG.prototype);return g}
 function checkpoint(){if(G.mcRollout&&--G.mcMoves<0)throw STOP}
@@ -52,11 +53,13 @@ botBid=function(p,f,seen){
   add({card:cards.at(-1),cash:Math.min(3,p.coins),infl:p.influence});
   let best=null,value=-Infinity;MC.choices++;
   for(const o of opts){
-    const v=runCandidate(p.id,(o?.id||0)*11+(o?.cash||0)*3+(o?.infl||0),()=>{
+    let v=runCandidate(p.id,(o?.id||0)*11+(o?.cash||0)*3+(o?.infl||0),()=>{
       const cp=G.players[p.id];
       if(o){const card=cp.hand.find(c=>c.id===o.id);G.bids.push({pid:p.id,card,cash:o.cash,infl:o.infl})}
       G.bidDone.push(p.id);G.bidPos++;advanceBidders();
     });
+    // Sei mosse spesso finiscono prima del Mercato: preserva il piano quando la stima è incerta.
+    if((!o&&!baseline)||(o&&baseline&&o.id===baseline.card.id&&o.cash===baseline.cash&&o.infl===baseline.infl))v+=PLAN_HORIZON_BONUS;
     if(v>value){value=v;best=o}
   }
   if(!best)return null;
@@ -68,15 +71,19 @@ botBuy=function(p,f,price,rank){
   const limit=maxBuy(p,f,price);
   if(!limit){if(canUpgradeAuctionCard())installAuctionUpgrade(G.buyQueue[G.buyPos]);return}
   const wanted=Math.min(limit,needOf(p,f,botPlan(p)));
-  const options=[...new Set([0,1,wanted,limit].filter(n=>n<=limit))];
+  const q=G.buyQueue[G.buyPos];
+  const upgrade=canUpgradeAuctionCard()&&(!wanted||botUpgradeValue(p,q.card)>wanted*3-costOf(p,wanted,price));
+  const planned=upgrade?0:Math.min(limit,rank===0&&p.coins>6?Math.max(wanted+1,1):wanted);
+  const options=[...new Set([0,1,wanted,limit,planned].filter(n=>n<=limit))];
   let best=0,value=-Infinity;MC.choices++;
   for(const n of options){
-    const v=runCandidate(p.id,f.length*13+n,()=>{
+    let v=runCandidate(p.id,f.length*13+n,()=>{
       const q=G.buyQueue[G.buyPos];
       if(!n&&canUpgradeAuctionCard())installAuctionUpgrade(q);
       else{buy(G.players[p.id],f,n,price);if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');else if(auctionChoiceOn())settleAuctionCard(q)}
       G.buyPos++;advanceBuys();
     });
+    if(n===planned)v+=PLAN_HORIZON_BONUS;
     if(v>value){value=v;best=n}
   }
   if(best>wanted){const stat=G.mcAgg??={extra:0,cost:0,byPrice:[0,0,0,0]};

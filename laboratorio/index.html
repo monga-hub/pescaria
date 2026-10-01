@@ -1400,12 +1400,30 @@ function botDraft(p,pack){
 }
 // Il bot sceglie quali carte tenere come contratti (piano) e quali usare in asta.
 function botPlan(p){
-  if(p.plan&&[...p.plan].every(id=>p.hand.some(c=>c.id===id)))return p.plan;
   p.plan=botPlanFresh(p);return p.plan;
 }
 function botPlanFresh(p){
-  const cards=[...p.hand].sort((a,b)=>(botCardValue(p,b)*(.4+.6*availability(p,b))-b.bid*.3)-(botCardValue(p,a)*(.4+.6*availability(p,a))-a.bid*.3));
-  const keepN=Math.min(cards.length,2);return new Set(cards.slice(0,keepN).map(c=>c.id));
+  const cards=p.hand,stock=mix(p.banco,p.cesta);let best=[],bestScore=-Infinity;
+  const consider=chosen=>{
+    const need=inv();for(const c of chosen)for(const [f,n] of Object.entries(c.recipe))need[f]+=n;
+    let missing=0,distinct=0,lost=0;
+    for(const f of FISH){
+      const miss=Math.max(0,need[f]-stock[f]);missing+=miss;distinct+=!!miss;
+      const available=(G.aOrder||FISH).indexOf(f)>=G.auctionIndex?G.market[f]:0;
+      lost+=Math.max(0,miss-available);
+    }
+    const score=chosen.length*10-missing-distinct*2-Math.max(0,distinct-(cards.length-chosen.length))*10-lost*20
+      +chosen.reduce((sum,c)=>sum+botCardValue(p,c)*.1,0);
+    if(score>bestScore){bestScore=score;best=chosen}
+  };
+  for(let i=0;i<cards.length;i++){
+    consider([cards[i]]);
+    for(let j=i+1;j<cards.length;j++){
+      consider([cards[i],cards[j]]);
+      for(let k=j+1;k<cards.length;k++)consider([cards[i],cards[j],cards[k]]);
+    }
+  }
+  return new Set(best.map(c=>c.id));
 }
 // Contratti del piano ancora realizzabili: ogni pesce mancante è quello in asta ora o in un'asta successiva con abbastanza pesce.
 // Pesci del contratto ancora ottenibili: quelli in stock o in un lotto non ancora battuto.
@@ -1470,7 +1488,7 @@ function botBuy(p,f,price,rank){
   if(price>1&&n>0&&p.coins-costOf(p,n,price)<0)n=0;
   buy(p,f,n,price);
 }
-function botMarket(p){let moved=true;while(moved){moved=false;const c=p.hand.filter(x=>canContract(p,x)).sort((a,b)=>botCardValue(p,b)-botCardValue(p,a))[0];if(c){const reward=!G.simConfig?.contractOnlyCoins&&botUpgradeValue(p,c)>payout(p,c)+(p.coins<4?2:0)?'upgrade':'coins';completeContract(p,c,reward);moved=true}}}
+function botMarket(p){let moved=true;while(moved){moved=false;const c=p.hand.filter(x=>canContract(p,x)).sort((a,b)=>Object.values(a.recipe).reduce((s,n)=>s+n,0)-Object.values(b.recipe).reduce((s,n)=>s+n,0)||botCardValue(p,b)-botCardValue(p,a))[0];if(c){const reward=!G.simConfig?.contractOnlyCoins&&botUpgradeValue(p,c)>payout(p,c)+(p.coins<4?2:0)?'upgrade':'coins';completeContract(p,c,reward);moved=true}}}
 // Carte da conservare: le più promettenti come contratti (col pesce nel Barile) o come offerte forti.
 function botKeepValue(p,c){const stock=p.cesta;let have=0,need=0;for(const [f,n] of Object.entries(c.recipe)){need+=n;have+=Math.min(n,stock[f]||0)}return Math.max(botCardValue(p,c)*(.35+.65*have/need),c.bid*.9)}
 function botKeep(p){if(G.day===4)return[];return [...p.hand].sort((a,b)=>botKeepValue(p,b)-botKeepValue(p,a)).slice(0,KEEP_MAX).map(c=>c.id)}
