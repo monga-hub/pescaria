@@ -64,7 +64,7 @@ const labFinishDay=finishDay;
 finishDay=function(){
   if(!G.mcRollout){
     for(const p of G.players)G.lab.passive.push(...p.today.bilancia.map(x=>({day:G.day,pid:p.id,upgrade:x.card.up,gain:x.v})));
-    G.lab.days.push({day:G.day,players:G.players.map(p=>({coins:p.coins,startCoins:G.lab.startCoins[p.id],orders:p.orders,upgrades:p.installed.length+p.pending.length,wasted:p.wasted,bilancia:p.bilanciaTot,contractIncome:p.today.income,catchUpEarned:p.catchUpEarned||0,passiveIncome:G.simConfig?.deferMerchantIncome?0:p.today.bilancia.reduce((n,x)=>n+x.v,0),marketBonusIncome:0,favoriteIncome:p.favTot||0,cardsAtMarket:G.lab.marketOpen[p.id].cards,readyAtMarket:G.lab.marketOpen[p.id].ready,fishAtMarket:G.lab.marketOpen[p.id].fish,fishKept:count(p.cesta),cardsKept:p.kept.length,substitutions:p.subsUsed||0,fortunaDraws:p.fortunaDraws||0}))});
+    G.lab.days.push({day:G.day,players:G.players.map(p=>({coins:p.coins,startCoins:G.lab.startCoins[p.id],orders:p.orders,upgrades:p.installed.length+p.pending.length,wasted:p.wasted,bilancia:p.bilanciaTot,contractIncome:p.today.income,passiveIncome:G.simConfig?.deferMerchantIncome?0:p.today.bilancia.reduce((n,x)=>n+x.v,0),marketBonusIncome:0,favoriteIncome:p.favTot||0,cardsAtMarket:G.lab.marketOpen[p.id].cards,readyAtMarket:G.lab.marketOpen[p.id].ready,fishAtMarket:G.lab.marketOpen[p.id].fish,fishKept:count(p.cesta),cardsKept:p.kept.length,substitutions:p.subsUsed||0,fortunaDraws:p.fortunaDraws||0}))});
   }
   const result=labFinishDay();
   if(!G.mcRollout&&G.finished){
