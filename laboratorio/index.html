@@ -1452,6 +1452,8 @@ function botBid(p,f,seen=[]){
     return card&&botUpgradeValue(p,card)>1.5?{pid:p.id,card,cash:0,infl:0}:null;
   }
   if(!need)return G.rng.next()<(G.difficulty==='hard'?.05:.12)&&p.hand.length>3?cheapBid(p,keep):null;
+  // Con un lotto abbondante conviene conservare Ducati: basta partecipare all'asta.
+  if(G.market[f]>=6){const low=cheapBid(p,keep);if(low)return low}
   const bidCards=p.hand.filter(c=>!keep.has(c.id)).sort((a,b)=>a.bid-b.bid);
   // Ducati ed Esperienza degli avversari già in tavola sono visibili; la loro carta no (stima: valore medio).
   const est=seen.length?Math.max(...seen.map(s=>s.cash+s.infl*ESP_X+CARD_AVG)):0;
