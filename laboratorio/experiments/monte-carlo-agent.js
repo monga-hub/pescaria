@@ -12,7 +12,7 @@ function strength(p){
   const orders=cards.map(c=>{let have=0,need=0;for(const [f,n] of Object.entries(c.recipe)){have+=Math.min(n,stock[f]);need+=n}
     return payout(p,c)*(.15+.55*have/need)}).sort((a,b)=>b-a).slice(0,2).reduce((a,b)=>a+b,0);
   const upgrades=[...p.installed,...p.pending].reduce((v,c)=>v+botUpgradeValue(p,c)*.65,0)
-    +(G.simConfig?.installRemainingCards?cards.reduce((v,c)=>v+botUpgradeValue(p,c)*.35,0):0);
+    +(G.simConfig?.installRemainingCards?cards.reduce((v,c)=>v+botUpgradeValue(p,c)*.35,0):G.simConfig?.chooseEndDayUpgrades?cards.map(c=>botUpgradeValue(p,c)).sort((a,b)=>b-a).slice(0,2).reduce((v,x)=>v+x*.35,0):0);
   const finalMerchant=G.finished?0:G.simConfig?.marketSetBonus?marketSetReward(p,true):G.simConfig?.deferMerchantIncome?bilanciaIncome(p,true).reduce((n,x)=>n+x.v,0):0;
   return p.coins+finalMerchant+fish+orders+upgrades;
 }

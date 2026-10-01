@@ -18,6 +18,25 @@ for(const seed of [1,2,3]){
   assert.equal(result.G.players.length,4);
   assert.equal(decodeGame(encodeGame(result.G)).simConfig.handSize,7);
 }
+const batchRules={...LAB_DEFAULT_RULES,auctionCardChoice:false,auctionContractsVariant:false,auctionLoserChoice:false,auctionUpgradeOnNoFish:false,contractOnlyCoins:true,chooseEndDayUpgrades:true,installRemainingCards:false};
+for(const seed of [1,2,3]){
+  const game=window.__pescaria.simulate({n:4,seed,simConfig:batchRules}).G;
+  assert(game.finished);
+  for(const p of game.players){
+    const hand=(game.handUpgrades||[]).filter(x=>x.pid===p.id);
+    assert.equal(p.installed.length,hand.length,'Only cards left in hand become upgrades');
+    for(let day=1;day<=4;day++)assert(hand.filter(x=>x.day===day).length<=2,'At most two upgrades per day');
+  }
+}
+startGame({n:2,seed:9,simConfig:batchRules});
+const hand=CARDS.slice(0,5),player=G.players[0];
+player.hand=hand;G.day=1;
+keepCards(player,[hand[0].id,hand[1].id],[hand[1].id,hand[2].id,hand[3].id,hand[4].id]);
+assert.equal(player.kept.length,2);
+assert.equal(player.pending.length,2);
+assert.equal(G.handUpgrades.length,2);
+assert.equal(player.hand.length,0);
+assert(G.discard.includes(hand[4]));
 assert.match(upgradeDescription('Maestro delle Aste'),/A fine partita guadagni 1 Ducato/);
 G.simConfig={...LAB_DEFAULT_RULES,deferMerchantIncome:false,marketSetBonus:true,marketSetBase:10,marketSetThreshold:3};
 assert.match(upgradeDescription('Maestro delle Aste'),/10 Ducati per ogni gruppo di 3/);

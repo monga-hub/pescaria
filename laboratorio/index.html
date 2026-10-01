@@ -1249,7 +1249,7 @@ function showAuctionSummary(){
 function startMarket(){
   if(auctionContractVariantOn())for(const p of G.players){p.hand.push(...p.auctionReturns);p.auctionReturns=[]}
   G.phase='pubblico';G.overlay=null;G.contractChoice=null;log('Mercato','Apre il Mercato: ogni mercante completa i propri contratti.');
-  for(const p of G.players)if(p.congrega)congregaSell(p);else if(!p.human){botMarket(p);closePlayerMarket(p);keepCards(p,botKeep(p))}
+  for(const p of G.players)if(p.congrega)congregaSell(p);else if(!p.human){botMarket(p);closePlayerMarket(p);const choice=G.simConfig?.chooseEndDayUpgrades?botEndDayChoice(p):null;keepCards(p,choice?.keep??botKeep(p),choice?.upgrades??[])}
   G.marketQueue=turnOrder().filter(id=>G.players[id].human);nextMarketPlayer();
 }
 function nextMarketPlayer(){
@@ -1286,7 +1286,17 @@ function finishMarket(){
   if(me.hand.length&&G.day<4){G.phase='conserva';G.keepSel=new Set();G.overlay='keep';return}
   keepCards(me,[]);nextMarketPlayer();
 }
-function keepCards(p,ids){
+function keepCards(p,ids,upgradeIds=[]){
+  if(G.simConfig?.chooseEndDayUpgrades){
+    const keep=p.hand.filter(c=>G.day<4&&ids.includes(c.id)).slice(0,KEEP_MAX);
+    const upgrades=p.hand.filter(c=>!keep.includes(c)&&upgradeIds.includes(c.id)).slice(0,KEEP_MAX);
+    p.pending.push(...upgrades);
+    (G.handUpgrades??=[]).push(...upgrades.map(card=>({day:G.day,pid:p.id,card:card.id,upgrade:card.up})));
+    for(const c of p.hand)if(!keep.includes(c)&&!upgrades.includes(c))discard(c);
+    p.kept=keep;p.hand=[];p.keptTot=(p.keptTot||0)+keep.length;
+    if(keep.length||upgrades.length)log('Migliorie',`${p.name} conserva ${keep.length} carte e installa ${upgrades.length} migliorie dalla mano.`);
+    return;
+  }
   if(G.simConfig?.installRemainingCards){
     if(p.hand.length){
       p.pending.push(...p.hand);
@@ -1462,7 +1472,18 @@ function botBuy(p,f,price,rank){
 }
 function botMarket(p){let moved=true;while(moved){moved=false;const c=p.hand.filter(x=>canContract(p,x)).sort((a,b)=>botCardValue(p,b)-botCardValue(p,a))[0];if(c){const reward=!G.simConfig?.contractOnlyCoins&&botUpgradeValue(p,c)>payout(p,c)+(p.coins<4?2:0)?'upgrade':'coins';completeContract(p,c,reward);moved=true}}}
 // Carte da conservare: le più promettenti come contratti (col pesce nel Barile) o come offerte forti.
-function botKeep(p){if(G.day===4)return[];const stock=p.cesta;const sc=c=>{let have=0,need=0;for(const [f,n] of Object.entries(c.recipe)){need+=n;have+=Math.min(n,stock[f]||0)}return Math.max(botCardValue(p,c)*(.35+.65*have/need),c.bid*.9)};return [...p.hand].sort((a,b)=>sc(b)-sc(a)).slice(0,KEEP_MAX).map(c=>c.id)}
+function botKeepValue(p,c){const stock=p.cesta;let have=0,need=0;for(const [f,n] of Object.entries(c.recipe)){need+=n;have+=Math.min(n,stock[f]||0)}return Math.max(botCardValue(p,c)*(.35+.65*have/need),c.bid*.9)}
+function botKeep(p){if(G.day===4)return[];return [...p.hand].sort((a,b)=>botKeepValue(p,b)-botKeepValue(p,a)).slice(0,KEEP_MAX).map(c=>c.id)}
+function botEndDayChoice(p){
+  const cards=[...p.hand].sort((a,b)=>Math.max(botUpgradeValue(p,b),G.day<4?botKeepValue(p,b):0)-Math.max(botUpgradeValue(p,a),G.day<4?botKeepValue(p,a):0));
+  const keep=[],upgrades=[];
+  for(const c of cards){const upgrade=botUpgradeValue(p,c),hold=G.day<4?botKeepValue(p,c):0;
+    if(upgrade>0&&(upgrade>=hold||keep.length===KEEP_MAX)&&upgrades.length<KEEP_MAX)upgrades.push(c.id);
+    else if(G.day<4&&keep.length<KEEP_MAX)keep.push(c.id);
+    else if(upgrade>0&&upgrades.length<KEEP_MAX)upgrades.push(c.id);
+  }
+  return{keep,upgrades};
+}
 function botFavorite(p){const tally=inv();for(const c of [...p.installed,...p.pending,...p.hand])for(const [f,n] of Object.entries(c.recipe))tally[f]+=n;return [...FISH].sort((a,b)=>tally[b]-tally[a])[0]}
 
 // ---------------- Rendering ----------------
