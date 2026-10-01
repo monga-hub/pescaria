@@ -687,12 +687,13 @@ const CARDS=RAW.trim().split('\n').map(line=>{const [id,name,bid,value,fish,cat,
 class RNG{constructor(seed){this.s=(seed>>>0)||1}next(){this.s=(this.s+0x6D2B79F5)|0;let t=this.s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}int(n){return Math.floor(this.next()*n)}shuffle(a){for(let i=a.length-1;i>0;i--){const j=this.int(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}}
 let G=null;
 const HEADLESS=typeof window.__PESCARIA_HEADLESS!=='undefined';
-const LAB_DEFAULT_RULES={tieredPricing:true,winnerPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:3,otherPrice:1,startCoins:12,fishPerPlayer:8,handSize:7,mandatoryBid:true,contractOnlyCoins:true,contractChoice:false,installRemainingCards:false,categoryBonusPerUpgrade:0,deferMerchantIncome:true,merchantCardValue:1,limitMerchantIncome:false,marketSetBonus:false,marketSetThreshold:3,marketSetBase:10,auctionLoserChoice:false,auctionCardChoice:true,auctionContractsVariant:true,auctionUpgradeCap:3,auctionUpgradeOnNoFish:false};
+const LAB_DEFAULT_RULES={tieredPricing:true,winnerPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:3,otherPrice:1,startCoins:12,fishPerPlayer:8,handSize:7,mandatoryBid:true,contractOnlyCoins:true,contractChoice:false,installRemainingCards:false,catchUpContracts:false,catchUpValue:3,categoryBonusPerUpgrade:0,deferMerchantIncome:true,merchantCardValue:1,limitMerchantIncome:false,marketSetBonus:false,marketSetThreshold:3,marketSetBase:10,auctionLoserChoice:false,auctionCardChoice:true,auctionContractsVariant:true,auctionUpgradeCap:3,auctionUpgradeOnNoFish:false};
 function selectedLabRules(){
   const raw=new URLSearchParams(location.search).get('rules');if(!raw)return LAB_DEFAULT_RULES;
   try{
     if(raw.length>3000)throw Error('Regole troppo lunghe');
     const selected=JSON.parse(raw);
+    if(selected&&typeof selected==='object'){selected.catchUpContracts??=false;selected.catchUpValue??=3}
     if(!selected||typeof selected!=='object'||Object.entries(LAB_DEFAULT_RULES).some(([key,value])=>typeof selected[key]!==typeof value||(typeof value==='number'&&(!Number.isInteger(selected[key])||selected[key]<0||selected[key]>100))))throw Error('Regole non valide');
     if(selected.handSize>12||selected.fishPerPlayer>12||selected.threshold1>=selected.threshold2||selected.threshold2>20||selected.auctionUpgradeCap>5)throw Error('Regole fuori intervallo');
     return Object.fromEntries(Object.keys(LAB_DEFAULT_RULES).map(key=>[key,selected[key]]));
@@ -738,17 +739,18 @@ function planContract(p,card,stock=mix(p.banco,p.cesta),subsLeft=copies(p,'Contr
 }
 const canContract=(p,c)=>!!planContract(p,c);
 function payout(p,card){return card.value+catBonus(p,card)+congregaBonus(p,card)}
+const catchUpBonus=p=>G.day===4&&G.simConfig?.catchUpContracts&&G.catchUpIds?.includes(p.id)?G.simConfig.catchUpValue:0;
 function completeContract(p,card,reward='coins'){
   if(G.simConfig?.contractOnlyCoins)reward='coins';
   if(reward!=='coins'&&reward!=='upgrade')return false;
   const plan=planContract(p,card);if(!plan)return false;
   for(const [f,n0] of Object.entries(plan.use)){let n=n0;const fromC=Math.min(n,p.cesta[f]);p.cesta[f]-=fromC;n-=fromC;p.banco[f]-=n;returnFish(f,n0)}
   p.subsUsed=(p.subsUsed||0)+plan.subs;
-  const combined=G.tutorial?.version<6||(!G.simConfig?.contractOnlyCoins&&G.simConfig?.contractChoice===false),cb=reward==='coins'||combined?catBonus(p,card):0,fav=reward==='coins'||combined?congregaBonus(p,card):0,gain=reward==='coins'||combined?card.value+cb+fav:0;
-  p.coins+=gain;p.orders++;p.catTot=(p.catTot||0)+cb;p.favTot=(p.favTot||0)+fav;p.today.contracts.push(card);p.today.income+=gain;(p.today.contractIncome??={})[card.id]=gain;(p.today.contractRewards??={})[card.id]=combined?'both':reward;
+  const combined=G.tutorial?.version<6||(!G.simConfig?.contractOnlyCoins&&G.simConfig?.contractChoice===false),cb=reward==='coins'||combined?catBonus(p,card):0,fav=reward==='coins'||combined?congregaBonus(p,card):0,bonus=catchUpBonus(p),gain=(reward==='coins'||combined?card.value+cb+fav:0)+bonus;
+  p.coins+=gain;p.catchUpEarned=(p.catchUpEarned||0)+bonus;p.orders++;p.catTot=(p.catTot||0)+cb;p.favTot=(p.favTot||0)+fav;p.today.contracts.push(card);p.today.income+=gain;(p.today.contractIncome??={})[card.id]=gain;(p.today.contractRewards??={})[card.id]=combined?'both':reward;
   if(p.keptIds&&p.keptIds.has(card.id))p.keptUsed=(p.keptUsed||0)+1;
   p.hand.splice(p.hand.indexOf(card),1);if(reward==='upgrade'||combined)p.pending.push(card);else discard(card);
-  log('Mercato',`${p.name} completa “${card.name}” e sceglie ${combined?'Ducati e miglioria':reward==='coins'?`${gain} Ducati`:`la miglioria ${upName(card)}`}${plan.subs?' (Sottobanco)':''}.`);
+  log('Mercato',`${p.name} completa “${card.name}” e sceglie ${combined?'Ducati e miglioria':reward==='coins'?`${gain} Ducati`:`la miglioria ${upName(card)}`}${bonus?` (+${bonus} Ducati dal premio rimonta)`:''}${plan.subs?' (Sottobanco)':''}.`);
   return true;
 }
 
@@ -1042,7 +1044,7 @@ window.acceptHandoff=function(){G.handoff=false;render()};
 function startGame({n,name,seed=Math.floor(Math.random()*4294967295)+1,difficulty,humanBot,roster,congrega,simConfig=null}){
   if(roster&&(roster.length!==n||new Set(roster.map(p=>p.character)).size!==n||roster.some(p=>!PLAYER_MATS[p.character]||!p.name.trim())))throw new Error("Configurazione giocatori non valida");
   const rng=new RNG(seed),bag=[];for(const f of FISH)for(let i=0;i<BAG[f];i++)bag.push(f);
-  G={rng,seed,day:1,phase:'rete',difficulty,humanBot,simConfig,players:Array.from({length:n},(_,id)=>({id,name:roster?roster[id].name:(id?BOTNAMES[id-1]:name),human:roster?roster[id].human:id===0&&!humanBot,character:roster?roster[id].character:id,coins:simConfig?.startCoins??START_COINS,banco:inv(),cesta:inv(),hand:[],installed:[],pending:[],kept:[],keptIds:new Set(),fortunaLeft:0,influence:0,subsLeft:0,orders:0,wasted:0,bilanciaTot:0,passedAll:false,today:{contracts:[],income:0,bilancia:[]}})),bag:rng.shuffle(bag),deck:rng.shuffle(CARDS.map(c=>({...c}))),discard:[],captain:rng.int(n),market:inv(),log:[],selectedBid:null,bidCash:0,bidInfl:0,overlay:null};
+  G={rng,seed,day:1,phase:'rete',difficulty,humanBot,simConfig,players:Array.from({length:n},(_,id)=>({id,name:roster?roster[id].name:(id?BOTNAMES[id-1]:name),human:roster?roster[id].human:id===0&&!humanBot,character:roster?roster[id].character:id,coins:simConfig?.startCoins??START_COINS,banco:inv(),cesta:inv(),hand:[],installed:[],pending:[],kept:[],keptIds:new Set(),fortunaLeft:0,influence:0,subsLeft:0,orders:0,catchUpEarned:0,wasted:0,bilanciaTot:0,passedAll:false,today:{contracts:[],income:0,bilancia:[]}})),bag:rng.shuffle(bag),deck:rng.shuffle(CARDS.map(c=>({...c}))),discard:[],captain:rng.int(n),market:inv(),log:[],selectedBid:null,bidCash:0,bidInfl:0,overlay:null};
   G.congregaLevel=congrega||null;if(roster)roster.forEach((r,i)=>{if(r.congrega)G.players[i].congrega=true});
   if(!roster&&congrega){const c=G.players[n-1];c.congrega=true;c.human=false;c.name='Congrega'}
   G.activePlayer=G.players.find(p=>p.human)?.id??0;G.viewedPlayer=G.activePlayer;
@@ -1358,6 +1360,7 @@ window.pickFavorite=function(f){if(G.overlay!=='favorite')return;const {pid,card
 window.finishDayBtn=function(){if(G.phase!=='bilancia'||G.overlay==='favorite'||G.overlay==='keep')return;G.overlay=null;finishDay();render()};
 function finishDay(){
   if(G.day===4){finishGame();return}
+  if(G.day===3&&G.simConfig?.catchUpContracts){G.catchUpIds=ranking().slice(-Math.floor(G.players.length/2)).map(p=>p.id);log('Bando',`Domani ${G.catchUpIds.map(id=>G.players[id].name).join(' e ')} riceveranno ${G.simConfig.catchUpValue} Ducati extra per contratto concluso.`)}
   G.day++;startDay();
 }
 function ranking(){return[...G.players].sort((a,b)=>b.coins-a.coins||(b.installed.length+b.pending.length)-(a.installed.length+a.pending.length))}
@@ -1392,7 +1395,7 @@ function botUpgradeValue(p,c){
   return v;
 }
 function availability(p,c){const stock=mix(mix(p.banco,p.cesta),G.market);let miss=0,need=0;for(const [f,n] of Object.entries(c.recipe)){need+=n;miss+=Math.max(0,n-(stock[f]||0))}return need?1-miss/need:1}
-function botCardValue(p,c){return G.simConfig?.contractOnlyCoins?payout(p,c):Math.max(payout(p,c),botUpgradeValue(p,c))}
+function botCardValue(p,c){return(G.simConfig?.contractOnlyCoins?payout(p,c):Math.max(payout(p,c),botUpgradeValue(p,c)))+catchUpBonus(p)}
 function botDraft(p,pack){
   if(G.tutorial)return pack.find(c=>c.id===[32,29,31,28][G.draftRound-1])||pack[0];
   const score=c=>{const contract=botCardValue(p,c)*(0.35+0.65*availability(p,c)),bidUse=c.bid*.9;return Math.max(contract,bidUse)+noise()};
@@ -1507,7 +1510,7 @@ function botEndDayChoice(p){
 function botFavorite(p){const tally=inv();for(const c of [...p.installed,...p.pending,...p.hand])for(const [f,n] of Object.entries(c.recipe))tally[f]+=n;return [...FISH].sort((a,b)=>tally[b]-tally[a])[0]}
 
 // ---------------- Rendering ----------------
-function scoreCard(p){return`<article class="panel score ${p.id===G.captain?'captain':''} ${p.human?'you':''}"><div class="who"><i class="dot" style="background:${playerColor(p)}"></i>${esc(p.name)} ${p.id===G.captain?'⚓':''}</div><div class="money">${p.coins} <img class="ducat-icon" src="assets/tokens/moneta.png" alt="Ducati"></div><div class="sub">${p.orders} contratti · ${p.installed.length+p.pending.length} migliorie</div></article>`}
+function scoreCard(p){return`<article class="panel score ${p.id===G.captain?'captain':''} ${p.human?'you':''}"><div class="who"><i class="dot" style="background:${playerColor(p)}"></i>${esc(p.name)} ${p.id===G.captain?'⚓':''}</div><div class="money">${p.coins} <img class="ducat-icon" src="assets/tokens/moneta.png" alt="Ducati"></div><div class="sub">${p.orders} contratti · ${p.installed.length+p.pending.length} migliorie${G.day===4&&G.catchUpIds?.includes(p.id)?` · Rimonta +${G.simConfig.catchUpValue}/contratto`:''}</div></article>`}
 function physicalPhase(){return G.phase==='asta'?1:(G.phase==='pubblico'||G.phase==='conserva')?2:G.phase==='bilancia'?3:0}
 function activeAuctionFish(){return G.phase==='asta'&&['bid','buy'].includes(G.auctionStage)?currentFish():null}
 function offerState(p){
@@ -1595,7 +1598,7 @@ function inventoryHtml(stock,muted=false){const x=FISH.flatMap(f=>Array.from({le
 function cardHtml(c,mode='plain',enabled=true,style=''){
   const lesson=tutorialStep(),explained=lesson?.preview===c.id;
   const me=activePlayer(),selected=(mode==='bid'&&G.selectedBid===c.id)||(mode==='market'&&G.contractChoice===c.id)||(mode==='keep'&&G.keepSel?.has(c.id)),locked=mode==='draft'&&!enabled,selectable=enabled&&['bid','draft','market','client','keep'].includes(mode),fn={bid:'chooseBid',draft:'pickDraft',market:'serveContract',client:'pickClient',keep:'toggleKeep'}[mode],select=selectable?`role="button" tabindex="0" ${['draft','bid'].includes(mode)?'data-swipe-select':''} onclick="${fn}(${c.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}(${c.id})}"`:'tabindex="0"';
-  const pay=mode==='market'&&enabled?payout(me,c):c.value,description=`${c.bid} CLIENTE #${c.id} ${c.name}. ${c.fish}. Contratto: ${pay} Ducati. Miglioria: ${upName(c)}. ${upgradeDescription(c.up)}`;
+  const pay=mode==='market'&&enabled?payout(me,c)+catchUpBonus(me):c.value,description=`${c.bid} CLIENTE #${c.id} ${c.name}. ${c.fish}. Contratto: ${pay} Ducati. Miglioria: ${upName(c)}. ${upgradeDescription(c.up)}`;
   return`<article data-card-id="${c.id}" class="card illustrated-card ${explained?'tutorial-explained':''} ${selectable?'selectable':''} ${selected?'selected':''} ${locked?'draft-locked':!enabled?'disabled':''}" aria-label="${esc(description)}" title="${esc(description)}" ${style?`style="${style}"`:''} ${select}><img class="card-art" src="assets/cards/${String(c.id-1).padStart(3,'0')}.png?v=20260925-2" alt="" draggable="false">${explained&&lesson.part&&!lesson.action?`<span class="tutorial-card-focus focus-${lesson.part}" aria-hidden="true"></span>`:''}${locked?'<span class="draft-lock" title="Carta già scelta" aria-label="Carta già scelta">🔒</span>':''}${pay!==c.value?`<span class="card-bonus">${pay} Ducati · +${pay-c.value} bonus</span>`:''}${c.cat==='B'?`<span class="lab-card-note">LAB · ${esc(upgradeDescription(c.up))}</span>`:''}</article>`}
 function phaseTitle(k){if(k==='draft')return'1 · Draft';if(k==='conserva')return'3 · Mercato';return PHASES.find(x=>x[0]===k)?.[1]||''}
 function playerMatHtml(p){
@@ -1612,9 +1615,9 @@ window.viewPlayerMat=function(id){if(!G||!G.players[id])return;G.viewedPlayer=id
 function mobileAuctionLayout(){return !HEADLESS&&matchMedia('(max-width:700px) and (orientation:portrait)').matches}
 function marketPanelHtml(me){
   const choice=me.hand.find(c=>c.id===G.contractChoice);
-  if(choice)return`<section class="auction-panel market-panel" aria-label="Scegli la ricompensa del contratto"><h3>${esc(choice.name)}</h3><p>Consegni ${esc(choice.fish)}. Scegli una sola ricompensa:</p><div class="contract-choice-buttons"><button class="btn primary contract-choice-coins" onclick="chooseContractReward('coins')">Prendi ${payout(me,choice)} Ducati</button><button class="btn secondary contract-choice-upgrade" onclick="chooseContractReward('upgrade')">Ottieni ${esc(upName(choice))}</button></div><button class="btn secondary contract-choice-cancel" onclick="cancelContractChoice()">Annulla</button></section>`;
+  if(choice)return`<section class="auction-panel market-panel" aria-label="Scegli la ricompensa del contratto"><h3>${esc(choice.name)}</h3><p>Consegni ${esc(choice.fish)}. Scegli una sola ricompensa:</p><div class="contract-choice-buttons"><button class="btn primary contract-choice-coins" onclick="chooseContractReward('coins')">Prendi ${payout(me,choice)+catchUpBonus(me)} Ducati</button><button class="btn secondary contract-choice-upgrade" onclick="chooseContractReward('upgrade')">Ottieni ${esc(upName(choice))}${catchUpBonus(me)?` e ${catchUpBonus(me)} Ducati`:''}</button></div><button class="btn secondary contract-choice-cancel" onclick="cancelContractChoice()">Annulla</button></section>`;
   const contracts=me.today.contracts;
-  const rows=contracts.map(c=>{const reward=me.today.contractRewards?.[c.id]||'both';return`<tr><th scope="row">${esc(c.name)}</th><td class="market-income">${reward==='upgrade'?'—':`+${me.today.contractIncome?.[c.id]??payout(me,c)} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false">`}</td><td>${reward==='coins'?'—':`${esc(upName(c))}<small>${esc(CATS[c.cat].name)}</small>`}</td></tr>`}).join('');
+  const rows=contracts.map(c=>{const reward=me.today.contractRewards?.[c.id]||'both',gain=me.today.contractIncome?.[c.id]??payout(me,c);return`<tr><th scope="row">${esc(c.name)}</th><td class="market-income">${gain?`+${gain} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false">`:'—'}</td><td>${reward==='coins'?'—':`${esc(upName(c))}<small>${esc(CATS[c.cat].name)}</small>`}</td></tr>`}).join('');
   return`<section class="auction-panel market-panel" aria-label="Il tuo mercato"><div class="market-heading"><h3>Il tuo mercato</h3><strong>+${me.today.income} Ducati</strong></div>${rows?`<div class="market-receipts"><table aria-label="Contratti completati oggi"><thead><tr><th>Contratto</th><th>Ducati</th><th>Miglioria</th></tr></thead><tbody>${rows}</tbody></table></div><p>Le migliorie scelte si installano a fine giornata.</p>`:'<p>Tocca una carta di cui puoi completare il contratto con il pesce che hai. Poi scegli i Ducati oppure la miglioria.</p>'}<button class="btn primary market-finish" onclick="finishMarket()">Termina il mercato</button></section>`;
 }
 function actionPanelHtml(me){
@@ -1832,7 +1835,7 @@ document.addEventListener('pointermove',e=>{const c=e.target.closest?.('.hand-ca
 document.addEventListener('pointerout',e=>{const c=e.target.closest?.('.hand-cards .card');if(!c||window.gsap||c.contains(e.relatedTarget))return;c.style.removeProperty('--tilt-x');c.style.removeProperty('--tilt-y')});
 
 const shownRules=LAB_PLAY_RULES??{};
-$('rules').innerHTML=`<div class="rule"><b>Contratti</b>${shownRules.contractOnlyCoins?'I contratti completati danno solo Ducati; la carta viene scartata.':shownRules.contractChoice?'Scegli Ducati oppure miglioria quando completi un contratto.':'Ogni contratto completato dà Ducati e miglioria.'}</div><div class="rule"><b>Carte puntate</b>${shownRules.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano la carta.':shownRules.auctionCardChoice?'Al tuo turno scegli se comprare pesci o installare la carta. Se compri, recuperi la carta al mercato quando la variante è attiva.':'Se il lotto finisce prima del tuo turno, la carta può diventare una miglioria.'}</div><div class="rule"><b>A consumo</b>Fortuna e Sottobanco: una volta per giornata per carta.</div>`+Object.entries(UPG).map(([n,u])=>`<div class="rule"><b>${CATS[u.cat].icon} ${esc(DISPLAY[n])}</b>${esc(upgradeDescription(n))}</div>`).join('');
+$('rules').innerHTML=`<div class="rule"><b>Contratti</b>${shownRules.contractOnlyCoins?'I contratti completati danno solo Ducati; la carta viene scartata.':shownRules.contractChoice?'Scegli Ducati oppure miglioria quando completi un contratto.':'Ogni contratto completato dà Ducati e miglioria.'}</div><div class="rule"><b>Carte puntate</b>${shownRules.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano la carta.':shownRules.auctionCardChoice?'Al tuo turno scegli se comprare pesci o installare la carta. Se compri, recuperi la carta al mercato quando la variante è attiva.':'Se il lotto finisce prima del tuo turno, la carta può diventare una miglioria.'}</div>${shownRules.catchUpContracts?`<div class="rule"><b>Premio rimonta</b>Dopo il terzo giorno, i giocatori nella metà bassa ricevono ${shownRules.catchUpValue} Ducati extra per contratto concluso nel quarto giorno.</div>`:''}<div class="rule"><b>A consumo</b>Fortuna e Sottobanco: una volta per giornata per carta.</div>`+Object.entries(UPG).map(([n,u])=>`<div class="rule"><b>${CATS[u.cat].icon} ${esc(DISPLAY[n])}</b>${esc(upgradeDescription(n))}</div>`).join('');
 
 // Autocontrollo del mazzo V4.1: 100 carte, 25 per categoria, Fiuto 2-3-2-3-2 e sempre un pesce del contratto.
 const fiuto=CARDS.filter(c=>c.up==='Fiuto per il Pescato');
