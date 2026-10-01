@@ -22,7 +22,7 @@ resolveBids=function(bids){
   if(!G.mcRollout){
     const a=G.lab.current,order=G.simConfig?.simultaneousBids?Array.from({length:G.players.length},(_,i)=>(G.simCaptain+i)%G.players.length):turnOrder(),ranked=[...bids].sort((a,b)=>bidScore(b)-bidScore(a)||order.indexOf(a.pid)-order.indexOf(b.pid));
     a.bidders=bids.length;a.winnerScore=ranked.length?bidScore(ranked[0]):0;a.winner=ranked[0]?.pid??null;
-    a.bids=ranked.map((b,i)=>({pid:b.pid,rank:i+1,score:bidScore(b),cardBid:b.card.bid,cash:b.cash,influence:b.infl,price:auctionPrice(bidScore(b),i+1)}));
+    a.bids=ranked.map((b,i)=>({pid:b.pid,rank:i+1,score:bidScore(b),cardBid:b.card.bid,cash:b.cash,influence:b.infl,price:auctionPrice(bidScore(b),i+1,ranked.length)}));
   }
   return labResolveBids(bids);
 };
@@ -42,6 +42,7 @@ afterAuction=function(){
     const a=G.lab.current;
     a.soldOut=a.bought===a.lot;
     a.winnerBoughtAll=a.bidders>1&&a.buys.some(x=>x.pid===a.winner&&x.n===a.lot);
+    a.firstBuyerBoughtAll=a.bidders>1&&a.buys[0]?.n===a.lot;
     a.upgrades=auctionChoiceOn()
       ?(G.auctionZeroUpgrades||[]).map(x=>({pid:x.pid,card:x.card.id,upgrade:x.card.up,reason:x.reason}))
       :(G.auctionResult||[]).filter(b=>a.lot>0&&!G.tutorial&&G.simConfig?.auctionUpgradeOnNoFish!==false&&!G.players[b.pid].congrega&&G.auctionBlockedByEmpty?.[b.pid]).map(b=>({pid:b.pid,card:b.card.id,upgrade:b.card.up,reason:'empty'}));

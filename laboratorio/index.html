@@ -687,12 +687,13 @@ const CARDS=RAW.trim().split('\n').map(line=>{const [id,name,bid,value,fish,cat,
 class RNG{constructor(seed){this.s=(seed>>>0)||1}next(){this.s=(this.s+0x6D2B79F5)|0;let t=this.s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}int(n){return Math.floor(this.next()*n)}shuffle(a){for(let i=a.length-1;i>0;i--){const j=this.int(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}}
 let G=null;
 const HEADLESS=typeof window.__PESCARIA_HEADLESS!=='undefined';
-const LAB_DEFAULT_RULES={tieredPricing:true,winnerPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:3,otherPrice:1,startCoins:12,fishPerPlayer:8,handSize:7,mandatoryBid:true,contractOnlyCoins:true,contractChoice:false,installRemainingCards:false,categoryBonusPerUpgrade:0,deferMerchantIncome:true,merchantCardValue:1,limitMerchantIncome:false,marketSetBonus:false,marketSetThreshold:3,marketSetBase:10,auctionLoserChoice:false,auctionCardChoice:true,auctionContractsVariant:true,auctionUpgradeCap:3,auctionUpgradeOnNoFish:false};
+const LAB_DEFAULT_RULES={tieredPricing:true,winnerPricing:false,reverseRankPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:3,otherPrice:1,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:12,fishPerPlayer:8,handSize:7,mandatoryBid:true,classicDraft:false,contractOnlyCoins:true,contractChoice:false,installRemainingCards:false,categoryBonusPerUpgrade:0,deferMerchantIncome:true,merchantCardValue:1,limitMerchantIncome:false,marketSetBonus:false,marketSetThreshold:3,marketSetBase:10,auctionLoserChoice:false,auctionCardChoice:true,auctionContractsVariant:true,auctionUpgradeCap:3,auctionUpgradeOnNoFish:false};
 function selectedLabRules(){
   const raw=new URLSearchParams(location.search).get('rules');if(!raw)return LAB_DEFAULT_RULES;
   try{
     if(raw.length>3000)throw Error('Regole troppo lunghe');
     const selected=JSON.parse(raw);
+    for(const key of ['reverseRankPricing','classicDraft','rankFirstPrice','rankMiddlePrice','rankLastPrice'])if(selected[key]===undefined)selected[key]=LAB_DEFAULT_RULES[key];
     if(!selected||typeof selected!=='object'||Object.entries(LAB_DEFAULT_RULES).some(([key,value])=>typeof selected[key]!==typeof value||(typeof value==='number'&&(!Number.isInteger(selected[key])||selected[key]<0||selected[key]>100))))throw Error('Regole non valide');
     if(selected.handSize>12||selected.fishPerPlayer>12||selected.threshold1>=selected.threshold2||selected.threshold2>20||selected.auctionUpgradeCap>5)throw Error('Regole fuori intervallo');
     return Object.fromEntries(Object.keys(LAB_DEFAULT_RULES).map(key=>[key,selected[key]]));
@@ -1071,7 +1072,7 @@ function startDay(){
 window.beginDraft=function(){if(!G||G.phase!=='rete')return;G.overlay=null;startDraft();render()};
 
 const soloCongrega=()=>!!G.congregaLevel&&G.players.filter(p=>!p.congrega).length===1;
-const directCardsToday=()=>soloCongrega()||(G.day===1&&(!G.tutorial||G.tutorial.version>=5));
+const directCardsToday=()=>soloCongrega()||(!G.simConfig?.classicDraft&&G.day===1&&(!G.tutorial||G.tutorial.version>=5));
 function startDraft(){
   const active=turnOrder().filter(id=>!G.players[id].congrega),available=G.deck.length+G.discard.length,handSize=G.simConfig?.handSize??HAND;
   if(available<handSize*active.length){
@@ -1181,7 +1182,7 @@ function advanceBidders(){
   resolveBids(G.bids);
 }
 function bidScore(b){return b.card.bid+b.cash+b.infl*ESP_X}
-function auctionPrice(score,rank=1){const c=G?.simConfig;if(c?.winnerPricing)return rank===1?(c.winnerPrice??3):(c.otherPrice??1);return score<=(c?.threshold1??4)?(c?.price1??1):score<=(c?.threshold2??7)?(c?.price2??2):(c?.price3??3)}
+function auctionPrice(score,rank=1,total=1){const c=G?.simConfig;if(c?.reverseRankPricing)return rank===1?(c.rankFirstPrice??1):rank===total?(c.rankLastPrice??3):(c.rankMiddlePrice??2);if(c?.winnerPricing)return rank===1?(c.winnerPrice??3):(c.otherPrice??1);return score<=(c?.threshold1??4)?(c?.price1??1):score<=(c?.threshold2??7)?(c?.price2??2):(c?.price3??3)}
 window.chooseBid=function(id){if(G.phase!=='asta'||G.auctionStage!=='bid'||!activePlayer().hand.some(c=>c.id===id))return;G.selectedBid=id;G.viewedPlayer=activePlayer().id;G.bidCash=0;G.bidInfl=0;render()};
 window.returnBidCard=function(){if(G.phase!=='asta'||G.auctionStage!=='bid')return;G.selectedBid=null;G.bidCash=0;G.bidInfl=0;render()};
 window.addInfluence=function(){const me=activePlayer();if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid)return;G.bidInfl=G.bidInfl>=me.influence?0:G.bidInfl+1;render()};
@@ -1204,7 +1205,9 @@ function resolveBids(bids){
   // Fortuna: chi ha partecipato e perso pesca 1 carta (una volta al giorno per carta).
   for(const b of bids.slice(1)){const p=G.players[b.pid];for(let i=0;i<copies(p,'Nuovi Clienti');i++)G.clientsQueue.push({pid:p.id,k:1})}
   const oldTutorial=G.tutorial&&G.tutorial.version<5;
-  G.buyQueue=bids.map((b,i)=>({pid:b.pid,card:b.card,price:oldTutorial?(i===0?1:2):auctionPrice(bidScore(b),i+1),rank:i}));G.buyPos=0;
+  G.buyQueue=bids.map((b,i)=>({pid:b.pid,card:b.card,price:oldTutorial?(i===0?1:2):auctionPrice(bidScore(b),i+1,bids.length),rank:i}));
+  if(G.simConfig?.reverseRankPricing)G.buyQueue.reverse();
+  G.buyPos=0;
   if(humanPlayers().length&&!HEADLESS){G.auctionStage='ranking';return}
   G.auctionStage='buy';advanceBuys();
 }
@@ -1229,7 +1232,7 @@ function advanceBuys(){
   while(G.buyPos<G.buyQueue.length&&(G.market[f]||auctionChoiceOn())){const q=G.buyQueue[G.buyPos],p=G.players[q.pid];
     const available=maxBuy(p,f,q.price);
     if(auctionChoiceOn()&&!available){if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');else if(canUpgradeAuctionCard())installAuctionUpgrade(q,G.market[f]?'unavailable':'empty');else discard(q.card);G.buyPos++;continue}
-    if(p.human){if(available>0){setActivePlayer(p.id);G.buyQty=Math.min(available,Math.max(q.rank===0?1:0,needOf(p,f)));return}G.buyPos++;continue}
+    if(p.human){if(available>0){setActivePlayer(p.id);G.buyQty=Math.min(available,Math.max(G.buyPos===0?1:0,needOf(p,f)));return}G.buyPos++;continue}
     botBuy(p,f,q.price,q.rank);
     if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');
     else if(auctionChoiceOn()&&!G.auctionZeroUpgrades.some(x=>x.pid===q.pid))settleAuctionCard(q);
@@ -1274,8 +1277,9 @@ window.continueAfterAuction=function(){
 function auctionPurchaseDescription(p,rank,score){
   if(!rank)return 'Ha passato · non compra';
   if(p.congrega&&rank!==1)return 'Asta persa · non compra';
-  const price=G?.tutorial&&G.tutorial.version<5?(rank===1?1:2):auctionPrice(score,rank),cheap=cheapN(p,price),fortune=rank===1?0:copies(p,'Nuovi Clienti');
-  return [`Compra ${rank===1?'per primo ':''}a ${price} Ducat${price===1?'o':'i'} per pesce`,
+  const first=G.simConfig?.reverseRankPricing?rank===G.auctionResult?.length:rank===1;
+  const price=G?.tutorial&&G.tutorial.version<5?(rank===1?1:2):auctionPrice(score,rank,G.auctionResult?.length),cheap=cheapN(p,price),fortune=rank===1?0:copies(p,'Nuovi Clienti');
+  return [`Compra ${first?'per primo ':''}a ${price} Ducat${price===1?'o':'i'} per pesce`,
     cheap?`Senza tassa: ${cheap===1?'primo pesce':`primi ${cheap} pesci`} a 1 Ducato`:'',
     fortune?`Fortuna: pesca ${fortune} ${fortune===1?'carta':'carte'} a fine asta`:''
   ].filter(Boolean).join('<br>');
@@ -1284,7 +1288,7 @@ function showAuctionSummary(){
   if(HEADLESS||G.phase!=='asta'||!['ranking','summary'].includes(G.auctionStage)||!$('phaseIntro').classList.contains('hidden'))return;
   const dialog=$('auctionSummary');if(dialog.open)return;
   const ranking=G.auctionStage==='ranking',summary=ranking?auctionStandings():G.lastAuctionSummary,winner=summary.rows.find(r=>r.rank===1);
-  dialog.innerHTML=`<div class="auction-summary-heading"><img src="${ASSET.fish[summary.fish]}" alt=""><div><h2>${ranking?'Classifica ·':`Asta ${summary.fish==='Sardine'?'delle':'dei'}`} ${summary.fish}</h2><p>${winner?`Vincitore: ${esc(G.players[winner.pid].name)}`:'Tutti hanno passato · nessun vincitore'}</p></div></div>${summary.rows.map(r=>{const p=G.players[r.pid];return`<div class="auction-summary-row ${r.rank===1?'is-winner':''}"><b>${r.rank?`${r.rank}°`:'—'}</b><img src="${p.congrega?'assets/automa/00.png':`assets/players/ritratto-${PLAYER_MATS[p.character??p.id][0]}.png`}" alt=""><div><strong>${esc(p.name)}</strong><small>${ranking?auctionPurchaseDescription(p,r.rank,r.score):r.rank?`${r.rank===1?'Vincitore · ':''}Offerta ${r.score}${r.upgrade?` · ${esc(upName({up:r.upgrade}))} installata`:''}`:'Ha passato'}</small></div><span class="auction-summary-count">${ranking?(r.rank?`${r.score} punti`:'—'):`${r.bought} ${r.bought===1?'pesce':'pesci'}`}</span></div>`}).join('')}<p class="auction-summary-foot">${ranking?G.simConfig?.auctionLoserChoice?'Il vincitore compra per primo. Chi perde può comprare i pesci rimasti e installa subito la carta come miglioria, anche se non compra.':G.simConfig?.auctionCardChoice?'Si decide in quest’ordine: il vincitore per primo. Al tuo turno scegli se comprare pesci o installare subito la carta come miglioria.':'Si compra in questo ordine: il vincitore per primo. A parità di offerta, conta l’ordine di turno. Se il lotto finisce prima del tuo turno, la carta puntata diventa subito una miglioria.':'Pesci acquistati · si prosegue automaticamente'}</p><button class="btn primary auction-summary-next" onclick="continueAfterAuction()">${ranking?'Vai agli acquisti':'Continua'} →</button>`;
+  dialog.innerHTML=`<div class="auction-summary-heading"><img src="${ASSET.fish[summary.fish]}" alt=""><div><h2>${ranking?'Classifica ·':`Asta ${summary.fish==='Sardine'?'delle':'dei'}`} ${summary.fish}</h2><p>${winner?`Vincitore: ${esc(G.players[winner.pid].name)}`:'Tutti hanno passato · nessun vincitore'}</p></div></div>${summary.rows.map(r=>{const p=G.players[r.pid];return`<div class="auction-summary-row ${r.rank===1?'is-winner':''}"><b>${r.rank?`${r.rank}°`:'—'}</b><img src="${p.congrega?'assets/automa/00.png':`assets/players/ritratto-${PLAYER_MATS[p.character??p.id][0]}.png`}" alt=""><div><strong>${esc(p.name)}</strong><small>${ranking?auctionPurchaseDescription(p,r.rank,r.score):r.rank?`${r.rank===1?'Vincitore · ':''}Offerta ${r.score}${r.upgrade?` · ${esc(upName({up:r.upgrade}))} installata`:''}`:'Ha passato'}</small></div><span class="auction-summary-count">${ranking?(r.rank?`${r.score} punti`:'—'):`${r.bought} ${r.bought===1?'pesce':'pesci'}`}</span></div>`}).join('')}<p class="auction-summary-foot">${ranking?G.simConfig?.reverseRankPricing?'L’ultimo in classifica compra per primo al prezzo più alto; il primo compra per ultimo al prezzo più basso.':G.simConfig?.auctionLoserChoice?'Il vincitore compra per primo. Chi perde può comprare i pesci rimasti e installa subito la carta come miglioria, anche se non compra.':G.simConfig?.auctionCardChoice?'Si decide in quest’ordine: il vincitore per primo. Al tuo turno scegli se comprare pesci o installare subito la carta come miglioria.':'Si compra in questo ordine: il vincitore per primo. A parità di offerta, conta l’ordine di turno. Se il lotto finisce prima del tuo turno, la carta puntata diventa subito una miglioria.':'Pesci acquistati · si prosegue automaticamente'}</p><button class="btn primary auction-summary-next" onclick="continueAfterAuction()">${ranking?'Vai agli acquisti':'Continua'} →</button>`;
   dialog.showModal();if(!ranking)auctionSummaryTimer=setTimeout(continueAfterAuction,6000);
 }
 
@@ -1497,6 +1501,7 @@ function botBid(p,f,seen=[]){
   }
   if(!need)return G.rng.next()<(G.difficulty==='hard'?.05:.12)&&p.hand.length>3?cheapBid(p,keep):null;
   // Con un lotto abbondante conviene conservare Ducati: basta partecipare all'asta.
+  if(G.simConfig?.reverseRankPricing){const low=cheapBid(p,keep);if(low)return low;if(need<2)return null;return{pid:p.id,card:[...p.hand].sort((a,b)=>botCardValue(p,a)-botCardValue(p,b))[0],cash:0,infl:0}}
   if(G.market[f]>=6){const low=cheapBid(p,keep);if(low)return low}
   const bidCards=p.hand.filter(c=>!keep.has(c.id)).sort((a,b)=>a.bid-b.bid);
   // Ducati ed Esperienza degli avversari già in tavola sono visibili; la loro carta no (stima: valore medio).
@@ -1529,7 +1534,7 @@ function botBuy(p,f,price,rank){
     if(!wanted||botUpgradeValue(p,q.card)>wanted*3-costOf(p,wanted,price)){installAuctionUpgrade(q);return}
   }
   const keep=botPlan(p);let n=needOf(p,f,keep);
-  if(rank===0&&p.coins>6)n=Math.max(n+(G.difficulty==='easy'?0:1),1);
+  if(G.buyPos===0&&p.coins>6)n=Math.max(n+(G.difficulty==='easy'?0:1),1);
   n=Math.min(n,maxBuy(p,f,price));
   if(price>1&&n>0&&p.coins-costOf(p,n,price)<0)n=0;
   buy(p,f,n,price);

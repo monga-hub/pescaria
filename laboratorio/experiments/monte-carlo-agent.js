@@ -118,7 +118,7 @@ botBuy=function(p,f,price,rank){
   const wanted=Math.min(limit,needOf(p,f,botPlan(p)));
   const q=G.buyQueue[G.buyPos];
   const upgrade=canUpgradeAuctionCard()&&(!wanted||botUpgradeValue(p,q.card)>wanted*3-costOf(p,wanted,price));
-  const planned=upgrade?0:Math.min(limit,rank===0&&p.coins>6?Math.max(wanted+1,1):wanted);
+  const planned=upgrade?0:Math.min(limit,G.buyPos===0&&p.coins>6?Math.max(wanted+1,1):wanted);
   const options=[...new Set([0,1,wanted,limit,planned].filter(n=>n<=limit))];
   let best=0,value=-Infinity;MC.choices++;
   for(const n of options){
