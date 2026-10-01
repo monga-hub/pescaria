@@ -27,7 +27,7 @@ function readConfig(){
   return{games:n('games'),players:n('players'),mode:selected,depth:n('depth'),samples:n('samples'),aggression:n('aggression'),
     tieredPricing:fields.namedItem('tieredPricing').checked,winnerPricing:fields.namedItem('winnerPricing').checked,reverseRankPricing:fields.namedItem('reverseRankPricing').checked,
     threshold1:n('threshold1'),threshold2:n('threshold2'),price1:n('price1'),price2:n('price2'),price3:n('price3'),winnerPrice:n('winnerPrice'),otherPrice:n('otherPrice'),rankFirstPrice:n('rankFirstPrice'),rankMiddlePrice:n('rankMiddlePrice'),rankLastPrice:n('rankLastPrice'),
-    startCoins:n('startCoins'),fishPerPlayer:n('fishPerPlayer'),handSize:n('handSize'),mandatoryBid:fields.namedItem('mandatoryBid').checked,simultaneousBids:fields.namedItem('simultaneousBids').checked,classicDraft:fields.namedItem('classicDraft').checked,contractOnlyCoins:fields.namedItem('contractOnlyCoins').checked,contractChoice:fields.namedItem('contractChoice').checked,chooseEndDayUpgrades:fields.namedItem('chooseEndDayUpgrades').checked,installRemainingCards:fields.namedItem('installRemainingCards').checked,
+    startCoins:n('startCoins'),fishPerPlayer:n('fishPerPlayer'),handSize:n('handSize'),mandatoryBid:fields.namedItem('mandatoryBid').checked,simultaneousBids:fields.namedItem('simultaneousBids').checked,classicDraft:fields.namedItem('classicDraft').checked,lastTakesWinningBid:fields.namedItem('lastTakesWinningBid').checked,contractOnlyCoins:fields.namedItem('contractOnlyCoins').checked,contractChoice:fields.namedItem('contractChoice').checked,chooseEndDayUpgrades:fields.namedItem('chooseEndDayUpgrades').checked,installRemainingCards:fields.namedItem('installRemainingCards').checked,
     categoryBonusPerUpgrade:n('categoryBonusPerUpgrade'),deferMerchantIncome:fields.namedItem('deferMerchantIncome').checked,merchantCardValue:n('merchantCardValue'),limitMerchantIncome:false,
     marketSetBonus:fields.namedItem('marketSetBonus').checked,marketSetThreshold:n('marketSetThreshold'),marketSetBase:n('marketSetBase'),
     auctionLoserChoice:fields.namedItem('auctionLoserChoice').checked,auctionCardChoice:fields.namedItem('auctionCardChoice').checked,auctionContractsVariant:fields.namedItem('auctionContractsVariant').checked,auctionUpgradeCap:n('auctionUpgradeCap'),auctionUpgradeOnNoFish:fields.namedItem('auctionUpgradeOnNoFish').checked,seed:n('seed')};
@@ -64,17 +64,21 @@ function rewardFields(changed){
 form.elements.namedItem('deferMerchantIncome').addEventListener('change',()=>rewardFields('perCard'));
 form.elements.namedItem('marketSetBonus').addEventListener('change',()=>rewardFields('groups'));
 rewardFields();
-function choiceFields(){
-  const loser=form.elements.namedItem('auctionLoserChoice'),all=form.elements.namedItem('auctionCardChoice');
+function choiceFields(changed){
+  const loser=form.elements.namedItem('auctionLoserChoice'),all=form.elements.namedItem('auctionCardChoice'),empty=form.elements.namedItem('auctionUpgradeOnNoFish'),transfer=form.elements.namedItem('lastTakesWinningBid');
+  if(changed==='transfer'&&transfer.checked){loser.checked=false;all.checked=false;empty.checked=false}
+  if(changed!=='transfer'&&(loser.checked||all.checked||empty.checked))transfer.checked=false;
   if(loser.checked)all.checked=false;
   all.disabled=loser.checked;
   form.elements.namedItem('auctionContractsVariant').disabled=!all.checked;
   form.elements.namedItem('auctionUpgradeCap').disabled=!all.checked||!form.elements.namedItem('auctionContractsVariant').checked;
-  form.elements.namedItem('auctionUpgradeOnNoFish').disabled=loser.checked||all.checked;
+  empty.disabled=loser.checked||all.checked;
 }
-form.elements.namedItem('auctionLoserChoice').addEventListener('change',choiceFields);
-form.elements.namedItem('auctionCardChoice').addEventListener('change',choiceFields);
-form.elements.namedItem('auctionContractsVariant').addEventListener('change',choiceFields);
+form.elements.namedItem('auctionLoserChoice').addEventListener('change',()=>choiceFields('loser'));
+form.elements.namedItem('auctionCardChoice').addEventListener('change',()=>choiceFields('all'));
+form.elements.namedItem('auctionContractsVariant').addEventListener('change',()=>choiceFields());
+form.elements.namedItem('auctionUpgradeOnNoFish').addEventListener('change',()=>choiceFields('empty'));
+form.elements.namedItem('lastTakesWinningBid').addEventListener('change',()=>choiceFields('transfer'));
 choiceFields();
 function pricingFields(changed){
   const tiers=form.elements.namedItem('tieredPricing'),winner=form.elements.namedItem('winnerPricing'),reverse=form.elements.namedItem('reverseRankPricing');
@@ -98,16 +102,16 @@ form.elements.namedItem('threshold2').addEventListener('input',()=>form.elements
 form.elements.namedItem('threshold1').addEventListener('input',()=>form.elements.namedItem('threshold2').setCustomValidity(''));
 modeFields();
 document.getElementById('loadOriginalRules').addEventListener('click',()=>{
-  const original={tieredPricing:false,winnerPricing:false,reverseRankPricing:true,winnerPrice:1,otherPrice:2,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:12,fishPerPlayer:6,handSize:5,mandatoryBid:false,simultaneousBids:false,classicDraft:true,contractOnlyCoins:false,contractChoice:false,chooseEndDayUpgrades:false,installRemainingCards:false,categoryBonusPerUpgrade:1,deferMerchantIncome:false,marketSetBonus:false,merchantCardValue:2,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeOnNoFish:false};
+  const original={tieredPricing:false,winnerPricing:true,reverseRankPricing:false,winnerPrice:1,otherPrice:2,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:12,fishPerPlayer:6,handSize:5,mandatoryBid:false,simultaneousBids:false,classicDraft:true,lastTakesWinningBid:true,contractOnlyCoins:false,contractChoice:false,chooseEndDayUpgrades:false,installRemainingCards:false,categoryBonusPerUpgrade:1,deferMerchantIncome:false,marketSetBonus:false,merchantCardValue:2,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeOnNoFish:false};
   for(const [name,value] of Object.entries(original)){const field=form.elements.namedItem(name);if(field.type==='checkbox')field.checked=value;else field.value=value}
   pricingFields();choiceFields();contractFields();handChoiceFields();rewardFields();
-  status.textContent='Variante pronta: l’ultimo compra per primo a 3 Ducati, il primo per ultimo a 1.';
+  status.textContent='Variante pronta: il primo compra per primo a 1 Ducato, l’ultimo prende la sua carta puntata.';
 });
 
 const configFile=document.getElementById('configFile');
 document.getElementById('exportConfig').addEventListener('click',()=>{
   const current=readConfig();if(!current)return;
-  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:13,config:current},null,2),'application/json');
+  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:14,config:current},null,2),'application/json');
   status.textContent='Regole esportate in JSON.';
 });
 document.getElementById('importConfig').addEventListener('click',()=>configFile.click());
@@ -133,6 +137,7 @@ configFile.addEventListener('change',async()=>{
       if(imported.mandatoryBid===undefined)imported.mandatoryBid=false;
       if(imported.simultaneousBids===undefined)imported.simultaneousBids=false;
       if(imported.classicDraft===undefined)imported.classicDraft=false;
+      if(imported.lastTakesWinningBid===undefined)imported.lastTakesWinningBid=false;
       if(imported.reverseRankPricing===undefined)imported.reverseRankPricing=false;
       if(imported.rankFirstPrice===undefined)imported.rankFirstPrice=1;
       if(imported.rankMiddlePrice===undefined)imported.rankMiddlePrice=2;
@@ -164,7 +169,7 @@ function validImportedConfig(c){
       if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max||Math.abs((value-min)/step-Math.round((value-min)/step))>1e-8)return false;
     }
   }
-  return [c.tieredPricing,c.winnerPricing,c.reverseRankPricing].filter(Boolean).length===1&&(!c.tieredPricing||c.threshold2>c.threshold1)&&!(c.auctionLoserChoice&&c.auctionCardChoice)&&!(c.chooseEndDayUpgrades&&c.installRemainingCards)&&!(c.deferMerchantIncome&&c.marketSetBonus);
+  return [c.tieredPricing,c.winnerPricing,c.reverseRankPricing].filter(Boolean).length===1&&(!c.tieredPricing||c.threshold2>c.threshold1)&&!(c.auctionLoserChoice&&c.auctionCardChoice)&&!(c.chooseEndDayUpgrades&&c.installRemainingCards)&&!(c.deferMerchantIncome&&c.marketSetBonus)&&!(c.lastTakesWinningBid&&(c.auctionLoserChoice||c.auctionCardChoice||c.auctionUpgradeOnNoFish));
 }
 
 function ruleSnapshot(c){
@@ -175,7 +180,7 @@ function ruleSnapshot(c){
     ['Tempistica delle offerte',c.simultaneousBids?'Tutte le carte, i Ducati e l’Esperienza sono impegnati insieme prima di rivelare le aste; acquisti successivi nell’ordine abituale':'Un’asta alla volta'],
     ['Pesci e Ducati',`${c.fishPerPlayer} pesci per giocatore ogni giorno · ${c.startCoins} Ducati iniziali`],
     ['Prezzo dei pesci',c.reverseRankPricing?`Ultimo compra per primo a ${c.rankLastPrice} Ducati; posti intermedi ${c.rankMiddlePrice}; primo compra per ultimo a ${c.rankFirstPrice}. Se c’è un solo partecipante paga ${c.rankFirstPrice}`:c.winnerPricing?`Vincitore ${c.winnerPrice} Ducati per pesce; altri partecipanti ${c.otherPrice}`:`Puntata 1–${c.threshold1}: ${c.price1} Ducati; ${c.threshold1+1}–${c.threshold2}: ${c.price2}; da ${c.threshold2+1}: ${c.price3}`],
-    ['Carta puntata',c.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano subito la carta':c.auctionCardChoice?'Ogni partecipante sceglie se comprare pesci o installare subito la carta':c.auctionUpgradeOnNoFish?'Se il lotto è esaurito prima dell’acquisto, la carta diventa subito una miglioria':'Le carte puntate vanno agli scarti dopo l’asta'],
+    ['Carta puntata',c.lastTakesWinningBid?'Con almeno due offerenti, l’ultimo nell’asta prende in mano la carta puntata dal primo; le altre vanno agli scarti':c.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano subito la carta':c.auctionCardChoice?'Ogni partecipante sceglie se comprare pesci o installare subito la carta':c.auctionUpgradeOnNoFish?'Se il lotto è esaurito prima dell’acquisto, la carta diventa subito una miglioria':'Le carte puntate vanno agli scarti dopo l’asta'],
     ['Più contratti, meno migliorie d’asta',c.auctionCardChoice&&c.auctionContractsVariant?`Carta puntata recuperata al mercato dopo l’acquisto di pesci; massimo ${c.auctionUpgradeCap} migliorie d’asta per giocatore al giorno`:c.auctionContractsVariant?'Inattiva: richiede la scelta pesci oppure miglioria':'Disattivata'],
     ['Contratti',c.contractOnlyCoins?'Solo Ducati; carta scartata':c.contractChoice?'Scelta tra Ducati oppure miglioria':'Ducati e miglioria insieme'],
     ['Carte rimaste in mano',c.chooseEndDayUpgrades?'A fine giornata: fino a 2 conservate per domani e fino a 2 installate; le altre scartate':c.installRemainingCards?'Installate come migliorie a fine giornata; nessuna carta conservata per domani':'Fino a 2 conservate per domani; le altre scartate'],
@@ -233,7 +238,7 @@ function renderReport(data){
     hand:handUpgrades.filter(x=>x.pid===pid).length/r.length
   }));
   const auctionUpgradesAfterPurchase=sum(auctions.map(a=>(a.upgrades||[]).filter(u=>a.buys.some(b=>b.pid===u.pid)).length));
-  const contested=auctions.filter(x=>x.bidders>=2),denials=auctions.filter(x=>c.reverseRankPricing?x.firstBuyerBoughtAll:x.winnerBoughtAll),
+  const contested=auctions.filter(x=>x.bidders>=2),denials=auctions.filter(x=>c.reverseRankPricing?x.firstBuyerBoughtAll:x.winnerBoughtAll),transfers=auctions.filter(x=>x.cardTransfer),
     wasted=sum(r.map(x=>sum(x.players.map(p=>p.wasted)))),extra=sum(buys.map(x=>x.extra));
   const comeback=day=>r.filter(x=>{const scores=x.days[day-1].players.map(p=>p.coins);return scores[x.players[0].id]<Math.max(...scores)}).length;
   const fromLastDay2=r.filter(x=>{const scores=x.days[1].players.map(p=>p.coins),winner=scores[x.players[0].id];return winner===Math.min(...scores)&&winner<Math.max(...scores)}).length;
@@ -300,7 +305,7 @@ function renderReport(data){
   const dryDays=playerDays.filter(x=>x.contractsToday===0).length,fishlessDays=playerDays.filter(x=>x.fishBought===0).length,unreadyDays=playerDays.filter(x=>x.cardsAtMarket>0&&x.readyAtMarket===0).length;
   const captainWins=r.filter(x=>x.players[0].id===x.initialCaptain).length;
   const placements=placementStats(r,c.players);
-  const headline=`${r.length} partite · ${c.players} giocatori · ${c.mode==='mc6'?`Monte Carlo ${c.samples} scenari / ${c.depth} mosse`:'IA standard'} · ${c.simultaneousBids?'Offerte simultanee':'Offerte in sequenza'} · ${c.contractOnlyCoins?'Contratti: solo Ducati':c.contractChoice===false?'Ducati e miglioria':'Ducati o miglioria'} · ${c.reverseRankPricing?'Acquisto inverso, prezzo per posto':c.winnerPricing?`Prezzi: vincitore ${c.winnerPrice}, altri ${c.otherPrice}`:'Prezzi a fasce'} · ${c.auctionLoserChoice?'Asta: i perdenti comprano e installano':c.auctionCardChoice?'Asta: tutti scelgono pesci o miglioria':`Lotto esaurito: ${c.auctionUpgradeOnNoFish===false?'scarto':'miglioria'}`}`;
+  const headline=`${r.length} partite · ${c.players} giocatori · ${c.mode==='mc6'?`Monte Carlo ${c.samples} scenari / ${c.depth} mosse`:'IA standard'} · ${c.simultaneousBids?'Offerte simultanee':'Offerte in sequenza'} · ${c.contractOnlyCoins?'Contratti: solo Ducati':c.contractChoice===false?'Ducati e miglioria':'Ducati o miglioria'} · ${c.reverseRankPricing?'Acquisto inverso, prezzo per posto':c.winnerPricing?`Prezzi: vincitore ${c.winnerPrice}, altri ${c.otherPrice}`:'Prezzi a fasce'} · ${c.lastTakesWinningBid?'Ultimo offerente prende la carta del primo':c.auctionLoserChoice?'Asta: i perdenti comprano e installano':c.auctionCardChoice?'Asta: tutti scelgono pesci o miglioria':`Lotto esaurito: ${c.auctionUpgradeOnNoFish===false?'scarto':'miglioria'}`}`;
   report.innerHTML=`<div class="report-head"><div><h2>Andamento delle partite</h2><p>${headline}${data.partial?' · risultato parziale':''}</p></div><div class="exports"><button type="button" id="downloadJson">Dati JSON</button><button type="button" id="downloadCsv">Partite CSV</button><button type="button" id="downloadDaysCsv">Giornate CSV</button></div></div>
     ${ruleSnapshot(c)}
     ${c.simultaneousBids&&c.mode==='mc6'?`<p class="hint">L’IA ha valutato ${data.meta.cycleRollouts||0} giornate complete per scegliere ${data.meta.batchChoices||0} piani di puntate. Le carte degli avversari sono rimescolate tra gli scenari.</p>`:''}
@@ -319,7 +324,7 @@ function renderReport(data){
     <h3>Da dove arrivano e dove vanno i Ducati</h3><p class="hint">Medie per giocatore e giornata. La spesa d’offerta è pagata solo dal vincitore dell’asta. ${c.deferMerchantIncome||c.marketSetBonus?'I Mercanti pagano una sola volta al giorno 4; nessuna rendita si accumula nei giorni precedenti.':'I Mercanti pagano alla fine di ogni giornata, come nel gioco originale.'}</p><div class="table-wrap"><table><thead><tr><th>Giorno</th><th>Contratti +</th><th>Mercanti per carta +</th><th>Mercanti a gruppi +</th><th>Pesci −</th><th>Offerte −</th><th>Saldo</th></tr></thead><tbody>${economy.map(x=>`<tr><td>${x.day}</td><td>${round(x.contracts)}</td><td>${round(x.passive)}</td><td>${round(x.marketBonus)}</td><td>${round(x.fish)}</td><td>${round(x.bids)}</td><td>${round(x.net)}</td></tr>`).join('')}</tbody></table></div>
     <h3>Ricompense dei contratti</h3><p class="hint">Medie per partita. ${c.contractOnlyCoins?'Ogni contratto concluso dà solo Ducati; la carta viene scartata e non diventa una miglioria.':c.contractChoice===false?'Ogni contratto dà sia Ducati sia una miglioria; i Ducati rinunciati sono zero.':'Chi sceglie la miglioria rinuncia all’incasso del contratto.'}</p><div class="table-wrap"><table><thead><tr><th>Giorno</th><th>Contratti con Ducati</th><th>Contratti con miglioria</th><th>Ducati rinunciati</th></tr></thead><tbody>${choicesByDay.map(x=>`<tr><td>${x.day}</td><td>${round(x.money)}</td><td>${round(x.upgrades)}</td><td>${round(x.foregone)}</td></tr>`).join('')}</tbody></table></div>
     <h3>Aste e acquisti</h3>${c.mandatoryBid?`<p class="hint">Offerte effettuate quando c’era almeno una carta in mano: ${actualOffers} su ${eligibleOffers} occasioni.</p>`:''}<div class="kpis"><div class="kpi"><b>${round(contested.length/r.length)}</b><span>Aste contese per partita</span></div><div class="kpi"><b>${round(denials.length/r.length)}</b><span>Lotti presi interamente ${c.reverseRankPricing?'dal primo a comprare':'dal vincitore'} con rivali</span></div><div class="kpi"><b>${round(extra/r.length)}</b><span>Pesci comprati oltre il piano per partita</span></div><div class="kpi"><b>${round(wasted/r.length)}</b><span>Pesci scartati per partita</span></div></div>
-    <p class="hint" style="margin-top:11px">${auctions.length} aste con pesce · ${round(100*sum(auctions.map(x=>x.bought))/sum(auctions.map(x=>x.lot)))}% dei pesci offerti comprato · ${round(sum(buys.map(x=>x.cost))/r.length)} Ducati spesi in acquisti per partita · ${emptyBidders} ${c.reverseRankPricing?'partecipazioni senza pesci acquistati':'partecipazioni dal 2° posto in poi senza pesci acquistati'} · ${auctionUpgrades.length} carte d’asta installate come migliorie${c.auctionLoserChoice?` dai perdenti, di cui ${auctionUpgradesAfterPurchase} dopo aver comprato pesci`:c.auctionCardChoice?` (${auctionUpgrades.filter(x=>x.reason==='choice').length} scelte, ${auctionUpgrades.filter(x=>x.reason==='empty').length} per lotto esaurito, ${auctionUpgrades.filter(x=>x.reason==='unavailable').length} senza acquisto possibile)`:' per lotto esaurito'}.</p>
+    <p class="hint" style="margin-top:11px">${auctions.length} aste con pesce · ${round(100*sum(auctions.map(x=>x.bought))/sum(auctions.map(x=>x.lot)))}% dei pesci offerti comprato · ${round(sum(buys.map(x=>x.cost))/r.length)} Ducati spesi in acquisti per partita · ${emptyBidders} ${c.reverseRankPricing?'partecipazioni senza pesci acquistati':'partecipazioni dal 2° posto in poi senza pesci acquistati'} · ${auctionUpgrades.length} carte d’asta installate come migliorie${c.auctionLoserChoice?` dai perdenti, di cui ${auctionUpgradesAfterPurchase} dopo aver comprato pesci`:c.auctionCardChoice?` (${auctionUpgrades.filter(x=>x.reason==='choice').length} scelte, ${auctionUpgrades.filter(x=>x.reason==='empty').length} per lotto esaurito, ${auctionUpgrades.filter(x=>x.reason==='unavailable').length} senza acquisto possibile)`:' per lotto esaurito'}${c.lastTakesWinningBid?` · ${transfers.length} carte del primo passate all’ultimo (${round(transfers.length/r.length)} per partita)`:''}.</p>
     <h3>Vantaggio di posizione nell’asta</h3><div class="table-wrap"><table><thead><tr><th>Posto</th><th>Partecipazioni</th><th>Offerta media</th><th>Tariffa media</th><th>Pesci medi</th><th>Senza acquisto</th><th>Spesa media</th></tr></thead><tbody>${auctionRanks.filter(x=>x.count).map(x=>`<tr><td>${x.rank}°</td><td>${x.count}</td><td>${round(x.score)}</td><td>${round(x.price)}</td><td>${round(x.fish)}</td><td>${round(100*x.empty/x.count)}%</td><td>${round(x.spent)}</td></tr>`).join('')}</tbody></table></div>
     <div class="grid2"><div><h3>Per tipo di pesce</h3><div class="table-wrap"><table><thead><tr><th>Pesce</th><th>Contese</th><th>Venduti</th><th>Lotti negati</th><th>Extra</th></tr></thead><tbody>${byFish.map(f=>`<tr><td>${f.fish}</td><td>${f.contested}/${f.auctions}</td><td>${f.sold}/${f.lot}</td><td>${f.denials}</td><td>${f.extra}</td></tr>`).join('')}</tbody></table></div></div>
     <div><h3>Per tariffa d’asta</h3><div class="table-wrap"><table><thead><tr><th>Tariffa / pesce</th><th>Pesci</th><th>Extra</th><th>Spesa effettiva</th></tr></thead><tbody>${prices.map(p=>`<tr><td>${p.price}</td><td>${p.fish}</td><td>${p.extra}</td><td>${p.spent}</td></tr>`).join('')}</tbody></table></div><p class="hint" style="margin-top:10px">${contracts.length} contratti conclusi in totale · ${round(contracts.length/r.length)} per partita.</p></div></div>
@@ -327,8 +332,8 @@ function renderReport(data){
     <p class="note">“Lotto negato” indica che ${c.reverseRankPricing?'il primo giocatore a comprare':'il vincitore'} ha comprato tutto mentre almeno un altro giocatore aveva offerto. “Extra” significa oltre il bisogno stimato dal piano del bot: non prova, da solo, che un contratto avversario sia stato impedito. Le previsioni Monte Carlo sono approssimazioni; confronta più prove cambiando un parametro alla volta.${r.length<100?' Con meno di 100 partite, considera provvisorie le percentuali di vittoria e rimonta.':''}</p>`;
   document.getElementById('downloadJson').addEventListener('click',()=>download('pescaria-laboratorio.json',JSON.stringify(data,null,2),'application/json'));
   document.getElementById('downloadCsv').addEventListener('click',()=>{
-    const head=['seme','capitano_iniziale','vincitore','distacco','cambi_primo',...Array.from({length:c.players},(_,i)=>`posto_${i+1}_ducati`),...Array.from({length:c.players},(_,i)=>`giocatore_${i+1}_posto`),...Array.from({length:c.players},(_,i)=>`giocatore_${i+1}_ducati`),...Array.from({length:c.players},(_,i)=>`giocatore_${i+1}_migliorie`),'aste_contese','lotti_negati','pesci_extra','pesci_scartati','migliorie_da_mano'];
-    const lines=r.map((x,i)=>[x.seed,x.initialCaptain+1,x.players[0].id+1,x.gap,changesPerGame[i],...x.players.map(p=>p.coins),...Array.from({length:c.players},(_,pid)=>x.players.findIndex(p=>p.id===pid)+1),...Array.from({length:c.players},(_,pid)=>x.players.find(p=>p.id===pid).coins),...Array.from({length:c.players},(_,pid)=>x.players.find(p=>p.id===pid).upgrades),x.auctions.filter(a=>a.bidders>=2).length,x.auctions.filter(a=>c.reverseRankPricing?a.firstBuyerBoughtAll:a.winnerBoughtAll).length,sum(x.auctions.map(a=>a.extra)),sum(x.players.map(p=>p.wasted)),(x.handUpgrades||[]).length].join(','));
+    const head=['seme','capitano_iniziale','vincitore','distacco','cambi_primo',...Array.from({length:c.players},(_,i)=>`posto_${i+1}_ducati`),...Array.from({length:c.players},(_,i)=>`giocatore_${i+1}_posto`),...Array.from({length:c.players},(_,i)=>`giocatore_${i+1}_ducati`),...Array.from({length:c.players},(_,i)=>`giocatore_${i+1}_migliorie`),'aste_contese','lotti_negati','carte_passate_all_ultimo','pesci_extra','pesci_scartati','migliorie_da_mano'];
+    const lines=r.map((x,i)=>[x.seed,x.initialCaptain+1,x.players[0].id+1,x.gap,changesPerGame[i],...x.players.map(p=>p.coins),...Array.from({length:c.players},(_,pid)=>x.players.findIndex(p=>p.id===pid)+1),...Array.from({length:c.players},(_,pid)=>x.players.find(p=>p.id===pid).coins),...Array.from({length:c.players},(_,pid)=>x.players.find(p=>p.id===pid).upgrades),x.auctions.filter(a=>a.bidders>=2).length,x.auctions.filter(a=>c.reverseRankPricing?a.firstBuyerBoughtAll:a.winnerBoughtAll).length,x.auctions.filter(a=>a.cardTransfer).length,sum(x.auctions.map(a=>a.extra)),sum(x.players.map(p=>p.wasted)),(x.handUpgrades||[]).length].join(','));
     download('pescaria-laboratorio.csv',[head.join(','),...lines].join('\n'),'text/csv');
   });
   document.getElementById('downloadDaysCsv').addEventListener('click',()=>{

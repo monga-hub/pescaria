@@ -24,7 +24,7 @@
     <section class="panel" aria-labelledby="parameters-title">
       <h2 id="parameters-title">Parametri</h2>
       <p class="hint">Le modifiche valgono solo qui. La partita normale conserva le sue regole.</p>
-      <button id="loadOriginalRules" type="button">Prova le regole originali con acquisto inverso</button>
+      <button id="loadOriginalRules" type="button">Prova le regole originali con carta all’ultimo</button>
       <form id="configForm">
         <div class="fields">
           <label class="field">Partite<input name="games" type="number" min="10" max="2000" step="1" value="100" required></label>
@@ -56,7 +56,8 @@
           <label class="field wide">Carte per giocatore al giorno<input name="handSize" type="number" min="1" max="12" step="1" value="7" required></label>
         </div></fieldset>
         <fieldset><legend>Partecipazione alle aste</legend><label class="switch"><input name="mandatoryBid" type="checkbox" checked>Offerta obbligatoria in ogni asta se hai almeno una carta in mano</label><label class="switch"><input name="simultaneousBids" type="checkbox">Puntate simultanee per tutti i lotti</label><label class="switch"><input name="classicDraft" type="checkbox">Draft anche il primo giorno, come nel gioco originale</label><p class="switch-note">Le puntate simultanee sono una variante separata. Per la prova classica, lasciale disattivate.</p></fieldset>
-        <fieldset><legend>Ricompensa dei contratti e fine giornata</legend><label class="switch"><input name="contractOnlyCoins" type="checkbox" checked>I contratti conclusi danno solo Ducati</label><label class="switch"><input name="contractChoice" type="checkbox">Scegli Ducati oppure miglioria</label><label class="switch"><input name="chooseEndDayUpgrades" type="checkbox" checked>A fine giornata scegli fino a 2 carte da conservare e 2 da installare</label><label class="switch"><input name="installRemainingCards" type="checkbox">A fine giornata, installa tutte le carte rimaste in mano</label><p class="switch-note">Le carte puntate nelle aste vanno agli scarti. La scelta di fine giornata usa solo le carte rimaste in mano. Le due opzioni di installazione si escludono.</p></fieldset>
+        <fieldset><legend>Carta al perdente dell’asta</legend><label class="switch"><input name="lastTakesWinningBid" type="checkbox">L’ultimo offerente prende in mano la carta puntata dal primo</label><p class="switch-note">Vale solo se almeno due giocatori puntano. La carta dell’ultimo va agli scarti; quella del primo può essere usata dall’ultimo nelle aste successive o al Mercato.</p></fieldset>
+        <fieldset><legend>Ricompensa dei contratti e fine giornata</legend><label class="switch"><input name="contractOnlyCoins" type="checkbox" checked>I contratti conclusi danno solo Ducati</label><label class="switch"><input name="contractChoice" type="checkbox">Scegli Ducati oppure miglioria</label><label class="switch"><input name="chooseEndDayUpgrades" type="checkbox" checked>A fine giornata scegli fino a 2 carte da conservare e 2 da installare</label><label class="switch"><input name="installRemainingCards" type="checkbox">A fine giornata, installa tutte le carte rimaste in mano</label><p class="switch-note">La scelta di fine giornata usa solo le carte rimaste in mano. Le due opzioni di installazione si escludono.</p></fieldset>
         <fieldset><legend>Effetti delle migliorie</legend><label class="field">Ducati per miglioria della stessa categoria nei contratti<input name="categoryBonusPerUpgrade" type="number" min="0" max="3" step="1" value="0" required></label></fieldset>
         <fieldset><legend>Mercanti della Bilancia</legend><label class="switch"><input name="deferMerchantIncome" type="checkbox" checked>Ducati per carta a fine partita</label><label class="field">Ducati per carta<input name="merchantCardValue" type="number" min="0" max="100" step="1" value="1" required></label><label class="switch"><input name="marketSetBonus" type="checkbox">Premio per gruppi a fine partita</label><div class="fields"><label class="field">Carte per gruppo<input name="marketSetThreshold" type="number" min="1" max="25" step="1" value="3" required></label><label class="field">Ducati per gruppo<input name="marketSetBase" type="number" min="0" max="100" step="1" value="10" required></label></div><p class="switch-note">Se entrambi sono spenti, vale la rendita originale: 2 Ducati per carta della categoria indicata, ogni giornata. Le formule finali si escludono.</p></fieldset>
         <fieldset><legend>Variante: perdenti comprano e installano</legend><label class="switch"><input name="auctionLoserChoice" type="checkbox">Chi perde compra pesci e installa la miglioria</label><p class="switch-note">Il vincitore compra per primo. Ogni partecipante che perde può comprare i pesci rimasti e installa subito la carta, anche se non compra pesci.</p></fieldset>
@@ -74,6 +75,6 @@
     <section class="panel" id="report" aria-live="polite"><div class="report-empty"><strong>Il report apparirà qui</strong>Avvia una simulazione per vedere i dati.</div></section>
   </div>
 </main>
-<script src="laboratorio.js?v=17"></script>
+<script src="laboratorio.js?v=18"></script>
 </body>
 </html>

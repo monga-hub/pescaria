@@ -43,6 +43,7 @@ afterAuction=function(){
     a.soldOut=a.bought===a.lot;
     a.winnerBoughtAll=a.bidders>1&&a.buys.some(x=>x.pid===a.winner&&x.n===a.lot);
     a.firstBuyerBoughtAll=a.bidders>1&&a.buys[0]?.n===a.lot;
+    a.cardTransfer=G.simConfig?.lastTakesWinningBid&&G.auctionResult?.length>1?{from:G.auctionResult[0].pid,to:G.auctionResult.at(-1).pid,card:G.auctionResult[0].card.id}:null;
     a.upgrades=auctionChoiceOn()
       ?(G.auctionZeroUpgrades||[]).map(x=>({pid:x.pid,card:x.card.id,upgrade:x.card.up,reason:x.reason}))
       :(G.auctionResult||[]).filter(b=>a.lot>0&&!G.tutorial&&G.simConfig?.auctionUpgradeOnNoFish!==false&&!G.players[b.pid].congrega&&G.auctionBlockedByEmpty?.[b.pid]).map(b=>({pid:b.pid,card:b.card.id,upgrade:b.card.up,reason:'empty'}));
