@@ -1120,29 +1120,41 @@ function finishDraft(){
 
 // ---------------- Fase 2 · Aste ----------------
 const batchBid=botBid;
+let chooseBatchPlan=null;
 function planSimultaneousBids(){
   G.committedBids=Object.fromEntries(FISH.map(f=>[f,[]]));
   G.bidReservations=G.players.map(()=>0);
+  G.batchPlanSeed=G.rng.s;
   G.simCaptain=G.captain;
-  for(const p of G.players){
-    const hand=p.hand,coins=p.coins,influence=p.influence;
-    p.hand=[...hand];
-    for(let i=0;i<FISH.length;i++){
-      const f=FISH[i];if(!G.market[f]||!p.hand.length)continue;
-      G.auctionIndex=i;
-      let bid=batchBid(p,f,[]);
-      if(!bid&&G.simConfig.mandatoryBid)bid={pid:p.id,card:[...p.hand].sort((a,b)=>botCardValue(p,a)-botCardValue(p,b))[0],cash:0,infl:0};
-      if(!bid)continue;
-      bid.cash=Math.max(0,Math.min(bid.cash,p.coins));
-      bid.infl=Math.max(0,Math.min(bid.infl,p.influence));
-      G.committedBids[f].push(bid);
-      G.bidReservations[p.id]+=bid.cash;
-      p.coins-=bid.cash;p.influence-=bid.infl;
-      p.hand.splice(p.hand.indexOf(bid.card),1);
-    }
-    p.hand=hand;p.coins=coins;p.influence=influence;p.plan=null;
+  for(const p of G.players)setBatchBids(p,makeBatchBids(p));
+  if(!G.mcRollout&&chooseBatchPlan)for(const p of G.players)chooseBatchPlan(p);
+}
+function makeBatchBids(p){
+  const hand=p.hand,coins=p.coins,influence=p.influence,bids=[];
+  p.hand=[...hand];
+  for(let i=0;i<FISH.length;i++){
+    const f=FISH[i];if(!G.market[f]||!p.hand.length)continue;
+    G.auctionIndex=i;
+    let bid=batchBid(p,f,[]);
+    if(!bid&&G.simConfig.mandatoryBid)bid={pid:p.id,card:[...p.hand].sort((a,b)=>botCardValue(p,a)-botCardValue(p,b))[0],cash:0,infl:0};
+    if(!bid)continue;
+    bid.cash=Math.max(0,Math.min(bid.cash,p.coins));
+    bid.infl=Math.max(0,Math.min(bid.infl,p.influence));
+    bids.push({...bid,fish:f});
+    p.coins-=bid.cash;p.influence-=bid.infl;
+    p.hand.splice(p.hand.indexOf(bid.card),1);
   }
-  G.auctionIndex=-1;
+  p.hand=hand;p.coins=coins;p.influence=influence;p.plan=null;G.auctionIndex=-1;
+  return bids;
+}
+function setBatchBids(p,bids){
+  for(const f of FISH)G.committedBids[f]=G.committedBids[f].filter(b=>b.pid!==p.id);
+  G.bidReservations[p.id]=0;
+  for(const bid of bids){
+    const card=p.hand.find(c=>c.id===bid.card.id);
+    G.committedBids[bid.fish].push({pid:p.id,card,cash:bid.cash,infl:bid.infl});
+    G.bidReservations[p.id]+=bid.cash;
+  }
 }
 function currentFish(){return (G.aOrder||FISH)[G.auctionIndex]}
 function nextAuction(){

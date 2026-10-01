@@ -28,6 +28,6 @@ self.onmessage=async({data})=>{
       done++;
       if(done%5===0||done===total)self.postMessage({type:'progress',done,total,rows:rows.splice(0)});
     }
-    self.postMessage({type:'done',choices:self.__pescaria.MC?.choices||0,rollouts:self.__pescaria.MC?.rollouts||0});
+    self.postMessage({type:'done',choices:self.__pescaria.MC?.choices||0,rollouts:self.__pescaria.MC?.rollouts||0,batchChoices:self.__pescaria.MC?.batchChoices||0,cycleRollouts:self.__pescaria.MC?.cycleRollouts||0});
   }catch(error){self.postMessage({type:'error',message:error?.message||String(error)})}
 };

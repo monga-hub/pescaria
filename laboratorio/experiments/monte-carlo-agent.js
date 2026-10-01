@@ -1,9 +1,11 @@
-const MC={samples:6,depth:6,choices:0,rollouts:0,marketChoices:0};
+const MC={samples:6,depth:6,choices:0,rollouts:0,marketChoices:0,batchChoices:0,cycleRollouts:0};
 const STOP={};
 const PLAN_HORIZON_BONUS=30;
 const originalDraft=botDraft,originalBid=botBid,originalBuy=botBuy;
 function cloneGame(){const g=structuredClone(G);Object.setPrototypeOf(g.rng,RNG.prototype);return g}
-function checkpoint(){if(G.mcRollout&&--G.mcMoves<0)throw STOP}
+function checkpoint(){if(G.mcRollout&&!G.mcCycleTargetDay&&--G.mcMoves<0)throw STOP}
+const priorFinishDay=finishDay;
+finishDay=function(){if(G.mcRollout&&G.mcCycleTargetDay===G.day){G.mcCycleDone=true;return}return priorFinishDay()};
 function strength(p){
   const stock=mix(p.banco,p.cesta);
   const cards=[...p.hand,...p.kept,...(p.auctionReturns||[])];
@@ -18,17 +20,60 @@ function strength(p){
   return p.coins+finalMerchant+fish+orders+upgrades;
 }
 function evaluate(pid){return strength(G.players[pid])-(G.simConfig?.aggression??1)*Math.max(...G.players.filter(p=>p.id!==pid).map(strength))}
-function runCandidate(pid,key,apply){
+function runCandidate(pid,key,apply,seedBase){
   const original=G;let total=0,samples=original.simConfig?.samples??MC.samples;
   for(let sample=0;sample<samples;sample++){
     G=cloneGame();G.mcRollout=true;G.mcMoves=original.simConfig?.depth??MC.depth;
-    G.rng=new RNG((original.rng.s^((key+1)*7919+sample*104729+original.day*31))>>>0);
+    G.rng=new RNG(((seedBase??original.rng.s)^((key+1)*7919+sample*104729+original.day*31))>>>0);
     G.rng.shuffle(G.deck);G.rng.shuffle(G.bag);
     try{apply()}catch(e){if(e!==STOP){G=original;throw e}}
     total+=evaluate(pid);MC.rollouts++;G=original;
   }
   return total/samples;
 }
+chooseBatchPlan=function(p){
+  if(p.congrega||!p.hand.length)return;
+  const base=FISH.flatMap(f=>G.committedBids[f].filter(b=>b.pid===p.id).map(b=>({...b,fish:f})));
+  // ponytail: proviamo pochi piani completi; ampliare la ricerca solo se i test mostrano un limite concreto.
+  const options=[],seen=new Set();
+  const add=plan=>{const key=plan.map(b=>`${b.fish}:${b.card.id}:${b.cash}:${b.infl}`).join('|');if(!seen.has(key)){seen.add(key);options.push(plan)}};
+  add(base);
+  const keep=botPlan(p),need=f=>needOf(p,f,keep),priority=(a,b)=>need(b.fish)/(G.market[b.fish]||1)-need(a.fish)/(G.market[a.fish]||1);
+  const ordered=[...base].sort(priority),target=base.indexOf(ordered[0]);
+  if(base.length>1){
+    const other=base.indexOf(ordered.at(-1)),swapped=base.map(b=>({...b}));
+    [swapped[target].card,swapped[other].card]=[swapped[other].card,swapped[target].card];add(swapped);
+    const rotated=base.map((b,i)=>({...b,card:base[(i+1)%base.length].card}));add(rotated);
+  }
+  const used=new Set(base.map(b=>b.card.id)),free=p.hand.filter(c=>!used.has(c.id)).sort((a,b)=>botCardValue(p,a)-botCardValue(p,b));
+  if(target>=0&&free.length){for(const card of [free[0],free.at(-1)])add(base.map((b,i)=>i===target?{...b,card}:b))}
+  const cash=base.reduce((n,b)=>n+b.cash,0);
+  if(target>=0&&cash<p.coins){for(const extra of [1,2])if(cash+extra<=p.coins)add(base.map((b,i)=>i===target?{...b,cash:b.cash+extra}:b))}
+  if(cash)add(base.map(b=>({...b,cash:0})));
+  if(target>=0&&p.influence)add(base.map((b,i)=>({...b,infl:i===target?p.influence:0})));
+  if(!G.simConfig?.mandatoryBid&&base.length)add(base.filter(b=>b!==ordered.at(-1)));
+  if(!base.length){
+    const fish=FISH.filter(f=>G.market[f]).sort((a,b)=>need(b)/(G.market[b]||1)-need(a)/(G.market[a]||1))[0];
+    if(fish)add([{pid:p.id,fish,card:[...p.hand].sort((a,b)=>a.bid-b.bid)[0],cash:0,infl:0}]);
+  }
+  let best=base,value=-Infinity;MC.choices++;MC.batchChoices++;
+  for(const plan of options){
+    const score=runCandidate(p.id,777,()=>{
+      const me=G.players[p.id],others=G.players.filter(x=>x.id!==p.id),deckSize=G.deck.length;
+      const hidden=G.rng.shuffle([...G.deck,...others.flatMap(x=>x.hand)]);
+      G.deck=hidden.splice(0,deckSize);
+      for(const other of others){other.hand=hidden.splice(0,other.hand.length);other.plan=null}
+      G.committedBids=Object.fromEntries(FISH.map(f=>[f,[]]));G.bidReservations=G.players.map(()=>0);
+      setBatchBids(me,plan);
+      for(const other of others)setBatchBids(other,makeBatchBids(other));
+      G.mcCycleTargetDay=G.day;nextAuction();
+      if(!G.mcCycleDone)throw Error('Il ciclo delle aste non è terminato');
+    },G.batchPlanSeed);
+    MC.cycleRollouts+=G.simConfig?.samples??MC.samples;
+    if(score>value){value=score;best=plan}
+  }
+  setBatchBids(p,best);
+};
 botDraft=function(p,pack){
   checkpoint();
   if(G.mcRollout||pack.length<2)return originalDraft(p,pack);

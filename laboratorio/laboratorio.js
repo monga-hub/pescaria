@@ -169,7 +169,7 @@ function ruleSnapshot(c){
     ['Carte rimaste in mano',c.chooseEndDayUpgrades?'A fine giornata: fino a 2 conservate per domani e fino a 2 installate; le altre scartate':c.installRemainingCards?'Installate come migliorie a fine giornata; nessuna carta conservata per domani':'Fino a 2 conservate per domani; le altre scartate'],
     ['Bonus di categoria',`${c.categoryBonusPerUpgrade} Ducati per miglioria installata della stessa categoria`],
     ['Mercanti della Bilancia',c.marketSetBonus?`${c.marketSetBase} Ducati per ogni gruppo completo di ${c.marketSetThreshold} carte della categoria indicata, per ogni Mercante; pagamento solo a fine partita`:`${c.merchantCardValue} Ducati per carta della categoria indicata, per ogni Mercante; pagamento solo a fine partita`],
-    ['IA',c.mode==='mc6'?`Monte Carlo · ${c.depth} mosse · ${c.samples} scenari per scelta · aggressività ${c.aggression}${c.simultaneousBids?'; le puntate simultanee usano la strategia iniziale, Monte Carlo valuta draft e acquisti':''}`:'Standard'],
+    ['IA',c.mode==='mc6'?`Monte Carlo · ${c.depth} mosse · ${c.samples} scenari per scelta · aggressività ${c.aggression}${c.simultaneousBids?'; per le puntate simultanee confronta piani completi fino alla fine della giornata':''}`:'Standard'],
     ['Seme iniziale',String(c.seed)]
   ];
   return `<section class="rule-snapshot"><h3>Regole usate in questa simulazione</h3><dl>${rows.map(([name,value])=>`<dt>${name}</dt><dd>${value}</dd>`).join('')}</dl></section>`;
@@ -187,17 +187,17 @@ form.addEventListener('submit',event=>{
   rows=[];lastReport=null;progress.max=config.games;progress.value=0;
   runButton.disabled=true;stopButton.disabled=false;status.textContent='Preparazione di 4 calcoli paralleli…';
   report.innerHTML='<div class="report-empty"><strong>Partite in corso</strong>Il report si aggiornerà al termine.</div>';
-  const completed=Array(WORKERS).fill(0),meta={choices:0,rollouts:0};let finished=0;
+  const completed=Array(WORKERS).fill(0),meta={choices:0,rollouts:0,batchChoices:0,cycleRollouts:0};let finished=0;
   try{
     for(let slot=0;slot<WORKERS;slot++){
-      const worker=new Worker('laboratorio-worker.js?v=4');workers.push(worker);
+      const worker=new Worker('laboratorio-worker.js?v=5');workers.push(worker);
       worker.onmessage=({data})=>{
         if(!workers.includes(worker))return;
         if(data.type==='progress'){
           rows.push(...data.rows);completed[slot]=data.done;progress.value=sum(completed);
           status.textContent=`${progress.value} / ${config.games} partite completate · 4 calcoli paralleli`;
         }else if(data.type==='done'){
-          meta.choices+=data.choices;meta.rollouts+=data.rollouts;
+          meta.choices+=data.choices;meta.rollouts+=data.rollouts;meta.batchChoices+=data.batchChoices;meta.cycleRollouts+=data.cycleRollouts;
           if(++finished===WORKERS)finish(`${rows.length} partite completate.`,false,meta);
         }else if(data.type==='error')finish('Simulazione interrotta: '+data.message,true);
       };
@@ -291,6 +291,7 @@ function renderReport(data){
   const headline=`${r.length} partite · ${c.players} giocatori · ${c.mode==='mc6'?`Monte Carlo ${c.samples} scenari / ${c.depth} mosse`:'IA standard'} · ${c.simultaneousBids?'Offerte simultanee':'Offerte in sequenza'} · ${c.contractOnlyCoins?'Contratti: solo Ducati':c.contractChoice===false?'Ducati e miglioria':'Ducati o miglioria'} · ${c.winnerPricing?`Prezzi: vincitore ${c.winnerPrice}, altri ${c.otherPrice}`:'Prezzi a fasce'} · ${c.auctionLoserChoice?'Asta: i perdenti comprano e installano':c.auctionCardChoice?'Asta: tutti scelgono pesci o miglioria':`Lotto esaurito: ${c.auctionUpgradeOnNoFish===false?'scarto':'miglioria'}`}`;
   report.innerHTML=`<div class="report-head"><div><h2>Andamento delle partite</h2><p>${headline}${data.partial?' · risultato parziale':''}</p></div><div class="exports"><button type="button" id="downloadJson">Dati JSON</button><button type="button" id="downloadCsv">Partite CSV</button><button type="button" id="downloadDaysCsv">Giornate CSV</button></div></div>
     ${ruleSnapshot(c)}
+    ${c.simultaneousBids&&c.mode==='mc6'?`<p class="hint">L’IA ha valutato ${data.meta.cycleRollouts||0} giornate complete per scegliere ${data.meta.batchChoices||0} piani di puntate. Le carte degli avversari sono rimescolate tra gli scenari.</p>`:''}
     <div class="kpis"><div class="kpi"><b>${round(mean(gaps))}</b><span>Distacco medio · Ducati</span></div><div class="kpi"><b>${round(percentile(gaps,.5))}</b><span>Distacco mediano</span></div><div class="kpi"><b>${round(mean(r.map(x=>x.players[0].coins)))}</b><span>Primo · Ducati medi</span></div><div class="kpi"><b>${round(mean(r.map(x=>x.players.at(-1).coins)))}</b><span>Ultimo · Ducati medi</span></div></div>
     <h3>Carte installate come migliorie</h3><div class="kpis five"><div class="kpi"><b>${round(installedCards/r.length)}</b><span>Per partita · tutti i giocatori</span></div><div class="kpi"><b>${round(installedCards/(r.length*c.players))}</b><span>Per giocatore e partita</span></div><div class="kpi"><b>${round(auctionUpgrades.length/r.length)}</b><span>Da aste per partita</span></div><div class="kpi"><b>${round(contractUpgrades.length/r.length)}</b><span>Da contratti per partita</span></div><div class="kpi"><b>${round(handUpgrades.length/r.length)}</b><span>Da carte rimaste in mano per partita</span></div></div><p class="hint">Media finale per ciascun giocatore nell’ordine al tavolo, indipendentemente dalla posizione in classifica. Ogni carta è contata una volta sola, anche se produce effetti più volte.</p>${deckShortages.length?`<p class="note">Mazzo insufficiente in ${deckShortages.length} giornate su ${r.length*4}: distribuite in media ${round(mean(deckShortages.map(x=>x.perPlayer)))} carte per giocatore anziché ${c.handSize}. In queste giornate il draft è sostituito da una distribuzione uguale per tutti.</p>`:''}<div class="table-wrap"><table><thead><tr><th>Giocatore</th><th>Migliorie medie</th><th>Da aste</th><th>Da contratti</th><th>Da mano</th></tr></thead><tbody>${installedBySeat.map(p=>`<tr><td>${p.player}</td><td>${round(p.total)}</td><td>${round(p.auction)}</td><td>${round(p.contract)}</td><td>${round(p.hand)}</td></tr>`).join('')}</tbody></table></div>
     <div><h3>Distacco finale</h3><p class="hint">10°–90° percentile: ${percentile(gaps,.1)}–${percentile(gaps,.9)} Ducati · ${gaps.filter(x=>x<=10).length} entro 10 · ${gaps.filter(x=>x>=30).length} da almeno 30.</p>${distribution.map(b=>`<div class="chart-row"><span>${b.label}</span><div class="bar-track"><span class="bar" style="width:${100*b.count/r.length}%"></span></div><b>${b.count}</b></div>`).join('')}</div>
