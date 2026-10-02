@@ -1,12 +1,12 @@
 const MC={samples:6,depth:6,choices:0,rollouts:0,marketChoices:0,batchChoices:0,cycleRollouts:0};
 const STOP={};
-const PLAN_HORIZON_BONUS=30;
 const originalDraft=botDraft,originalBid=botBid,originalBuy=botBuy;
 function cloneGame(){const g=structuredClone(G);Object.setPrototypeOf(g.rng,RNG.prototype);return g}
 function checkpoint(){if(G.mcRollout&&!G.mcCycleTargetDay&&--G.mcMoves<0)throw STOP}
 const priorFinishDay=finishDay;
 finishDay=function(){if(G.mcRollout&&G.mcCycleTargetDay===G.day){G.mcCycleDone=true;return}return priorFinishDay()};
 function strength(p){
+  if(G.finished)return p.coins+(p.installed.length+p.pending.length)*.001;
   const stock=mix(p.banco,p.cesta);
   const cards=[...p.hand,...p.kept,...(p.auctionReturns||[])];
   const useful=FISH.reduce((total,f)=>total+Math.min(stock[f],cards.reduce((need,c)=>need+(c.recipe[f]||0),0)),0);
@@ -16,18 +16,29 @@ function strength(p){
     return payout(p,c)*(.15+.55*have/need)}).sort((a,b)=>b-a).slice(0,2).reduce((a,b)=>a+b,0);
   const upgrades=[...p.installed,...p.pending].reduce((v,c)=>v+botUpgradeValue(p,c)*.65,0)
     +(G.simConfig?.installRemainingCards?cards.reduce((v,c)=>v+botUpgradeValue(p,c)*.35,0):G.simConfig?.chooseEndDayUpgrades?cards.map(c=>botUpgradeValue(p,c)).sort((a,b)=>b-a).slice(0,2).reduce((v,x)=>v+x*.35,0):0);
-  const finalMerchant=G.finished?0:G.simConfig?.marketSetBonus?marketSetReward(p,true):G.simConfig?.deferMerchantIncome?bilanciaIncome(p,true).reduce((n,x)=>n+x.v,0):0;
-  return p.coins+finalMerchant+fish+orders+upgrades;
+  const finalMerchant=G.simConfig?.marketSetBonus?marketSetReward(p,true):G.simConfig?.deferMerchantIncome?bilanciaIncome(p,true).reduce((n,x)=>n+x.v,0):0;
+  return p.coins+finalMerchant+fish+orders+upgrades-finalMerchant*.65;
 }
 function evaluate(pid){return strength(G.players[pid])-(G.simConfig?.aggression??1)*Math.max(...G.players.filter(p=>p.id!==pid).map(strength))}
-function runCandidate(pid,key,apply,seedBase){
+function sampleHiddenHands(pid){
+  const others=G.players.filter(p=>p.id!==pid&&!p.congrega),deckSize=G.deck.length;
+  const pool=G.rng.shuffle([...G.deck,...others.flatMap(p=>p.hand)]);G.deck=pool.splice(0,deckSize);
+  const replacements=new Map();
+  for(const p of others){const old=p.hand;p.hand=pool.splice(0,old.length);p.plan=null;old.forEach((card,i)=>replacements.set(card.id,p.hand[i]))}
+  for(const bid of G.bids||[])if(replacements.has(bid.card.id))bid.card=replacements.get(bid.card.id);
+}
+function runCandidate(pid,apply,seedBase,cycle=false){
   const original=G;let total=0,samples=original.simConfig?.samples??MC.samples;
   for(let sample=0;sample<samples;sample++){
     G=cloneGame();G.mcRollout=true;G.mcMoves=original.simConfig?.depth??MC.depth;
-    G.rng=new RNG(((seedBase??original.rng.s)^((key+1)*7919+sample*104729+original.day*31))>>>0);
+    // Ogni candidato affronta gli stessi scenari casuali: cambia solo la sua scelta.
+    G.rng=new RNG(((seedBase??original.rng.s)^(sample*104729+original.day*31))>>>0);
     G.rng.shuffle(G.deck);G.rng.shuffle(G.bag);
+    if(cycle){sampleHiddenHands(pid);G.mcCycleTargetDay=G.day}
     try{apply()}catch(e){if(e!==STOP){G=original;throw e}}
-    total+=evaluate(pid);MC.rollouts++;G=original;
+    if(cycle&&!G.mcCycleDone){G=original;throw Error('Il ciclo della giornata non è terminato')}
+    if(cycle&&G.day===4)finishGame();
+    total+=evaluate(pid);MC.rollouts++;if(cycle)MC.cycleRollouts++;G=original;
   }
   return total/samples;
 }
@@ -58,18 +69,13 @@ chooseBatchPlan=function(p){
   }
   let best=base,value=-Infinity;MC.choices++;MC.batchChoices++;
   for(const plan of options){
-    const score=runCandidate(p.id,777,()=>{
-      const me=G.players[p.id],others=G.players.filter(x=>x.id!==p.id),deckSize=G.deck.length;
-      const hidden=G.rng.shuffle([...G.deck,...others.flatMap(x=>x.hand)]);
-      G.deck=hidden.splice(0,deckSize);
-      for(const other of others){other.hand=hidden.splice(0,other.hand.length);other.plan=null}
+    const score=runCandidate(p.id,()=>{
+      const me=G.players[p.id],others=G.players.filter(x=>x.id!==p.id);
       G.committedBids=Object.fromEntries(FISH.map(f=>[f,[]]));G.bidReservations=G.players.map(()=>0);
       setBatchBids(me,plan);
       for(const other of others)setBatchBids(other,makeBatchBids(other));
-      G.mcCycleTargetDay=G.day;nextAuction();
-      if(!G.mcCycleDone)throw Error('Il ciclo delle aste non è terminato');
-    },G.batchPlanSeed);
-    MC.cycleRollouts+=G.simConfig?.samples??MC.samples;
+      nextAuction();
+    },G.batchPlanSeed,true);
     if(score>value){value=score;best=plan}
   }
   setBatchBids(p,best);
@@ -79,7 +85,7 @@ botDraft=function(p,pack){
   if(G.mcRollout||pack.length<2)return originalDraft(p,pack);
   let best=pack[0],value=-Infinity;MC.choices++;
   for(const card of pack){
-    const v=runCandidate(p.id,card.id,()=>{G.mcForcedDraft={pid:p.id,id:card.id};while(G.phase==='draft')draftStep(null)});
+    const v=runCandidate(p.id,()=>{G.mcForcedDraft={pid:p.id,id:card.id};while(G.phase==='draft')draftStep(null)});
     if(v>value){value=v;best=card}
   }
   return best;
@@ -98,13 +104,11 @@ botBid=function(p,f,seen){
   add({card:cards.at(-1),cash:Math.min(3,p.coins),infl:p.influence});
   let best=null,value=-Infinity;MC.choices++;
   for(const o of opts){
-    let v=runCandidate(p.id,(o?.id||0)*11+(o?.cash||0)*3+(o?.infl||0),()=>{
+    const v=runCandidate(p.id,()=>{
       const cp=G.players[p.id];
       if(o){const card=cp.hand.find(c=>c.id===o.id);G.bids.push({pid:p.id,card,cash:o.cash,infl:o.infl})}
       G.bidDone.push(p.id);G.bidPos++;advanceBidders();
-    });
-    // Sei mosse spesso finiscono prima del Mercato: preserva il piano quando la stima è incerta.
-    if((!o&&!baseline)||(o&&baseline&&o.id===baseline.card.id&&o.cash===baseline.cash&&o.infl===baseline.infl))v+=PLAN_HORIZON_BONUS;
+    },undefined,true);
     if(v>value){value=v;best=o}
   }
   if(!best)return null;
@@ -122,13 +126,12 @@ botBuy=function(p,f,price,rank){
   const options=[...new Set([0,1,wanted,limit,planned].filter(n=>n<=limit))];
   let best=0,value=-Infinity;MC.choices++;
   for(const n of options){
-    let v=runCandidate(p.id,f.length*13+n,()=>{
+    const v=runCandidate(p.id,()=>{
       const q=G.buyQueue[G.buyPos];
       if(!n&&canUpgradeAuctionCard())installAuctionUpgrade(q);
       else{buy(G.players[p.id],f,n,price);if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');else if(auctionChoiceOn())settleAuctionCard(q)}
       G.buyPos++;advanceBuys();
-    });
-    if(n===planned)v+=PLAN_HORIZON_BONUS;
+    },undefined,true);
     if(v>value){value=v;best=n}
   }
   if(best>wanted){const stat=G.mcAgg??={extra:0,cost:0,byPrice:[0,0,0,0]};
@@ -141,7 +144,7 @@ const originalMarket=botMarket;botMarket=function(p){
   let card;
   while((card=p.hand.filter(c=>canContract(p,c)).sort((a,b)=>botCardValue(p,b)-botCardValue(p,a))[0])){
     const id=card.id;MC.choices++;MC.marketChoices++;
-    const value=reward=>runCandidate(p.id,id,()=>{
+    const value=reward=>runCandidate(p.id,()=>{
       const me=G.players[p.id];completeContract(me,me.hand.find(c=>c.id===id),reward);
       originalMarket(me);closePlayerMarket(me);keepCards(me,botKeep(me));
       for(const other of G.players.slice(p.id+1))if(other.congrega)congregaSell(other);else{originalMarket(other);closePlayerMarket(other);keepCards(other,botKeep(other))}

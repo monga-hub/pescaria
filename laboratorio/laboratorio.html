@@ -30,7 +30,7 @@
           <label class="field">Partite<input name="games" type="number" min="10" max="2000" step="1" value="100" required></label>
           <label class="field">Giocatori<select name="players"><option>2</option><option>3</option><option selected>4</option><option>5</option></select></label>
           <label class="field wide">Intelligenza artificiale<select name="mode"><option value="mc6" selected>Monte Carlo · guarda avanti</option><option value="standard">Standard · prova veloce</option></select></label>
-          <label class="field">Mosse future<input name="depth" type="number" min="1" max="12" step="1" value="6" required></label>
+          <label class="field">Mosse future fuori dalle aste<input name="depth" type="number" min="1" max="12" step="1" value="6" required></label>
           <label class="field">Scenari per scelta<input name="samples" type="number" min="1" max="12" step="1" value="6" required></label>
           <label class="field wide">Peso del rivale più forte<select name="aggression"><option value="0">0 · guarda solo al proprio guadagno</option><option value="0.5">0,5 · prudente</option><option value="1" selected>1 · equilibrato</option><option value="1.5">1,5 · aggressivo</option><option value="2">2 · molto aggressivo</option></select></label>
         </div>
@@ -75,6 +75,6 @@
     <section class="panel" id="report" aria-live="polite"><div class="report-empty"><strong>Il report apparirà qui</strong>Avvia una simulazione per vedere i dati.</div></section>
   </div>
 </main>
-<script src="laboratorio.js?v=18"></script>
+<script src="laboratorio.js?v=19"></script>
 </body>
 </html>
