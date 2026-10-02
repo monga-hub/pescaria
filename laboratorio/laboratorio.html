@@ -55,7 +55,7 @@
           <label class="field">Pesci per giocatore al giorno<input name="fishPerPlayer" type="number" min="1" max="12" step="1" value="8" required></label>
           <label class="field wide">Carte per giocatore al giorno<input name="handSize" type="number" min="1" max="12" step="1" value="7" required></label>
         </div></fieldset>
-        <fieldset><legend>Partecipazione alle aste</legend><label class="switch"><input name="mandatoryBid" type="checkbox" checked>Offerta obbligatoria in ogni asta se hai almeno una carta in mano</label><label class="switch"><input name="simultaneousBids" type="checkbox">Puntate simultanee per tutti i lotti</label><label class="switch"><input name="classicDraft" type="checkbox">Draft anche il primo giorno, come nel gioco originale</label><p class="switch-note">Le puntate simultanee sono una variante separata. Per la prova classica, lasciale disattivate.</p></fieldset>
+        <fieldset><legend>Partecipazione alle aste</legend><label class="switch"><input name="mandatoryBid" type="checkbox" checked>Offerta obbligatoria in ogni asta se hai almeno una carta in mano</label><label class="switch"><input name="simultaneousBids" type="checkbox">Puntate simultanee per tutti i lotti</label><label class="switch"><input name="classicDraft" type="checkbox">Draft in tutte le giornate, come nel gioco originale</label><p class="switch-note">Se il draft è spento, le carte vengono distribuite direttamente in tutte e quattro le giornate. Le puntate simultanee sono una variante separata.</p></fieldset>
         <fieldset><legend>Carta al perdente dell’asta</legend><label class="switch"><input name="lastTakesWinningBid" type="checkbox">L’ultimo offerente prende in mano la carta puntata dal primo</label><p class="switch-note">Vale solo se almeno due giocatori puntano. La carta dell’ultimo va agli scarti; quella del primo può essere usata dall’ultimo nelle aste successive o al Mercato.</p></fieldset>
         <fieldset><legend>Ricompensa dei contratti e fine giornata</legend><label class="switch"><input name="contractOnlyCoins" type="checkbox" checked>I contratti conclusi danno solo Ducati</label><label class="switch"><input name="contractChoice" type="checkbox">Scegli Ducati oppure miglioria</label><label class="switch"><input name="chooseEndDayUpgrades" type="checkbox" checked>A fine giornata scegli fino a 2 carte da conservare e 2 da installare</label><label class="switch"><input name="installRemainingCards" type="checkbox">A fine giornata, installa tutte le carte rimaste in mano</label><p class="switch-note">La scelta di fine giornata usa solo le carte rimaste in mano. Le due opzioni di installazione si escludono.</p></fieldset>
         <fieldset><legend>Effetti delle migliorie</legend><label class="field">Ducati per miglioria della stessa categoria nei contratti<input name="categoryBonusPerUpgrade" type="number" min="0" max="3" step="1" value="0" required></label></fieldset>
@@ -75,6 +75,6 @@
     <section class="panel" id="report" aria-live="polite"><div class="report-empty"><strong>Il report apparirà qui</strong>Avvia una simulazione per vedere i dati.</div></section>
   </div>
 </main>
-<script src="laboratorio.js?v=21"></script>
+<script src="laboratorio.js?v=22"></script>
 </body>
 </html>
