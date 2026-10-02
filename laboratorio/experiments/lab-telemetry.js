@@ -22,7 +22,7 @@ resolveBids=function(bids){
   if(!G.mcRollout){
     const a=G.lab.current,order=G.simConfig?.simultaneousBids?Array.from({length:G.players.length},(_,i)=>(G.simCaptain+i)%G.players.length):turnOrder(),ranked=[...bids].sort((a,b)=>bidScore(b)-bidScore(a)||order.indexOf(a.pid)-order.indexOf(b.pid));
     a.bidders=bids.length;a.winnerScore=ranked.length?bidScore(ranked[0]):0;a.winner=ranked[0]?.pid??null;
-    a.bids=ranked.map((b,i)=>({pid:b.pid,rank:i+1,score:bidScore(b),cardBid:b.card.bid,cash:b.cash,influence:b.infl,price:auctionPrice(bidScore(b),i+1,ranked.length)}));
+    a.bids=ranked.map((b,i)=>({pid:b.pid,rank:i+1,score:bidScore(b),cardBid:b.card.bid,cash:b.cash,influence:b.infl,price:auctionPrice(G.simConfig?.priceByCard?b.card.bid:bidScore(b),i+1,ranked.length)}));
   }
   return labResolveBids(bids);
 };

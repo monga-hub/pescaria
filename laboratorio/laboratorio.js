@@ -25,7 +25,7 @@ function readConfig(){
   t2.setCustomValidity(fields.namedItem('tieredPricing').checked&&n('threshold2')<=n('threshold1')?'La seconda fascia deve finire dopo la prima.':'');
   if(!form.reportValidity())return null;
   return{games:n('games'),players:n('players'),mode:selected,depth:n('depth'),samples:n('samples'),aggression:n('aggression'),
-    tieredPricing:fields.namedItem('tieredPricing').checked,winnerPricing:fields.namedItem('winnerPricing').checked,reverseRankPricing:fields.namedItem('reverseRankPricing').checked,
+    tieredPricing:fields.namedItem('tieredPricing').checked,priceByCard:fields.namedItem('priceByCard').checked,winnerPricing:fields.namedItem('winnerPricing').checked,reverseRankPricing:fields.namedItem('reverseRankPricing').checked,
     threshold1:n('threshold1'),threshold2:n('threshold2'),price1:n('price1'),price2:n('price2'),price3:n('price3'),winnerPrice:n('winnerPrice'),otherPrice:n('otherPrice'),rankFirstPrice:n('rankFirstPrice'),rankMiddlePrice:n('rankMiddlePrice'),rankLastPrice:n('rankLastPrice'),
     startCoins:n('startCoins'),fishPerPlayer:n('fishPerPlayer'),handSize:n('handSize'),mandatoryBid:fields.namedItem('mandatoryBid').checked,simultaneousBids:fields.namedItem('simultaneousBids').checked,classicDraft:fields.namedItem('classicDraft').checked,lastTakesWinningBid:fields.namedItem('lastTakesWinningBid').checked,contractOnlyCoins:fields.namedItem('contractOnlyCoins').checked,contractChoice:fields.namedItem('contractChoice').checked,chooseEndDayUpgrades:fields.namedItem('chooseEndDayUpgrades').checked,installRemainingCards:fields.namedItem('installRemainingCards').checked,
     categoryBonusPerUpgrade:n('categoryBonusPerUpgrade'),bilanciaCatchup:fields.namedItem('bilanciaCatchup').checked,deferMerchantIncome:fields.namedItem('deferMerchantIncome').checked,merchantCardValue:n('merchantCardValue'),limitMerchantIncome:false,
@@ -88,7 +88,7 @@ function pricingFields(changed){
   const selected={tiers,winner,reverse}[changed];
   if(selected?.checked)for(const field of [tiers,winner,reverse])if(field!==selected)field.checked=false;
   if(!tiers.checked&&!winner.checked&&!reverse.checked)tiers.checked=true;
-  for(const name of ['threshold1','threshold2','price1','price2','price3'])form.elements.namedItem(name).disabled=!tiers.checked;
+  for(const name of ['priceByCard','threshold1','threshold2','price1','price2','price3'])form.elements.namedItem(name).disabled=!tiers.checked;
   for(const name of ['winnerPrice','otherPrice'])form.elements.namedItem(name).disabled=!winner.checked;
   for(const name of ['rankFirstPrice','rankMiddlePrice','rankLastPrice'])form.elements.namedItem(name).disabled=!reverse.checked;
   if(!tiers.checked)form.elements.namedItem('threshold2').setCustomValidity('');
@@ -105,16 +105,16 @@ form.elements.namedItem('threshold2').addEventListener('input',()=>form.elements
 form.elements.namedItem('threshold1').addEventListener('input',()=>form.elements.namedItem('threshold2').setCustomValidity(''));
 modeFields();
 document.getElementById('loadOriginalRules').addEventListener('click',()=>{
-  const original={tieredPricing:false,winnerPricing:true,reverseRankPricing:false,winnerPrice:1,otherPrice:2,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:12,fishPerPlayer:6,handSize:5,mandatoryBid:false,simultaneousBids:false,classicDraft:true,lastTakesWinningBid:true,contractOnlyCoins:false,contractChoice:false,chooseEndDayUpgrades:false,installRemainingCards:false,categoryBonusPerUpgrade:1,bilanciaCatchup:false,deferMerchantIncome:false,marketSetBonus:false,merchantCardValue:2,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeOnNoFish:false};
+  const original={tieredPricing:true,priceByCard:true,winnerPricing:false,reverseRankPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:1,otherPrice:2,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:12,fishPerPlayer:6,handSize:5,mandatoryBid:false,simultaneousBids:false,classicDraft:false,lastTakesWinningBid:false,contractOnlyCoins:false,contractChoice:false,chooseEndDayUpgrades:false,installRemainingCards:false,categoryBonusPerUpgrade:1,bilanciaCatchup:false,deferMerchantIncome:false,marketSetBonus:false,merchantCardValue:2,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeOnNoFish:false};
   for(const [name,value] of Object.entries(original)){const field=form.elements.namedItem(name);if(field.type==='checkbox')field.checked=value;else field.value=value}
   pricingFields();choiceFields();contractFields();handChoiceFields();rewardFields();
-  status.textContent='Variante pronta: il primo compra per primo a 1 Ducato, l’ultimo prende la sua carta puntata.';
+  status.textContent='Variante pronta: 5 carte distribuite ogni giorno, puntata facoltativa, contratto con Ducati e miglioria, prezzi 1/2/3 dal valore della carta.';
 });
 
 const configFile=document.getElementById('configFile');
 document.getElementById('exportConfig').addEventListener('click',()=>{
   const current=readConfig();if(!current)return;
-  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:16,config:current},null,2),'application/json');
+  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:17,config:current},null,2),'application/json');
   status.textContent='Regole esportate in JSON.';
 });
 document.getElementById('importConfig').addEventListener('click',()=>configFile.click());
@@ -141,6 +141,7 @@ configFile.addEventListener('change',async()=>{
       if(imported.mandatoryBid===undefined)imported.mandatoryBid=false;
       if(imported.simultaneousBids===undefined)imported.simultaneousBids=false;
       if(imported.classicDraft===undefined)imported.classicDraft=false;
+      if(imported.priceByCard===undefined)imported.priceByCard=false;
       if(imported.lastTakesWinningBid===undefined)imported.lastTakesWinningBid=false;
       if(imported.reverseRankPricing===undefined)imported.reverseRankPricing=false;
       if(imported.rankFirstPrice===undefined)imported.rankFirstPrice=1;
@@ -183,7 +184,7 @@ function ruleSnapshot(c){
     ['Aste',c.mandatoryBid?'Offerta obbligatoria in ogni asta con almeno una carta in mano':'È possibile passare'],
     ['Tempistica delle offerte',c.simultaneousBids?'Tutte le carte, i Ducati e l’Esperienza sono impegnati insieme prima di rivelare le aste; acquisti successivi nell’ordine abituale':'Un’asta alla volta'],
     ['Pesci e Ducati',`${c.fishPerPlayer} pesci per giocatore ogni giorno · ${c.startCoins} Ducati iniziali`],
-    ['Prezzo dei pesci',c.reverseRankPricing?`Ultimo compra per primo a ${c.rankLastPrice} Ducati; posti intermedi ${c.rankMiddlePrice}; primo compra per ultimo a ${c.rankFirstPrice}. Se c’è un solo partecipante paga ${c.rankFirstPrice}`:c.winnerPricing?`Vincitore ${c.winnerPrice} Ducati per pesce; altri partecipanti ${c.otherPrice}`:`Puntata 1–${c.threshold1}: ${c.price1} Ducati; ${c.threshold1+1}–${c.threshold2}: ${c.price2}; da ${c.threshold2+1}: ${c.price3}`],
+    ['Prezzo dei pesci',c.reverseRankPricing?`Ultimo compra per primo a ${c.rankLastPrice} Ducati; posti intermedi ${c.rankMiddlePrice}; primo compra per ultimo a ${c.rankFirstPrice}. Se c’è un solo partecipante paga ${c.rankFirstPrice}`:c.winnerPricing?`Vincitore ${c.winnerPrice} Ducati per pesce; altri partecipanti ${c.otherPrice}`:`${c.priceByCard?'Valore stampato sulla carta':'Puntata totale'} 1–${c.threshold1}: ${c.price1} Ducati; ${c.threshold1+1}–${c.threshold2}: ${c.price2}; da ${c.threshold2+1}: ${c.price3}`],
     ['Carta puntata',c.lastTakesWinningBid?'Con almeno due offerenti, l’ultimo nell’asta prende in mano la carta puntata dal primo; le altre vanno agli scarti':c.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano subito la carta':c.auctionCardChoice?'Ogni partecipante sceglie se comprare pesci o installare subito la carta':c.auctionUpgradeOnNoFish?'Se il lotto è esaurito prima dell’acquisto, la carta diventa subito una miglioria':'Le carte puntate vanno agli scarti dopo l’asta'],
     ['Recupero della carta puntata',c.auctionCardChoice&&c.auctionContractsVariant?`Carta puntata recuperata al mercato dopo l’acquisto di pesci; ${c.auctionUpgradeCap===5?'nessun tetto alle migliorie d’asta':`massimo ${c.auctionUpgradeCap} migliorie d’asta per giocatore al giorno`}`:c.auctionContractsVariant?'Inattiva: richiede la scelta pesci oppure miglioria':'Disattivata'],
     ['Contratti',c.contractOnlyCoins?'Solo Ducati; carta scartata':c.contractChoice?'Scelta tra Ducati oppure miglioria':'Ducati e miglioria insieme'],
@@ -201,7 +202,7 @@ function finish(message,partial=false,meta={}){
   workers.forEach(worker=>worker.terminate());workers=[];rows.sort((a,b)=>a.index-b.index);
   runButton.disabled=false;stopButton.disabled=true;
   status.textContent=message;
-  if(rows.length){lastReport={config,partial,meta:{...meta,rulesVersion:16,aiVersion:config.mode==='mc6'?'giornata-completa-2':'standard-2'},rows};renderReport(lastReport)}
+  if(rows.length){lastReport={config,partial,meta:{...meta,rulesVersion:17,aiVersion:config.mode==='mc6'?'giornata-completa-2':'standard-2'},rows};renderReport(lastReport)}
 }
 form.addEventListener('submit',event=>{
   event.preventDefault();if(workers.length)return;
@@ -312,7 +313,7 @@ function renderReport(data){
   const dryDays=playerDays.filter(x=>x.contractsToday===0).length,fishlessDays=playerDays.filter(x=>x.fishBought===0).length,unreadyDays=playerDays.filter(x=>x.cardsAtMarket>0&&x.readyAtMarket===0).length;
   const captainWins=r.filter(x=>x.players[0].id===x.initialCaptain).length;
   const placements=placementStats(r,c.players);
-  const headline=`${r.length} partite · ${c.players} giocatori · ${c.mode==='mc6'?`Monte Carlo ${c.samples} scenari · aste fino a fine giornata`:'IA standard'} · ${c.simultaneousBids?'Offerte simultanee':'Offerte in sequenza'} · ${c.contractOnlyCoins?'Contratti: solo Ducati':c.contractChoice===false?'Ducati e miglioria':'Ducati o miglioria'} · ${c.reverseRankPricing?'Acquisto inverso, prezzo per posto':c.winnerPricing?`Prezzi: vincitore ${c.winnerPrice}, altri ${c.otherPrice}`:'Prezzi a fasce'} · ${c.bilanciaCatchup?'Bilancia separata per contratti mancanti · ':''}${c.lastTakesWinningBid?'Ultimo offerente prende la carta del primo':c.auctionLoserChoice?'Asta: i perdenti comprano e installano':c.auctionCardChoice?'Asta: tutti scelgono pesci o miglioria':`Lotto esaurito: ${c.auctionUpgradeOnNoFish===false?'scarto':'miglioria'}`}`;
+  const headline=`${r.length} partite · ${c.players} giocatori · ${c.mode==='mc6'?`Monte Carlo ${c.samples} scenari · aste fino a fine giornata`:'IA standard'} · ${c.simultaneousBids?'Offerte simultanee':'Offerte in sequenza'} · ${c.contractOnlyCoins?'Contratti: solo Ducati':c.contractChoice===false?'Ducati e miglioria':'Ducati o miglioria'} · ${c.reverseRankPricing?'Acquisto inverso, prezzo per posto':c.winnerPricing?`Prezzi: vincitore ${c.winnerPrice}, altri ${c.otherPrice}`:`Prezzi a fasce sulla ${c.priceByCard?'carta':'puntata'}`} · ${c.bilanciaCatchup?'Bilancia separata per contratti mancanti · ':''}${c.lastTakesWinningBid?'Ultimo offerente prende la carta del primo':c.auctionLoserChoice?'Asta: i perdenti comprano e installano':c.auctionCardChoice?'Asta: tutti scelgono pesci o miglioria':`Lotto esaurito: ${c.auctionUpgradeOnNoFish===false?'scarto':'miglioria'}`}`;
   report.innerHTML=`<div class="report-head"><div><h2>Andamento delle partite</h2><p>${headline}${data.partial?' · risultato parziale':''}</p></div><div class="exports"><button type="button" id="downloadJson">Dati JSON</button><button type="button" id="downloadCsv">Partite CSV</button><button type="button" id="downloadDaysCsv">Giornate CSV</button></div></div>
     ${ruleSnapshot(c)}
     ${c.mode==='mc6'?`<p class="hint">L’IA ha valutato ${data.meta.cycleRollouts||0} sviluppi fino alla fine della giornata per scegliere nelle aste${c.simultaneousBids?` e confrontare ${data.meta.batchChoices||0} piani di puntate`:''}. Le carte nascoste degli avversari sono rimescolate tra gli scenari.</p>`:''}

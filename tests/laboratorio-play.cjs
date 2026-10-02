@@ -16,7 +16,16 @@ for(const seed of [1,2,3]){
   const result=window.__pescaria.simulate({n:4,seed,simConfig:LAB_DEFAULT_RULES});
   assert(result.G.finished);
   assert.equal(result.G.players.length,4);
-  assert.equal(decodeGame(encodeGame(result.G)).simConfig.handSize,7);
+  assert.equal(decodeGame(encodeGame(result.G)).simConfig.handSize,5);
+}
+for(const byCard of [true,false]){
+  startGame({n:2,roster:[{name:'Primo',human:true,character:0},{name:'Secondo',human:true,character:1}],seed:11,simConfig:{...LAB_DEFAULT_RULES,priceByCard:byCard}});
+  const low=CARDS.find(c=>c.bid===2),high=CARDS.find(c=>c.bid===8);
+  G.players[0].hand=[low];G.players[1].hand=[high];G.phase='asta';G.auctionIndex=0;G.aOrder=[...FISH];G.market.Polpi=5;
+  resolveBids([{pid:0,card:low,cash:8,infl:0},{pid:1,card:high,cash:0,infl:0}]);
+  assert.equal(G.buyQueue[0].pid,0,'Il totale dell’offerta determina chi compra per primo');
+  assert.equal(G.buyQueue[0].price,byCard?1:3,'Il valore della carta determina la fascia quando richiesto');
+  assert.equal(G.buyQueue[1].price,3);
 }
 const batchRules={...LAB_DEFAULT_RULES,auctionCardChoice:false,auctionContractsVariant:false,auctionLoserChoice:false,auctionUpgradeOnNoFish:false,contractOnlyCoins:true,chooseEndDayUpgrades:true,installRemainingCards:false};
 for(const seed of [1,2,3]){
@@ -37,7 +46,7 @@ assert.equal(player.pending.length,2);
 assert.equal(G.handUpgrades.length,2);
 assert.equal(player.hand.length,0);
 assert(G.discard.includes(hand[4]));
-assert.match(upgradeDescription('Maestro delle Aste'),/A fine partita guadagni 1 Ducato/);
+assert.match(upgradeDescription('Maestro delle Aste'),/A fine giornata guadagni 2 Ducati/);
 G.simConfig={...LAB_DEFAULT_RULES,deferMerchantIncome:false,marketSetBonus:true,marketSetBase:10,marketSetThreshold:3};
 assert.match(upgradeDescription('Maestro delle Aste'),/10 Ducati per ogni gruppo di 3/);
 const catchupRules={...LAB_DEFAULT_RULES,bilanciaCatchup:true,deferMerchantIncome:false};
