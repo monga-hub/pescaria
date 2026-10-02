@@ -1573,7 +1573,33 @@ function botBuy(p,f,price,rank){
   if(price>1&&n>0&&p.coins-costOf(p,n,price)<0)n=0;
   buy(p,f,n,price);
 }
-function botMarket(p){let moved=true;while(moved){moved=false;const c=p.hand.filter(x=>canContract(p,x)).sort((a,b)=>Object.values(a.recipe).reduce((s,n)=>s+n,0)-Object.values(b.recipe).reduce((s,n)=>s+n,0)||botCardValue(p,b)-botCardValue(p,a))[0];if(c){const reward=!G.simConfig?.contractOnlyCoins&&botUpgradeValue(p,c)>payout(p,c)+(p.coins<4?2:0)?'upgrade':'coins';completeContract(p,c,reward);moved=true}}}
+function botMarket(p){
+  // ponytail: oltre 14 carte uso la scelta rapida; ampliare la ricerca solo se questo caso diventa frequente.
+  if(p.hand.length>14){
+    const c=p.hand.filter(x=>canContract(p,x)).sort((a,b)=>Object.values(a.recipe).reduce((s,n)=>s+n,0)-Object.values(b.recipe).reduce((s,n)=>s+n,0)||payout(p,b)-payout(p,a))[0];
+    if(c){const reward=!G.simConfig?.contractOnlyCoins&&botUpgradeValue(p,c)>payout(p,c)+(p.coins<4?2:0)?'upgrade':'coins';completeContract(p,c,reward);botMarket(p)}
+    return;
+  }
+  const cards=[...p.hand],fish=FISH,memo=new Map();
+  function best(mask,stock){
+    const key=mask+':'+fish.map(f=>stock[f]).join(',');if(memo.has(key))return memo.get(key);
+    let result={count:0,value:0,card:null};
+    for(let i=0;i<cards.length;i++)if(mask&(1<<i)){
+      const plan=planContract(p,cards[i],stock);if(!plan)continue;
+      const next={...stock};for(const [f,n] of Object.entries(plan.use))next[f]-=n;
+      const tail=best(mask^(1<<i),next),count=tail.count+1,value=tail.value+payout(p,cards[i]);
+      if(count>result.count||count===result.count&&value>result.value)result={count,value,card:cards[i]};
+    }
+    memo.set(key,result);return result;
+  }
+  let mask=(1<<cards.length)-1,stock=mix(p.banco,p.cesta);
+  while(mask){
+    const c=best(mask,stock).card;if(!c)break;
+    const plan=planContract(p,c,stock);for(const [f,n] of Object.entries(plan.use))stock[f]-=n;
+    const reward=!G.simConfig?.contractOnlyCoins&&botUpgradeValue(p,c)>payout(p,c)+(p.coins<4?2:0)?'upgrade':'coins';
+    completeContract(p,c,reward);mask^=1<<cards.indexOf(c);
+  }
+}
 // Carte da conservare: le più promettenti come contratti (col pesce nel Barile) o come offerte forti.
 function botKeepValue(p,c){const stock=p.cesta;let have=0,need=0;for(const [f,n] of Object.entries(c.recipe)){need+=n;have+=Math.min(n,stock[f]||0)}return Math.max(botCardValue(p,c)*(.35+.65*have/need),c.bid*.9)}
 function botKeep(p){if(G.day===4)return[];return [...p.hand].sort((a,b)=>botKeepValue(p,b)-botKeepValue(p,a)).slice(0,KEEP_MAX).map(c=>c.id)}

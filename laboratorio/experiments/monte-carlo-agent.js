@@ -1,6 +1,6 @@
 const MC={samples:6,depth:6,choices:0,rollouts:0,marketChoices:0,batchChoices:0,cycleRollouts:0};
 const STOP={};
-const originalDraft=botDraft,originalBid=botBid,originalBuy=botBuy;
+const originalBid=botBid,originalBuy=botBuy;
 function cloneGame(){const g=structuredClone(G);Object.setPrototypeOf(g.rng,RNG.prototype);return g}
 function checkpoint(){if(G.mcRollout&&!G.mcCycleTargetDay&&--G.mcMoves<0)throw STOP}
 const priorFinishDay=finishDay;
@@ -80,13 +80,27 @@ chooseBatchPlan=function(p){
   }
   setBatchBids(p,best);
 };
+function draftPortfolio(p,cards){
+  const stock=mix(p.banco,p.cesta),players=G.players.filter(x=>!x.congrega).length;
+  const supply=Object.fromEntries(FISH.map(f=>[f,stock[f]+G.market[f]/players]));
+  let best=0;
+  for(let mask=1;mask<1<<cards.length;mask++){
+    const need=inv();let contracts=0,value=0;
+    for(let i=0;i<cards.length;i++)if(mask&(1<<i)){
+      contracts++;value+=payout(p,cards[i]);
+      for(const [f,n] of Object.entries(cards[i].recipe))need[f]+=n;
+    }
+    const short=FISH.reduce((n,f)=>n+Math.max(0,need[f]-supply[f]),0);
+    best=Math.max(best,contracts*10+value*.15-short*8);
+  }
+  return best;
+}
 botDraft=function(p,pack){
-  checkpoint();
-  if(G.mcRollout||pack.length<2)return originalDraft(p,pack);
-  let best=pack[0],value=-Infinity;MC.choices++;
+  if(pack.length<2)return pack[0];
+  const chosen=G.drafted?.[p.id]||[];let best=pack[0],value=-Infinity;
   for(const card of pack){
-    const v=runCandidate(p.id,()=>{G.mcForcedDraft={pid:p.id,id:card.id};while(G.phase==='draft')draftStep(null)});
-    if(v>value){value=v;best=card}
+    const score=draftPortfolio(p,[...chosen,card])+card.bid+botUpgradeValue(p,card)*.03;
+    if(score>value){value=score;best=card}
   }
   return best;
 };
@@ -155,9 +169,4 @@ const originalMarket=botMarket;botMarket=function(p){
   }
 };
 const originalKeep=botKeep;botKeep=function(p){checkpoint();return originalKeep(p)};
-// Il primo passo della prova del draft deve essere la carta candidata.
-const priorDraft=botDraft;botDraft=function(p,pack){
-  if(G.mcForcedDraft&&G.mcForcedDraft.pid===p.id){const id=G.mcForcedDraft.id;G.mcForcedDraft=null;return pack.find(c=>c.id===id)}
-  return priorDraft(p,pack);
-};
 window.__pescaria={simulate(opts){startGame({humanBot:true,name:'Bot0',...opts});return{G,ranking:ranking()}},MC};

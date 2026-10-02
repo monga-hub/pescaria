@@ -191,7 +191,7 @@ function ruleSnapshot(c){
     ['Bonus di categoria',`${c.categoryBonusPerUpgrade} Ducati per miglioria installata della stessa categoria`],
     ['Bilancia separata',c.bilanciaCatchup?'Le 25 carte Bilancia sono fuori dal mazzo e divise in tre mazzetti, uno per Mercante. A fine giornata ciascuno sceglie e installa un Mercante per ogni contratto concluso in meno del migliore; nessun Ducato del contratto, rendita attiva subito':'Disattivata: le Bilancia restano nel mazzo'],
     ['Mercanti della Bilancia',c.marketSetBonus?`${c.marketSetBase} Ducati per ogni gruppo completo di ${c.marketSetThreshold} carte della categoria indicata, per ogni Mercante; pagamento solo a fine partita`:c.deferMerchantIncome?`${c.merchantCardValue} Ducati per carta della categoria indicata, per ogni Mercante; pagamento solo a fine partita`:'2 Ducati per carta della categoria indicata, per ogni Mercante, alla fine di ogni giornata'],
-    ['IA',c.mode==='mc6'?`Monte Carlo · asta e acquisto valutati fino alla fine della giornata · ${c.depth} mosse fuori dalle aste · ${c.samples} scenari per scelta · aggressività ${c.aggression}`:'Standard'],
+    ['IA',c.mode==='mc6'?`Monte Carlo · draft valutato su contratti e pesci disponibili · asta e acquisto valutati fino alla fine della giornata · ${c.depth} mosse fuori dalle aste · ${c.samples} scenari per scelta · aggressività ${c.aggression}`:'Standard'],
     ['Seme iniziale',String(c.seed)]
   ];
   return `<section class="rule-snapshot"><h3>Regole usate in questa simulazione</h3><dl>${rows.map(([name,value])=>`<dt>${name}</dt><dd>${value}</dd>`).join('')}</dl></section>`;
@@ -201,7 +201,7 @@ function finish(message,partial=false,meta={}){
   workers.forEach(worker=>worker.terminate());workers=[];rows.sort((a,b)=>a.index-b.index);
   runButton.disabled=false;stopButton.disabled=true;
   status.textContent=message;
-  if(rows.length){lastReport={config,partial,meta:{...meta,aiVersion:config.mode==='mc6'?'giornata-completa-1':'standard-1'},rows};renderReport(lastReport)}
+  if(rows.length){lastReport={config,partial,meta:{...meta,aiVersion:config.mode==='mc6'?'giornata-completa-2':'standard-2'},rows};renderReport(lastReport)}
 }
 form.addEventListener('submit',event=>{
   event.preventDefault();if(workers.length)return;
@@ -212,7 +212,7 @@ form.addEventListener('submit',event=>{
   const completed=Array(WORKERS).fill(0),meta={choices:0,rollouts:0,batchChoices:0,cycleRollouts:0};let finished=0;
   try{
     for(let slot=0;slot<WORKERS;slot++){
-      const worker=new Worker('laboratorio-worker.js?v=6');workers.push(worker);
+      const worker=new Worker('laboratorio-worker.js?v=7');workers.push(worker);
       worker.onmessage=({data})=>{
         if(!workers.includes(worker))return;
         if(data.type==='progress'){
