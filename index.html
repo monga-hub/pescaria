@@ -438,6 +438,13 @@
     #startupStatus{font-size:15px;line-height:1.5;min-height:3em;margin:18px 0 0}
     @keyframes startup-search{to{background-position:-200% 0}}
     @media(prefers-reduced-motion:reduce){#startup progress{animation:none!important}}
+    #floatingHand .hand-order{position:absolute;right:0;bottom:12px;z-index:350;pointer-events:auto;min-height:44px;padding:8px 12px;border:2px solid #e6c879;border-radius:9px;background:#183f40;color:#fff2cb;font-weight:800;cursor:pointer}
+    #floatingHand.folded .hand-order{display:none}
+    #floatingHand .hand-order-hint{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);width:max-content;max-width:90vw;padding:7px 12px;border-radius:8px;background:#183f40;color:#fff2cb;font-size:13px;text-align:center;pointer-events:none}
+    .playing #floatingHand.reordering .hand-cards .card{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;pointer-events:auto!important;opacity:1!important;filter:none!important;bottom:12px!important;transform:translateX(calc(-50% + var(--x))) rotate(var(--r))!important;animation:none!important;transition:none!important;z-index:var(--z);cursor:grab}
+    .playing #floatingHand.reordering .card::after{display:none}
+    .playing #floatingHand.reordering .card.order-target{outline:3px solid #e6c879}
+    .playing #floatingHand.reordering .card.order-dragging{z-index:320;cursor:grabbing;box-shadow:0 12px 24px #0009;outline:3px solid #fff2cb}
   </style>
 </head>
 <body>
@@ -1508,6 +1515,17 @@ window.toggleHand=function(){
   if(!HEADLESS){const dock=$('floatingHand');dock.classList.toggle('folded',G.handFolded);syncHandToggle(dock)}
   if(practice){G.tutorial.step++;render()}
 };
+function canReorderHand(){return !!G&&!G.finished&&!G.handoff&&!G.overlay&&!G.tutorial&&G.phase!=='draft'&&activePlayer().human&&activePlayer().hand.length>1}
+window.toggleHandOrder=function(){
+  if(!canReorderHand())return;
+  G.handReordering=!G.handReordering;G.handFolded=false;renderBoard();
+};
+function reorderHandCard(id,targetId){
+  if(!canReorderHand()||!G.handReordering)return false;
+  const hand=activePlayer().hand,from=hand.findIndex(c=>c.id===id),to=hand.findIndex(c=>c.id===targetId);
+  if(from<0||to<0||from===to)return false;
+  hand.splice(to,0,hand.splice(from,1)[0]);return true;
+}
 function renderBoard(){
   const me=activePlayer();let cards=me.hand,mode='plain',enabled=()=>true;
   if(G.phase==='asta'&&G.auctionStage==='bid')mode='bid';
@@ -1525,10 +1543,12 @@ function renderBoard(){
   host.innerHTML=`<div class="sidebar-content">${humanPlayers().length>1?`<div class="active-operator">Turno di ${esc(me.name)}</div>`:''}<div class="hand-meta">${winner?`<div class="auction-winner">Vincitore dell’asta: ${esc(G.players[winner.pid].name)} · ${bidScore(winner)}</div>`:''}${playerMatHtml(viewed)}<div class="player-mat-buttons" role="group" aria-label="Scegli la plancia del giocatore">${G.players.map(p=>`<button class="player-mat-button" style="--player-color:${playerColor(p)}" aria-pressed="${p.id===viewed.id}" onclick="viewPlayerMat(${p.id})"><span>${esc(p.name)}</span><span class="player-ducats">${p.coins}<img src="assets/tokens/moneta.png" alt="Ducati"></span></button>`).join('')}</div>${extra?`<div class="mat-uses">${extra}</div>`:''}</div>${mobileAuctionLayout()?'':actionPanelHtml(me)}</div>`;
   const mobile=$('mobileAuctionActions');mobile.innerHTML=mobileAuctionLayout()?actionPanelHtml(me):'';mobile.setAttribute('aria-label',G.phase==='pubblico'?'Azioni del mercato':'Azioni dell’asta');mobile.classList.toggle('hidden',!mobile.innerHTML);document.body.classList.toggle('mobile-auction',!!mobile.innerHTML);
   const dock=$('floatingHand'),handKey=`${G.day}:${G.phase}:${me.id}:${G.auctionIndex}:${G.auctionStage}:${G.draftRound}:${G.selectedBid}:${G.tutorial?.step??''}`;
-  if(G.handViewKey!==handKey){G.handViewKey=handKey;G.handFolded=!raised}
+  if(G.handViewKey!==handKey){G.handViewKey=handKey;G.handFolded=!raised;G.handReordering=false}
   if(G.tutorial&&!tutorialStep()?.showHand)G.handFolded=tutorialStep()?.handFolded??!tutorialStep()?.preview;
   dock.classList.toggle('folded',G.handFolded);
   dock.classList.toggle('hidden',(!!G.overlay&&!G.tutorial)||G.handoff||!cards.length);
+  if(!canReorderHand())G.handReordering=false;
+  dock.classList.toggle('reordering',!!G.handReordering);
   const rebuilt=renderHandFan(dock,fan);
   syncHandToggle(dock);
   requestAnimationFrame(()=>{fitGameContents();if(rebuilt)animateHand(dock)})
@@ -1543,6 +1563,7 @@ function renderHandFan(dock,fan){
     return false;
   }
   dock.innerHTML=`<button class="hand-toggle" onclick="toggleHand()" aria-controls="handCards"></button><div id="handCards" class="hand-cards">${fan||'<p class="empty">Nessuna carta in mano.</p>'}</div>`;
+  if(canReorderHand())dock.insertAdjacentHTML('beforeend',`<button class="hand-order" onclick="toggleHandOrder()" aria-pressed="${!!G.handReordering}" aria-label="${G.handReordering?'Termina il riordino delle carte':'Riordina le carte'}">${G.handReordering?'Fine':'Ordina'}</button>${G.handReordering?'<div class="hand-order-hint" role="status">Trascina le carte a destra o a sinistra.<br>Con la tastiera usa le frecce ← →.</div>':''}`);
   dock._tutorialFan=structure;
   return true;
 }
@@ -1601,7 +1622,7 @@ function setupHandSwipe(host){
   host.addEventListener('touchstart',e=>{
     suppressClick=false;gesture=null;
     const card=e.target.closest('.gsap-open[data-swipe-select]');
-    if(e.touches.length!==1||!card||host.classList.contains('folded'))return;
+    if(G?.handReordering||e.touches.length!==1||!card||host.classList.contains('folded'))return;
     const t=e.touches[0];gesture={card,id:t.identifier,x:t.clientX,y:t.clientY,ready:false};
   },{passive:true});
   host.addEventListener('touchmove',e=>{
@@ -1621,6 +1642,57 @@ function setupHandSwipe(host){
   host.addEventListener('touchcancel',()=>{gesture=null});
   host.addEventListener('click',e=>{if(suppressClick&&e.detail!==0){e.preventDefault();e.stopImmediatePropagation()}},true);
 }
+// A separate ordering mode keeps dragging distinct from playing a card.
+function setupHandReorder(host){
+  let drag=null,suppressClick=false;
+  const nodes=()=>[...host.querySelectorAll('.hand-cards .card')];
+  function clear(){
+    if(!drag)return;
+    drag.card.classList.remove('order-dragging');drag.card.style.translate='';
+    nodes().forEach(c=>c.classList.remove('order-target'));
+    const pointer=drag.pointer;drag=null;
+    if(host.hasPointerCapture(pointer))host.releasePointerCapture(pointer);
+  }
+  host.addEventListener('pointerdown',e=>{
+    suppressClick=false;
+    if(!G?.handReordering||!canReorderHand()||host.classList.contains('folded'))return;
+    if(drag){clear();return}
+    const card=e.target.closest('.hand-cards .card');
+    if(!card||e.button!==0||!e.isPrimary)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    const hand=host.querySelector('.hand-cards').getBoundingClientRect();
+    drag={card,state:G,pid:activePlayer().id,pointer:e.pointerId,x:e.clientX,target:Number(card.dataset.cardId),slots:nodes().map(c=>({id:Number(c.dataset.cardId),x:hand.left+hand.width/2+parseFloat(c.style.getPropertyValue('--x'))}))};
+    card.classList.add('order-dragging');host.setPointerCapture(e.pointerId);
+  },true);
+  host.addEventListener('pointermove',e=>{
+    if(!drag||e.pointerId!==drag.pointer)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    const dx=e.clientX-drag.x;drag.card.style.translate=`${dx}px 0`;
+    const own=drag.slots.find(s=>s.id===Number(drag.card.dataset.cardId));
+    const target=drag.slots.reduce((a,b)=>Math.abs(b.x-own.x-dx)<Math.abs(a.x-own.x-dx)?b:a);
+    drag.target=target.id;nodes().forEach(c=>c.classList.toggle('order-target',Number(c.dataset.cardId)===target.id));
+  },true);
+  host.addEventListener('pointerup',e=>{
+    if(!drag||e.pointerId!==drag.pointer)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    const d=drag;clear();suppressClick=true;
+    if(G===d.state&&activePlayer().id===d.pid&&reorderHandCard(Number(d.card.dataset.cardId),d.target))renderBoard();
+  },true);
+  host.addEventListener('pointercancel',clear);
+  host.addEventListener('lostpointercapture',()=>{if(drag)clear()});
+  host.addEventListener('contextmenu',e=>{if(G?.handReordering)e.preventDefault()});
+  host.addEventListener('click',e=>{
+    if((G?.handReordering||(suppressClick&&e.detail!==0))&&e.target.closest('.card')){e.preventDefault();e.stopImmediatePropagation()}
+  },true);
+  host.addEventListener('keydown',e=>{
+    if(!G?.handReordering||!e.target.closest('.card'))return;
+    if(!['ArrowLeft','ArrowRight','Enter',' '].includes(e.key))return;
+    e.preventDefault();e.stopImmediatePropagation();
+    if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+    const cards=nodes(),id=Number(e.target.closest('.card').dataset.cardId),i=cards.findIndex(c=>Number(c.dataset.cardId)===id),target=cards[i+(e.key==='ArrowLeft'?-1:1)];
+    if(target&&reorderHandCard(id,Number(target.dataset.cardId))){renderBoard();host.querySelector(`[data-card-id="${id}"]`)?.focus()}
+  },true);
+}
 let draftTransition=null,draftArrival=null;
 async function animateDraftPick(id,choose){
   const state=G,player=activePlayer(),dock=$('floatingHand'),guide=$('tutorialGuide'),table=$('game');
@@ -1638,7 +1710,7 @@ function animateHand(host){
   const hand=host.querySelector('.hand-cards'),cards=[...host.querySelectorAll('.hand-cards .card')];
   const arrival=draftArrival;draftArrival=null;
   const incoming=arrival?.state===G&&arrival.pid===activePlayer().id?cards.filter(c=>!arrival.kept.has(Number(c.dataset.cardId))):[];
-  if(!hand||!cards.length||reducedMotion)return;
+  if(!hand||!cards.length||reducedMotion||G?.handReordering)return;
   if(!window.gsap){incoming.forEach((c,i)=>c.animate([{transform:`translateX(${innerWidth}px)`,opacity:0},{transform:getComputedStyle(c).transform,opacity:1}],{duration:480,delay:i*45,easing:'ease-out',fill:'backwards'}));return;}
   hand.classList.add('gsap-hand');hand.style.setProperty('--rest-bottom','12px');
   const base=cards.map(c=>({x:+c.style.getPropertyValue('--x').replace('px',''),r:+c.style.getPropertyValue('--r').replace('deg',''),y:c.classList.contains('selected')?-23:0}));
@@ -1686,7 +1758,7 @@ window.addEventListener('resize',()=>{render();scheduleFit();fitGameMenu()});
 document.addEventListener('load',scheduleFit,true);
 document.addEventListener('toggle',scheduleFit,true);
 installTutorialGuards();
-if(!HEADLESS){setupHandSwipe($('floatingHand'));renderSetupPlayers();scheduleFit()}
+if(!HEADLESS){setupHandReorder($('floatingHand'));setupHandSwipe($('floatingHand'));renderSetupPlayers();scheduleFit()}
 document.addEventListener('pointermove',e=>{const c=e.target.closest?.('.hand-cards .card');if(!c||reducedMotion||window.gsap)return;const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.setProperty('--tilt-y',`${x*11}deg`);c.style.setProperty('--tilt-x',`${y*-8}deg`)});
 document.addEventListener('pointerout',e=>{const c=e.target.closest?.('.hand-cards .card');if(!c||window.gsap||c.contains(e.relatedTarget))return;c.style.removeProperty('--tilt-x');c.style.removeProperty('--tilt-y')});
 
