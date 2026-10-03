@@ -7,7 +7,7 @@ Verifica automatica: `node tests/regole-v5.cjs` (va eseguito dopo ogni modifica 
 
 ## Numeri fissi
 - Sacchetto: 100 pesci — Polpi 10, Gamberi 18, Molluschi 17, Branzini 27, Sardine 28.
-- 15 Ducati iniziali · Banco 6 pesci · Barile 3 pesci · 6 carte distribuite direttamente al giorno, senza draft · si conservano al massimo 2 carte.
+- 15 Ducati iniziali · Banco 7 pesci · Barile 3 pesci · 6 carte distribuite direttamente al giorno, senza draft · si conservano al massimo 2 carte.
 - Mazzo 100 carte, 25 per categoria (Ancora, Asta, Mercato, Bilancia).
 - Guadagno di ogni carta = somma dei valori dei pesci (Polpo 5, Gambero 4, Mollusco 4, Branzino 3, Sardina 2), +2 se i tipi sono due, +4 se sono tre.
 

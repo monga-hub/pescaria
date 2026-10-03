@@ -557,7 +557,7 @@ const PHASE_SHORT=['Pesca','Aste','Mercato','Fine giornata'];
 const CATS={A:{icon:'⚓',name:'Ancora',phase:'rete',suit:'anchor'},E:{icon:'🔨',name:'Asta',phase:'asta',suit:'hammer'},C:{icon:'💰',name:'Mercato',phase:'pubblico',suit:'coin'},B:{icon:'⚖',name:'Bilancia',phase:'bilancia',suit:'scale'}};
 // Sacchetto V4.5: la rarità segue il valore del pesce.
 const BAG={Polpi:10,Gamberi:18,Molluschi:17,Branzini:27,Sardine:28};
-const BANCO_BASE=6,CESTA_CAP=3,START_COINS=12,HAND=5;
+const BANCO_BASE=7,CESTA_CAP=3,START_COINS=12,HAND=5;
 const UPG={
   'Banco Ampliato':{cat:'A',img:'banco-migliorato',fx:'Il Banco contiene 1 pesce in più.'},
   'Fiuto per il Pescato':{cat:'A',img:'fiuto-pescato',fx:'Ogni mattina peschi 1 pesce a caso dal sacchetto.'},
@@ -840,7 +840,7 @@ window.loadGameSlot=function(slot){
 const TUTORIAL_V2_STEPS=[
   {title:'Benvenuto a Pescaria',text:'Gestisci una pescheria: compri pesce e lo consegni ai clienti per guadagnare. In questo tutorial giochi contro Berry, controllato dal computer. Il bordo azzurro indica cosa osservare; quello arancione indica dove toccare.',selector:'.player-mat'},
   {title:'Come si vince',text:'I Ducati sono la moneta del gioco. Inizi con 12 Ducati. Dopo quattro giornate vince chi ne possiede di più. Nel tutorial giocherai una sola giornata per imparare le regole.',selector:'.mat-coins'},
-  {title:'Questo è il tuo banco',text:'La plancia con il tuo personaggio rappresenta la tua pescheria. Il Banco è lo spazio in cui metti il pesce acquistato. All’inizio può contenere fino a 6 pesci in totale, anche di tipi diversi.',selector:'.mat-bank'},
+  {title:'Questo è il tuo banco',text:'La plancia con il tuo personaggio rappresenta la tua pescheria. Il Banco è lo spazio in cui metti il pesce acquistato. All’inizio può contenere fino a 7 pesci in totale, anche di tipi diversi.',selector:'.mat-bank'},
   {title:'Il mercato è di tutti',text:'Sul tabellone centrale trovi il pesce ancora da comprare, diviso per tipo: Polpi, Gamberi, Molluschi, Branzini e Sardine. Questi pesci non sono ancora tuoi.',selector:'.board-fish'},
   {title:'Ogni mattina arriva il pesce',text:'Ogni mattina si estraggono dal sacchetto 6 pesci per giocatore. Qui siete in due, quindi sul mercato arrivano 12 pesci. Nel riquadro arancione ci sono 3 Polpi.',selector:'.fish-lot'},
   {title:'Prima scegliamo le carte',text:'Ricevi 5 carte. Ne scegli una e passi le altre al giocatore vicino. Poi scegli una carta tra quelle che ricevi da lui. Continuate così finché ciascuno ha scelto 5 carte. Questo scambio si chiama draft.',action:'beginDraft',args:[],button:'Inizia la scelta delle carte'},
@@ -864,7 +864,7 @@ const TUTORIAL_V2_STEPS=[
   {title:'Puntata e acquisto sono separati',text:'Solo chi vince paga i Ducati aggiunti alla propria offerta. Il pesce si compra dopo, pagando a parte. La carta puntata viene scartata anche se perdi.',selector:'.board-offers'},
   {title:'Conferma l’offerta da 11',text:'Premi OFFRI per confermare. In questo esempio Berry offre 5, quindi la tua offerta da 11 vince. Nelle partite normali le carte si scoprono solo dopo che tutti hanno scelto se fare un’offerta o passare.',action:'submitBid',args:[],selector:'.offer-submit'},
   {title:'Hai vinto l’asta dei Polpi',text:'Paghi il Ducato aggiunto alla carta: da 12 passi a 11 Ducati. Ora puoi comprare Polpi a 1 Ducato ciascuno. Sei anche il nuovo Capitano: inizierai la prossima asta.',selector:'.auction-panel'},
-  {title:'Il limite riguarda il tuo banco',text:'Il limite di 6 pesci riguarda il tuo Banco, sulla plancia personale. Non riguarda il pesce disponibile sul tabellone centrale. Al momento il tuo Banco è vuoto.',selector:'.mat-bank'},
+  {title:'Il limite riguarda il tuo banco',text:'Il limite di 7 pesci riguarda il tuo Banco, sulla plancia personale. Non riguarda il pesce disponibile sul tabellone centrale. Al momento il tuo Banco è vuoto.',selector:'.mat-bank'},
   {title:'Seleziona 2 Polpi',text:'Nel riquadro “Compra Polpi”, tocca il secondo Polpo, quello con il numero 2. Selezioni così due pesci. Uno ci servirà per Famiglia Badoer, l’altro lo conserveremo.',action:'toggleBuyToken',args:[2],selector:'[onclick="toggleBuyToken(2)"]'},
   {title:'Compra i due Polpi',text:'Ora premi COMPRA 2 nel riquadro d’acquisto. Paghi 2 Ducati e i due Polpi entrano nel tuo Banco. Ti restano 9 Ducati.',action:'confirmBuy',args:[],selector:'.purchase-confirm'},
   {title:'Ci serve anche un Gambero',text:'Osteria ai Pugni richiede 1 Gambero. Per poterlo comprare partecipiamo alla sua asta, anche se questa volta non vinceremo.',preview:4,part:'recipe'},

@@ -67,7 +67,7 @@ assert.equal(costOf(loser, 3, 2), 4);
 const matPlayer = {...winner, banco:{...inv(), Polpi:4, Sardine:3}, cesta:{...inv(), Gamberi:3},
   installed:[CARDS.find(c=>c.up==='Banco Ampliato')], pending:[CARDS.find(c=>c.up==='Nuovi Clienti')]};
 const mat = playerMatHtml(matPlayer);
-assert(mat.includes('Banco: 7 pesci su 7'));
+assert(mat.includes('Banco: 7 pesci su 8'));
 assert(mat.includes('Barile: 3 pesci su 3'));
 const bankMarkup = mat.split('class="mat-bank"')[1].split('class="mat-label mat-cesta-label"')[0];
 assert.equal((bankMarkup.match(/class="token /g)||[]).length, 7);
