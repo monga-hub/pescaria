@@ -26,8 +26,8 @@ function readConfig(){
   if(!form.reportValidity())return null;
   return{games:n('games'),players:n('players'),mode:selected,depth:n('depth'),samples:n('samples'),aggression:n('aggression'),
     tieredPricing:fields.namedItem('tieredPricing').checked,priceByCard:fields.namedItem('priceByCard').checked,winnerPricing:fields.namedItem('winnerPricing').checked,reverseRankPricing:fields.namedItem('reverseRankPricing').checked,
-    threshold1:n('threshold1'),threshold2:n('threshold2'),price1:n('price1'),price2:n('price2'),price3:n('price3'),winnerPrice:n('winnerPrice'),otherPrice:n('otherPrice'),rankFirstPrice:n('rankFirstPrice'),rankMiddlePrice:n('rankMiddlePrice'),rankLastPrice:n('rankLastPrice'),
-    startCoins:n('startCoins'),fishPerPlayer:n('fishPerPlayer'),handSize:n('handSize'),mandatoryBid:fields.namedItem('mandatoryBid').checked,simultaneousBids:fields.namedItem('simultaneousBids').checked,classicDraft:fields.namedItem('classicDraft').checked,lastTakesWinningBid:fields.namedItem('lastTakesWinningBid').checked,contractOnlyCoins:fields.namedItem('contractOnlyCoins').checked,contractChoice:fields.namedItem('contractChoice').checked,doubleFinalContracts:fields.namedItem('doubleFinalContracts').checked,chooseEndDayUpgrades:fields.namedItem('chooseEndDayUpgrades').checked,installRemainingCards:fields.namedItem('installRemainingCards').checked,
+    threshold1:n('threshold1'),threshold2:n('threshold2'),price1:n('price1'),price2:n('price2'),price3:n('price3'),winnerPrice:n('winnerPrice'),secondPrice:n('secondPrice'),otherPrice:n('otherPrice'),rankFirstPrice:n('rankFirstPrice'),rankMiddlePrice:n('rankMiddlePrice'),rankLastPrice:n('rankLastPrice'),
+    startCoins:n('startCoins'),fishPerPlayer:n('fishPerPlayer'),handSize:n('handSize'),mandatoryBid:fields.namedItem('mandatoryBid').checked,simultaneousBids:fields.namedItem('simultaneousBids').checked,classicDraft:fields.namedItem('classicDraft').checked,alternateAuctionOrder:fields.namedItem('alternateAuctionOrder').checked,lastTakesWinningBid:fields.namedItem('lastTakesWinningBid').checked,contractOnlyCoins:fields.namedItem('contractOnlyCoins').checked,contractChoice:fields.namedItem('contractChoice').checked,doubleFinalContracts:fields.namedItem('doubleFinalContracts').checked,chooseEndDayUpgrades:fields.namedItem('chooseEndDayUpgrades').checked,installRemainingCards:fields.namedItem('installRemainingCards').checked,
     categoryBonusPerUpgrade:n('categoryBonusPerUpgrade'),bilanciaCatchup:fields.namedItem('bilanciaCatchup').checked,deferMerchantIncome:fields.namedItem('deferMerchantIncome').checked,merchantCardValue:n('merchantCardValue'),limitMerchantIncome:false,
     marketSetBonus:fields.namedItem('marketSetBonus').checked,marketSetThreshold:n('marketSetThreshold'),marketSetBase:n('marketSetBase'),
     auctionLoserChoice:fields.namedItem('auctionLoserChoice').checked,auctionCardChoice:fields.namedItem('auctionCardChoice').checked,auctionContractsVariant:fields.namedItem('auctionContractsVariant').checked,auctionUpgradeCap:n('auctionUpgradeCap'),auctionUpgradeOnNoFish:fields.namedItem('auctionUpgradeOnNoFish').checked,seed:n('seed')};
@@ -89,7 +89,7 @@ function pricingFields(changed){
   if(selected?.checked)for(const field of [tiers,winner,reverse])if(field!==selected)field.checked=false;
   if(!tiers.checked&&!winner.checked&&!reverse.checked)tiers.checked=true;
   for(const name of ['priceByCard','threshold1','threshold2','price1','price2','price3'])form.elements.namedItem(name).disabled=!tiers.checked;
-  for(const name of ['winnerPrice','otherPrice'])form.elements.namedItem(name).disabled=!winner.checked;
+  for(const name of ['winnerPrice','secondPrice','otherPrice'])form.elements.namedItem(name).disabled=!winner.checked;
   for(const name of ['rankFirstPrice','rankMiddlePrice','rankLastPrice'])form.elements.namedItem(name).disabled=!reverse.checked;
   if(!tiers.checked)form.elements.namedItem('threshold2').setCustomValidity('');
 }
@@ -105,16 +105,16 @@ form.elements.namedItem('threshold2').addEventListener('input',()=>form.elements
 form.elements.namedItem('threshold1').addEventListener('input',()=>form.elements.namedItem('threshold2').setCustomValidity(''));
 modeFields();
 document.getElementById('loadOriginalRules').addEventListener('click',()=>{
-  const original={tieredPricing:true,priceByCard:true,winnerPricing:false,reverseRankPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:1,otherPrice:2,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:12,fishPerPlayer:6,handSize:5,mandatoryBid:false,simultaneousBids:false,classicDraft:false,lastTakesWinningBid:false,contractOnlyCoins:false,contractChoice:false,doubleFinalContracts:false,chooseEndDayUpgrades:false,installRemainingCards:false,categoryBonusPerUpgrade:1,bilanciaCatchup:false,deferMerchantIncome:false,marketSetBonus:false,merchantCardValue:2,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeOnNoFish:false};
+  const original={tieredPricing:false,priceByCard:true,winnerPricing:true,reverseRankPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:3,secondPrice:2,otherPrice:1,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:12,fishPerPlayer:7,handSize:6,mandatoryBid:false,simultaneousBids:false,classicDraft:false,alternateAuctionOrder:true,lastTakesWinningBid:false,contractOnlyCoins:false,contractChoice:false,doubleFinalContracts:false,chooseEndDayUpgrades:false,installRemainingCards:false,categoryBonusPerUpgrade:1,bilanciaCatchup:false,deferMerchantIncome:true,marketSetBonus:false,merchantCardValue:2,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeOnNoFish:false};
   for(const [name,value] of Object.entries(original)){const field=form.elements.namedItem(name);if(field.type==='checkbox')field.checked=value;else field.value=value}
   pricingFields();choiceFields();contractFields();handChoiceFields();rewardFields();
-  status.textContent='Variante pronta: 5 carte distribuite ogni giorno, puntata facoltativa, contratto con Ducati e miglioria, prezzi 1/2/3 dal valore della carta.';
+  status.textContent='Regole di Venezia: 7 pesci e 6 carte per giocatore, prezzi 3/2/1 per posizione, aste alternate e Mercanti a fine partita. Contratti senza raddoppio.';
 });
 
 const configFile=document.getElementById('configFile');
 document.getElementById('exportConfig').addEventListener('click',()=>{
   const current=readConfig();if(!current)return;
-  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:18,config:current},null,2),'application/json');
+  download('pescaria-regole-laboratorio.json',JSON.stringify({format:'pescaria-laboratorio-regole',version:19,config:current},null,2),'application/json');
   status.textContent='Regole esportate in JSON.';
 });
 document.getElementById('importConfig').addEventListener('click',()=>configFile.click());
@@ -126,6 +126,8 @@ configFile.addEventListener('change',async()=>{
     const imported=parsed?.config??parsed;
     let converted=false;
     if(imported&&typeof imported==='object'&&!Array.isArray(imported)){
+      if(imported.secondPrice===undefined)imported.secondPrice=imported.otherPrice;
+      if(imported.alternateAuctionOrder===undefined)imported.alternateAuctionOrder=false;
       if(imported.doubleFinalContracts===undefined)imported.doubleFinalContracts=false;
       if(imported.categoryBonusPerUpgrade===undefined)imported.categoryBonusPerUpgrade=1;
       if(imported.bilanciaCatchup===undefined)imported.bilanciaCatchup=false;
@@ -183,9 +185,10 @@ function ruleSnapshot(c){
     ['Partite e giocatori',`${c.games} partite · ${c.players} giocatori · 4 giornate`],
     ['Carte iniziali',`${c.handSize} carte per giocatore ogni giorno; ${c.classicDraft?'draft in tutte le giornate':'distribuzione diretta in tutte le giornate, senza draft'}. Se il mazzo è insufficiente, meno carte uguali per tutti`],
     ['Aste',c.mandatoryBid?'Offerta obbligatoria in ogni asta con almeno una carta in mano':'È possibile passare'],
+    ['Ordine delle aste',c.alternateAuctionOrder?'Giornate 1 e 3: Polpi → Sardine; giornate 2 e 4: Sardine → Polpi':'Polpi → Sardine in tutte le giornate'],
     ['Tempistica delle offerte',c.simultaneousBids?'Tutte le carte, i Ducati e l’Esperienza sono impegnati insieme prima di rivelare le aste; acquisti successivi nell’ordine abituale':'Un’asta alla volta'],
     ['Pesci e Ducati',`${c.fishPerPlayer} pesci per giocatore ogni giorno · ${c.startCoins} Ducati iniziali`],
-    ['Prezzo dei pesci',c.reverseRankPricing?`Ultimo compra per primo a ${c.rankLastPrice} Ducati; posti intermedi ${c.rankMiddlePrice}; primo compra per ultimo a ${c.rankFirstPrice}. Se c’è un solo partecipante paga ${c.rankFirstPrice}`:c.winnerPricing?`Vincitore ${c.winnerPrice} Ducati per pesce; altri partecipanti ${c.otherPrice}`:`${c.priceByCard?'Valore stampato sulla carta':'Puntata totale'} 1–${c.threshold1}: ${c.price1} Ducati; ${c.threshold1+1}–${c.threshold2}: ${c.price2}; da ${c.threshold2+1}: ${c.price3}`],
+    ['Prezzo dei pesci',c.reverseRankPricing?`Ultimo compra per primo a ${c.rankLastPrice} Ducati; posti intermedi ${c.rankMiddlePrice}; primo compra per ultimo a ${c.rankFirstPrice}. Se c’è un solo partecipante paga ${c.rankFirstPrice}`:c.winnerPricing?`Primo ${c.winnerPrice}, secondo ${c.secondPrice??c.otherPrice}, dal terzo posto ${c.otherPrice} Ducati per pesce; acquista prima il primo`:`${c.priceByCard?'Valore stampato sulla carta':'Puntata totale'} 1–${c.threshold1}: ${c.price1} Ducati; ${c.threshold1+1}–${c.threshold2}: ${c.price2}; da ${c.threshold2+1}: ${c.price3}`],
     ['Carta puntata',c.lastTakesWinningBid?'Con almeno due offerenti, l’ultimo nell’asta prende in mano la carta puntata dal primo; le altre vanno agli scarti':c.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano subito la carta':c.auctionCardChoice?'Ogni partecipante sceglie se comprare pesci o installare subito la carta':c.auctionUpgradeOnNoFish?'Se il lotto è esaurito prima dell’acquisto, la carta diventa subito una miglioria':'Le carte puntate vanno agli scarti dopo l’asta'],
     ['Recupero della carta puntata',c.auctionCardChoice&&c.auctionContractsVariant?`Carta puntata recuperata al mercato dopo l’acquisto di pesci; ${c.auctionUpgradeCap===5?'nessun tetto alle migliorie d’asta':`massimo ${c.auctionUpgradeCap} migliorie d’asta per giocatore al giorno`}`:c.auctionContractsVariant?'Inattiva: richiede la scelta pesci oppure miglioria':'Disattivata'],
     ['Contratti',c.contractOnlyCoins?'Solo Ducati; carta scartata':c.contractChoice?'Scelta tra Ducati oppure miglioria':'Ducati e miglioria insieme'],
@@ -204,7 +207,7 @@ function finish(message,partial=false,meta={}){
   workers.forEach(worker=>worker.terminate());workers=[];rows.sort((a,b)=>a.index-b.index);
   runButton.disabled=false;stopButton.disabled=true;
   status.textContent=message;
-  if(rows.length){lastReport={config,partial,meta:{...meta,rulesVersion:18,aiVersion:config.mode==='mc6'?'acquisti-finali-4':'standard-2'},rows};renderReport(lastReport)}
+  if(rows.length){lastReport={config,partial,meta:{...meta,rulesVersion:19,aiVersion:config.mode==='mc6'?'acquisti-finali-4':'standard-2'},rows};renderReport(lastReport)}
 }
 form.addEventListener('submit',event=>{
   event.preventDefault();if(workers.length)return;
@@ -315,7 +318,7 @@ function renderReport(data){
   const dryDays=playerDays.filter(x=>x.contractsToday===0).length,fishlessDays=playerDays.filter(x=>x.fishBought===0).length,unreadyDays=playerDays.filter(x=>x.cardsAtMarket>0&&x.readyAtMarket===0).length;
   const captainWins=r.filter(x=>x.players[0].id===x.initialCaptain).length;
   const placements=placementStats(r,c.players);
-  const headline=`${r.length} partite · ${c.players} giocatori · ${c.mode==='mc6'?`Monte Carlo ${c.samples} scenari · aste fino a fine giornata`:'IA standard'} · ${c.simultaneousBids?'Offerte simultanee':'Offerte in sequenza'} · ${c.contractOnlyCoins?'Contratti: solo Ducati':c.contractChoice===false?'Ducati e miglioria':'Ducati o miglioria'} · ${c.reverseRankPricing?'Acquisto inverso, prezzo per posto':c.winnerPricing?`Prezzi: vincitore ${c.winnerPrice}, altri ${c.otherPrice}`:`Prezzi a fasce sulla ${c.priceByCard?'carta':'puntata'}`} · ${c.bilanciaCatchup?'Bilancia separata per contratti mancanti · ':''}${c.lastTakesWinningBid?'Ultimo offerente prende la carta del primo':c.auctionLoserChoice?'Asta: i perdenti comprano e installano':c.auctionCardChoice?'Asta: tutti scelgono pesci o miglioria':`Lotto esaurito: ${c.auctionUpgradeOnNoFish===false?'scarto':'miglioria'}`}`;
+  const headline=`${r.length} partite · ${c.players} giocatori · ${c.mode==='mc6'?`Monte Carlo ${c.samples} scenari · aste fino a fine giornata`:'IA standard'} · ${c.simultaneousBids?'Offerte simultanee':'Offerte in sequenza'} · ${c.contractOnlyCoins?'Contratti: solo Ducati':c.contractChoice===false?'Ducati e miglioria':'Ducati o miglioria'} · ${c.reverseRankPricing?'Acquisto inverso, prezzo per posto':c.winnerPricing?`Prezzi: primo ${c.winnerPrice}, secondo ${c.secondPrice??c.otherPrice}, altri ${c.otherPrice}`:`Prezzi a fasce sulla ${c.priceByCard?'carta':'puntata'}`} · ${c.bilanciaCatchup?'Bilancia separata per contratti mancanti · ':''}${c.lastTakesWinningBid?'Ultimo offerente prende la carta del primo':c.auctionLoserChoice?'Asta: i perdenti comprano e installano':c.auctionCardChoice?'Asta: tutti scelgono pesci o miglioria':`Lotto esaurito: ${c.auctionUpgradeOnNoFish===false?'scarto':'miglioria'}`}`;
   report.innerHTML=`<div class="report-head"><div><h2>Andamento delle partite</h2><p>${headline}${data.partial?' · risultato parziale':''}</p></div><div class="exports"><button type="button" id="downloadJson">Dati JSON</button><button type="button" id="downloadCsv">Partite CSV</button><button type="button" id="downloadDaysCsv">Giornate CSV</button></div></div>
     ${ruleSnapshot(c)}
     ${c.mode==='mc6'?`<p class="hint">L’IA ha valutato ${data.meta.cycleRollouts||0} sviluppi fino alla fine della giornata per scegliere nelle aste${c.simultaneousBids?` e confrontare ${data.meta.batchChoices||0} piani di puntate`:''}. Le carte nascoste degli avversari sono rimescolate tra gli scenari.</p>`:''}

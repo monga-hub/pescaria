@@ -5,8 +5,8 @@ const root=path.join(__dirname,'..'),count=Number(process.argv[2]||100);
 const slots=Math.min(8,require('node:os').availableParallelism());
 assert(Number.isInteger(count)&&count>0);
 const variants=(process.argv[4]||'base,bilancia').split(',');
-const ruleVariant=v=>v.replace(/^winner3/,'base').replace(/-day(?:4|34)(?:contracts)?x2$/,'');
-assert(variants.length&&new Set(variants).size===variants.length&&variants.every(v=>['base','bilancia','bilancia-flat2','separated-only','base-day4x2','base-day34x2','base-day4contractsx2','winner3-day4contractsx2'].includes(v)));
+const ruleVariant=v=>v.replace(/^winner3/,'base').replace(/-day(?:4|34)(?:contracts)?x2$/,'').replace(/-day3x2-day4x3-contracts$/,'');
+assert(variants.length&&new Set(variants).size===variants.length&&variants.every(v=>['base','bilancia','bilancia-flat2','separated-only','base-day4x2','base-day34x2','base-day4contractsx2','winner3-day4contractsx2','base-day3x2-day4x3-contracts'].includes(v)));
 if(isMainThread){
   const saved=[];
   if(process.argv[3])for(let slot=0;slot<8;slot++){
@@ -26,7 +26,8 @@ if(isMainThread){
       const keys=['contracts','upgrades','gap','changes','last1Wins','last2Wins','last3Wins','nonleader3Wins','last1Top2','awards','shortages','deckShortages','passive','zeroAwards','winnerOrders','lastOrders','winnerPassive','lastPassive'];
       return [variant,Object.fromEntries(keys.map(k=>[k,+mean(k).toFixed(3)]))];
     }));
-    const result={date:'2026-10-02',method:`${count} games per variant, matching seed 20261201+i*7919+52; MC depth 6, samples 6. Different decks imply different hands. Daily ties: coins, upgrades, seat.`,summary,rows};
+    const hash=file=>require('node:crypto').createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+    const result={date:new Date().toISOString(),aiVersion:'acquisti-finali-4',sourceHashes:{engine:hash(path.join(root,'index.html')),agent:hash(path.join(__dirname,'monte-carlo-agent.js')),experiment:hash(__filename)},method:`${count} games per variant, matching seed 20261201+i*7919+52; MC depth 6, samples 6. Different decks imply different hands. Daily ties: coins, upgrades, seat.`,summary,rows};
     if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(result,null,2));
     console.log(JSON.stringify(summary,null,2));
   }).catch(e=>{console.error(e);process.exitCode=1});
@@ -34,14 +35,14 @@ if(isMainThread){
   const source=fs.readFileSync(path.join(root,'index.html'),'utf8').match(/<script>\s*([\s\S]*?)<\/script>/)[1];
   const agent=fs.readFileSync(path.join(__dirname,'monte-carlo-agent.js'),'utf8'),telemetry=fs.readFileSync(path.join(__dirname,'lab-telemetry.js'),'utf8');
   const probe=`
-  window.__base=LAB_DEFAULT_RULES;
+  window.__base={...LAB_DEFAULT_RULES,tieredPricing:true,winnerPricing:false,winnerPrice:1,secondPrice:2,otherPrice:2,fishPerPlayer:6,handSize:5,alternateAuctionOrder:false,deferMerchantIncome:false};
   const recoveryResolveBilancia=resolveBilanciaQueue;
   resolveBilanciaQueue=function(){
     if(G.simConfig?.__noBilanciaAwards){G.bilanciaQueue=[];return false}
     return recoveryResolveBilancia();
   };
   const recoveryIncome=bilanciaIncome,recoveryValue=botUpgradeValue;
-  const lastDayMultiplier=()=>(G.simConfig?.__doubleLastDay&&G.day===4)||(G.simConfig?.__doubleThirdDay&&G.day===3)?2:1;
+  const lastDayMultiplier=()=>G.simConfig?.__tripleFinalContracts?(G.day===4?3:G.day===3?2:1):((G.simConfig?.__doubleLastDay&&G.day===4)||(G.simConfig?.__doubleThirdDay&&G.day===3)?2:1);
   bilanciaIncome=function(p,includePending=false){
     const income=recoveryIncome(p,includePending);
     return income.map(x=>({...x,v:(G.simConfig?.__flatBilancia?2:x.v)*(G.simConfig?.__contractsOnlyDouble?1:lastDayMultiplier())}));
@@ -57,14 +58,14 @@ if(isMainThread){
   completeContract=function(p,c,reward){
     const before=p.coins,category=p.catTot||0,favorite=p.favTot||0;
     const result=recoveryContract(p,c,reward);
-    if(result&&lastDayMultiplier()===2){
-      const extra=p.coins-before;p.coins+=extra;p.today.income+=extra;p.today.contractIncome[c.id]+=extra;
-      p.catTot+=(p.catTot||0)-category;p.favTot+=(p.favTot||0)-favorite;
+    if(result&&lastDayMultiplier()>1){
+      const factor=lastDayMultiplier()-1,extra=(p.coins-before)*factor;p.coins+=extra;p.today.income+=extra;p.today.contractIncome[c.id]+=extra;
+      p.catTot+=((p.catTot||0)-category)*factor;p.favTot+=((p.favTot||0)-favorite)*factor;
     }
     return result;
   };
   window.__checkBilancia=function(){
-    G={simConfig:{...LAB_DEFAULT_RULES,winnerPricing:true,winnerPrice:3,otherPrice:1}};
+    G={simConfig:{...window.__base,winnerPricing:true,winnerPrice:3,secondPrice:1,otherPrice:1}};
     for(const score of [1,3,4,7,8,10,20])for(const total of [1,2,3,4])for(let rank=1;rank<=total;rank++){
       if(auctionPrice(score,rank,total)!==(rank===1?3:1))throw Error('Winner pays 3, other bidders 1');
     }
@@ -76,11 +77,11 @@ if(isMainThread){
     if(bilanciaIncome(p)[0].v!==0)throw Error('Empty category payout');
     G.simConfig.__flatBilancia=true;
     if(bilanciaIncome(p)[0].v!==2)throw Error('Flat payout');
-    for(const contractsOnly of [false,true])for(const firstDoubleDay of [3,4])for(const day of [1,2,3,4]){
+    for(const [contractsOnly,firstDoubleDay,tripleFinal] of [[false,3,false],[false,4,false],[true,3,false],[true,4,false],[true,3,true]])for(const day of [1,2,3,4]){
       const client={id:1002,cat:'A',name:'test',up:'Banco Ampliato',value:5,recipe:{Branzini:1}};
       const me={id:0,name:'test',coins:20,orders:0,installed:[{cat:'A'},{cat:'A'},{cat:'C',up:'Favorito della Gilda',favFish:'Branzini'}],pending:[],hand:[client],banco:{...inv(),Branzini:1},cesta:inv(),today:{income:0,contracts:[]}};
-      G={day,simConfig:{contractChoice:false,__doubleLastDay:true,__doubleThirdDay:firstDoubleDay===3,__contractsOnlyDouble:contractsOnly},bag:[],rng:new RNG(1),log:[],lab:{contracts:[]}};
-      const multiplier=day>=firstDoubleDay?2:1,expected=9*multiplier;
+      G={day,simConfig:{contractChoice:false,__doubleLastDay:true,__doubleThirdDay:firstDoubleDay===3,__contractsOnlyDouble:contractsOnly,__tripleFinalContracts:tripleFinal},bag:[],rng:new RNG(1),log:[],lab:{contracts:[]}};
+      const multiplier=tripleFinal&&day===4?3:day>=firstDoubleDay?2:1,expected=9*multiplier;
       if(payout(me,client)!==expected||!completeContract(me,client)||me.coins!==20+expected||me.today.income!==expected||me.today.contractIncome[client.id]!==expected||me.pending.length!==1||me.orders!==1||me.banco.Branzini!==0)throw Error('Last day contract payout');
       if(G.lab.contracts[0].gain!==expected)throw Error('Last day telemetry');
       if(me.catTot!==2*multiplier||me.favTot!==2*multiplier)throw Error('Last day bonuses');
@@ -104,7 +105,7 @@ if(isMainThread){
   if(checkpoint)fs.writeFileSync(checkpoint,rows.map(r=>JSON.stringify(r)+'\n').join(''));
   for(let index=workerData.slot;index<count;index+=slots)for(const variant of variants){
     if(done.has(variant+':'+index))continue;
-    const rules=ruleVariant(variant),simConfig={...ctx.__base,chooseEndDayUpgrades:false,simultaneousBids:false,depth:6,samples:6,aggression:1,bilanciaCatchup:rules!=='base',__noBilanciaAwards:rules==='separated-only',__flatBilancia:rules==='bilancia-flat2',__doubleLastDay:variant.endsWith('x2'),__doubleThirdDay:variant==='base-day34x2',__contractsOnlyDouble:variant.endsWith('day4contractsx2'),...(variant.startsWith('winner3-')?{winnerPricing:true,winnerPrice:3,otherPrice:1}:{})};
+    const rules=ruleVariant(variant),simConfig={...ctx.__base,chooseEndDayUpgrades:false,simultaneousBids:false,depth:6,samples:6,aggression:1,bilanciaCatchup:rules!=='base',__noBilanciaAwards:rules==='separated-only',__flatBilancia:rules==='bilancia-flat2',__doubleLastDay:variant.endsWith('x2'),__doubleThirdDay:variant==='base-day34x2',__contractsOnlyDouble:variant.endsWith('day4contractsx2')||variant==='base-day3x2-day4x3-contracts',__tripleFinalContracts:variant==='base-day3x2-day4x3-contracts',...(variant.startsWith('winner3-')?{winnerPricing:true,winnerPrice:3,secondPrice:1,otherPrice:1}:{})};
     const seed=20261201+index*7919+52,{G,ranking}=ctx.__pescaria.simulate({n:4,seed,difficulty:'normal',simConfig});
     assert(G.finished&&G.lab.days.length===4);
     if(variant.startsWith('winner3-'))for(const a of G.lab.auctions){

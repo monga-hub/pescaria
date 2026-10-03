@@ -687,13 +687,15 @@ const CARDS=RAW.trim().split('\n').map(line=>{const [id,name,bid,value,fish,cat,
 class RNG{constructor(seed){this.s=(seed>>>0)||1}next(){this.s=(this.s+0x6D2B79F5)|0;let t=this.s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}int(n){return Math.floor(this.next()*n)}shuffle(a){for(let i=a.length-1;i>0;i--){const j=this.int(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}}
 let G=null;
 const HEADLESS=typeof window.__PESCARIA_HEADLESS!=='undefined';
-const LAB_DEFAULT_RULES={tieredPricing:true,priceByCard:true,winnerPricing:false,reverseRankPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:1,otherPrice:2,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:12,fishPerPlayer:6,handSize:5,mandatoryBid:false,classicDraft:false,contractOnlyCoins:false,contractChoice:false,doubleFinalContracts:false,installRemainingCards:false,categoryBonusPerUpgrade:1,bilanciaCatchup:false,deferMerchantIncome:false,merchantCardValue:2,limitMerchantIncome:false,marketSetBonus:false,marketSetThreshold:3,marketSetBase:10,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeCap:5,auctionUpgradeOnNoFish:false,lastTakesWinningBid:false};
+const LAB_DEFAULT_RULES={tieredPricing:false,priceByCard:true,winnerPricing:true,reverseRankPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:3,secondPrice:2,otherPrice:1,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:12,fishPerPlayer:7,handSize:6,mandatoryBid:false,classicDraft:false,alternateAuctionOrder:true,contractOnlyCoins:false,contractChoice:false,doubleFinalContracts:false,installRemainingCards:false,categoryBonusPerUpgrade:1,bilanciaCatchup:false,deferMerchantIncome:true,merchantCardValue:2,limitMerchantIncome:false,marketSetBonus:false,marketSetThreshold:3,marketSetBase:10,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeCap:5,auctionUpgradeOnNoFish:false,lastTakesWinningBid:false};
 function selectedLabRules(){
   const raw=new URLSearchParams(location.search).get('rules');if(!raw)return LAB_DEFAULT_RULES;
   try{
     if(raw.length>3000)throw Error('Regole troppo lunghe');
     const selected=JSON.parse(raw);
     if(selected.priceByCard===undefined)selected.priceByCard=false;
+    if(selected.secondPrice===undefined)selected.secondPrice=selected.otherPrice;
+    if(selected.alternateAuctionOrder===undefined)selected.alternateAuctionOrder=false;
     for(const key of ['reverseRankPricing','classicDraft','rankFirstPrice','rankMiddlePrice','rankLastPrice','lastTakesWinningBid','bilanciaCatchup','doubleFinalContracts'])if(selected[key]===undefined)selected[key]=LAB_DEFAULT_RULES[key];
     if(!selected||typeof selected!=='object'||Object.entries(LAB_DEFAULT_RULES).some(([key,value])=>typeof selected[key]!==typeof value||(typeof value==='number'&&(!Number.isInteger(selected[key])||selected[key]<0||selected[key]>100))))throw Error('Regole non valide');
     if(selected.handSize>12||selected.fishPerPlayer>12||selected.threshold1>=selected.threshold2||selected.threshold2>20||selected.auctionUpgradeCap>5||(selected.bilanciaCatchup&&(selected.deferMerchantIncome||selected.marketSetBonus))||(selected.lastTakesWinningBid&&(selected.auctionCardChoice||selected.auctionLoserChoice||selected.auctionUpgradeOnNoFish)))throw Error('Regole fuori intervallo');
@@ -1117,7 +1119,7 @@ window.pickDraft=function(id){
 function finishDraft(){
   for(const p of G.players){p.hand.push(...G.drafted[p.id],...p.kept);p.keptIds=new Set(p.kept.map(c=>c.id));p.kept=[];p.plan=null}
   if(G.deckShortages?.at(-1)?.day!==G.day)log(G.draftRound===0?'Carte':'Draft',G.draftRound===0?`Ricevi ${G.simConfig?.handSize??HAND} nuove carte e riprendi in mano quelle conservate.`:'Draft completato: ognuno riprende in mano anche le carte conservate.');
-  G.phase='asta';G.auctionIndex=-1;G.aOrder=[...FISH];
+  G.phase='asta';G.auctionIndex=-1;G.aOrder=G.simConfig?.alternateAuctionOrder&&G.day%2===0?[...FISH].reverse():[...FISH];
   if(G.simConfig?.simultaneousBids)planSimultaneousBids();
   nextAuction();
 }
@@ -1137,7 +1139,7 @@ function makeBatchBids(p){
   const hand=p.hand,coins=p.coins,influence=p.influence,bids=[];
   p.hand=[...hand];
   for(let i=0;i<FISH.length;i++){
-    const f=FISH[i];if(!G.market[f]||!p.hand.length)continue;
+    const f=(G.aOrder||FISH)[i];if(!G.market[f]||!p.hand.length)continue;
     G.auctionIndex=i;
     let bid=batchBid(p,f,[]);
     if(!bid&&G.simConfig.mandatoryBid)bid={pid:p.id,card:[...p.hand].sort((a,b)=>botCardValue(p,a)-botCardValue(p,b))[0],cash:0,infl:0};
@@ -1185,7 +1187,7 @@ function advanceBidders(){
   resolveBids(G.bids);
 }
 function bidScore(b){return b.card.bid+b.cash+b.infl*ESP_X}
-function auctionPrice(score,rank=1,total=1){const c=G?.simConfig;if(c?.reverseRankPricing)return rank===1?(c.rankFirstPrice??1):rank===total?(c.rankLastPrice??3):(c.rankMiddlePrice??2);if(c?.winnerPricing)return rank===1?(c.winnerPrice??3):(c.otherPrice??1);return score<=(c?.threshold1??4)?(c?.price1??1):score<=(c?.threshold2??7)?(c?.price2??2):(c?.price3??3)}
+function auctionPrice(score,rank=1,total=1){const c=G?.simConfig;if(c?.reverseRankPricing)return rank===1?(c.rankFirstPrice??1):rank===total?(c.rankLastPrice??3):(c.rankMiddlePrice??2);if(c?.winnerPricing)return rank===1?(c.winnerPrice??3):rank===2?(c.secondPrice??c.otherPrice??1):(c.otherPrice??1);return score<=(c?.threshold1??4)?(c?.price1??1):score<=(c?.threshold2??7)?(c?.price2??2):(c?.price3??3)}
 window.chooseBid=function(id){if(G.phase!=='asta'||G.auctionStage!=='bid'||!activePlayer().hand.some(c=>c.id===id))return;G.selectedBid=id;G.viewedPlayer=activePlayer().id;G.bidCash=0;G.bidInfl=0;render()};
 window.returnBidCard=function(){if(G.phase!=='asta'||G.auctionStage!=='bid')return;G.selectedBid=null;G.bidCash=0;G.bidInfl=0;render()};
 window.addInfluence=function(){const me=activePlayer();if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid)return;G.bidInfl=G.bidInfl>=me.influence?0:G.bidInfl+1;render()};
@@ -1948,7 +1950,7 @@ document.addEventListener('pointermove',e=>{const c=e.target.closest?.('.hand-ca
 document.addEventListener('pointerout',e=>{const c=e.target.closest?.('.hand-cards .card');if(!c||window.gsap||c.contains(e.relatedTarget))return;c.style.removeProperty('--tilt-x');c.style.removeProperty('--tilt-y')});
 
 const shownRules=LAB_PLAY_RULES??{};
-$('rules').innerHTML=`<div class="rule"><b>Contratti</b>${shownRules.contractOnlyCoins?'I contratti completati danno solo Ducati; la carta viene scartata.':shownRules.contractChoice?'Scegli Ducati oppure miglioria quando completi un contratto.':'Ogni contratto completato dà Ducati e miglioria.'}${shownRules.doubleFinalContracts?' Nella quarta giornata i Ducati dei contratti raddoppiano, bonus inclusi. Rendite normali.':''}</div><div class="rule"><b>Carte puntate</b>${shownRules.lastTakesWinningBid?'Se almeno due giocatori puntano, l’ultimo prende in mano la carta puntata dal primo.':shownRules.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano la carta.':shownRules.auctionCardChoice?'Al tuo turno scegli se comprare pesci o installare la carta. Se compri, recuperi la carta al mercato quando la variante è attiva.':shownRules.auctionUpgradeOnNoFish?'Se il lotto finisce prima del tuo turno, la carta può diventare una miglioria.':'Le carte puntate vanno agli scarti.'}</div>${shownRules.bilanciaCatchup?'<div class="rule"><b>Bilancia separata</b>Chi conclude meno contratti nella giornata sceglie un Mercante per ogni contratto di differenza dal migliore. Lo installa subito, senza Ducati del contratto; la rendita parte oggi.</div>':''}<div class="rule"><b>A consumo</b>Fortuna e Sottobanco: una volta per giornata per carta.</div>`+Object.entries(UPG).map(([n,u])=>`<div class="rule"><b>${CATS[u.cat].icon} ${esc(DISPLAY[n])}</b>${esc(upgradeDescription(n))}</div>`).join('');
+$('rules').innerHTML=`<div class="rule"><b>Contratti</b>${shownRules.contractOnlyCoins?'I contratti completati danno solo Ducati; la carta viene scartata.':shownRules.contractChoice?'Scegli Ducati oppure miglioria quando completi un contratto.':'Ogni contratto completato dà Ducati e miglioria.'}${shownRules.doubleFinalContracts?' Nella quarta giornata i Ducati dei contratti raddoppiano, bonus inclusi. Rendite normali.':''}</div><div class="rule"><b>Carte puntate</b>${shownRules.lastTakesWinningBid?'Se almeno due giocatori puntano, l’ultimo prende in mano la carta puntata dal primo.':shownRules.auctionLoserChoice?'I perdenti possono comprare i pesci rimasti e installano la carta.':shownRules.auctionCardChoice?'Al tuo turno scegli se comprare pesci o installare la carta. Se compri, recuperi la carta al mercato quando la variante è attiva.':shownRules.auctionUpgradeOnNoFish?'Se il lotto finisce prima del tuo turno, la carta può diventare una miglioria.':'Le carte puntate vanno agli scarti.'}</div>${shownRules.alternateAuctionOrder?'<div class="rule"><b>Ordine delle aste</b>Giornate 1 e 3: Polpi → Sardine. Giornate 2 e 4: Sardine → Polpi.</div>':''}${shownRules.bilanciaCatchup?'<div class="rule"><b>Bilancia separata</b>Chi conclude meno contratti nella giornata sceglie un Mercante per ogni contratto di differenza dal migliore. Lo installa subito, senza Ducati del contratto; la rendita parte oggi.</div>':''}<div class="rule"><b>A consumo</b>Fortuna e Sottobanco: una volta per giornata per carta.</div>`+Object.entries(UPG).map(([n,u])=>`<div class="rule"><b>${CATS[u.cat].icon} ${esc(DISPLAY[n])}</b>${esc(upgradeDescription(n))}</div>`).join('');
 
 // Autocontrollo del mazzo V4.1: 100 carte, 25 per categoria, Fiuto 2-3-2-3-2 e sempre un pesce del contratto.
 const fiuto=CARDS.filter(c=>c.up==='Fiuto per il Pescato');

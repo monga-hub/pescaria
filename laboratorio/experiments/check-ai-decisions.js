@@ -9,7 +9,7 @@ const ctx={assert,console,structuredClone,__PESCARIA_HEADLESS:true,__pauseDraft:
 const check=`
 const card=(id,value,n=1,extra={})=>({id,name:'Test '+id,bid:5,value,cat:'A',up:'Banco Ampliato',recipe:{Sardine:n},...extra});
 function setup(hand,fish=2){
-  startGame({n:4,seed:20261002,humanBot:true,difficulty:'normal',simConfig:{...LAB_DEFAULT_RULES,classicDraft:true,samples:6}});
+  startGame({n:4,seed:20261002,humanBot:true,difficulty:'normal',simConfig:{...LAB_DEFAULT_RULES,tieredPricing:true,winnerPricing:false,fishPerPlayer:6,handSize:5,alternateAuctionOrder:false,deferMerchantIncome:false,classicDraft:true,samples:6}});
   G.day=4;G.phase='pubblico';G.simConfig.classicDraft=false;
   const p=G.players[0];p.hand=hand;p.banco={...inv(),Sardine:fish};return p;
 }

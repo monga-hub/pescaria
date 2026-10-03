@@ -35,7 +35,7 @@ if(isMainThread){
   const restore=names.map(n=>`${n}=engineFns.${n};`).join('\n');
   const capture=which=>`window.__${which}={botBid,botBuy,botMarket,botKeep,botDraft};`;
   const route=`
-  let newSeats=new Set();window.__seats=ids=>{newSeats=new Set(ids)};window.__rules=LAB_DEFAULT_RULES;
+  let newSeats=new Set();window.__seats=ids=>{newSeats=new Set(ids)};window.__rules={...LAB_DEFAULT_RULES,tieredPricing:true,winnerPricing:false,winnerPrice:1,secondPrice:2,otherPrice:2,fishPerPlayer:6,handSize:5,alternateAuctionOrder:false,deferMerchantIncome:false};
   ${['botBid','botBuy','botMarket','botKeep','botDraft'].map(n=>`${n}=function(p,...args){return (newSeats.has(p.id)?window.__modern:window.__legacy).${n}(p,...args)};`).join('\n')}
   `;
   const reward=`const normalPayout=payout,normalComplete=completeContract;
@@ -60,7 +60,7 @@ if(isMainThread){
   const rows=[];
   for(let index=workerData;index<pairs;index+=slots)for(const variant of ['card-price','winner3'])for(const swap of [0,1]){
     const seats=swap?[1,3]:[0,2];ctx.__seats(seats);const seed=baseSeed+index*7919;
-    const {G,ranking}=ctx.__pescaria.simulate({n:4,seed,difficulty:'normal',simConfig:{...config,...(variant==='winner3'?{winnerPricing:true,winnerPrice:3,otherPrice:1}:{})}});
+    const {G,ranking}=ctx.__pescaria.simulate({n:4,seed,difficulty:'normal',simConfig:{...config,...(variant==='winner3'?{winnerPricing:true,winnerPrice:3,secondPrice:1,otherPrice:1}:{})}});
     assert(G.finished&&G.players.every(p=>p.coins>=0));
     const group=isNew=>G.players.filter(p=>seats.includes(p.id)===isNew),mean=(ps,key)=>ps.reduce((s,p)=>s+p[key],0)/ps.length;
     rows.push({variant,index,swap,seed,newSeats:seats,newWin:+seats.includes(ranking[0].id),newScore:mean(group(true),'coins'),oldScore:mean(group(false),'coins'),newContracts:mean(group(true),'orders'),oldContracts:mean(group(false),'orders'),ranking:ranking.map(p=>({id:p.id,coins:p.coins,orders:p.orders}))});
