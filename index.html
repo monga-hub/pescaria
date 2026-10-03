@@ -438,8 +438,7 @@
     #startupStatus{font-size:15px;line-height:1.5;min-height:3em;margin:18px 0 0}
     @keyframes startup-search{to{background-position:-200% 0}}
     @media(prefers-reduced-motion:reduce){#startup progress{animation:none!important}}
-    #floatingHand .hand-order{position:absolute;right:0;bottom:12px;z-index:350;pointer-events:auto;min-height:44px;padding:8px 12px;border:2px solid #e6c879;border-radius:9px;background:#183f40;color:#fff2cb;font-weight:800;cursor:pointer}
-    #floatingHand.folded .hand-order{display:none}
+    #floatingHand [data-hand-reorder]{touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
     #floatingHand .hand-order-hint{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);width:max-content;max-width:90vw;padding:7px 12px;border-radius:8px;background:#183f40;color:#fff2cb;font-size:13px;text-align:center;pointer-events:none}
     .playing #floatingHand.reordering .hand-cards .card{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;pointer-events:auto!important;opacity:1!important;filter:none!important;bottom:12px!important;transform:translateX(calc(-50% + var(--x))) rotate(var(--r))!important;animation:none!important;transition:none!important;z-index:var(--z);cursor:grab}
     .playing #floatingHand.reordering .card::after{display:none}
@@ -1516,12 +1515,8 @@ window.toggleHand=function(){
   if(practice){G.tutorial.step++;render()}
 };
 function canReorderHand(){return !!G&&!G.finished&&!G.handoff&&!G.overlay&&!G.tutorial&&G.phase!=='draft'&&activePlayer().human&&activePlayer().hand.length>1}
-window.toggleHandOrder=function(){
-  if(!canReorderHand())return;
-  G.handReordering=!G.handReordering;G.handFolded=false;renderBoard();
-};
 function reorderHandCard(id,targetId){
-  if(!canReorderHand()||!G.handReordering)return false;
+  if(!canReorderHand())return false;
   const hand=activePlayer().hand,from=hand.findIndex(c=>c.id===id),to=hand.findIndex(c=>c.id===targetId);
   if(from<0||to<0||from===to)return false;
   hand.splice(to,0,hand.splice(from,1)[0]);return true;
@@ -1547,8 +1542,7 @@ function renderBoard(){
   if(G.tutorial&&!tutorialStep()?.showHand)G.handFolded=tutorialStep()?.handFolded??!tutorialStep()?.preview;
   dock.classList.toggle('folded',G.handFolded);
   dock.classList.toggle('hidden',(!!G.overlay&&!G.tutorial)||G.handoff||!cards.length);
-  if(!canReorderHand())G.handReordering=false;
-  dock.classList.toggle('reordering',!!G.handReordering);
+  G.handReordering=false;dock.classList.remove('reordering');
   const rebuilt=renderHandFan(dock,fan);
   syncHandToggle(dock);
   requestAnimationFrame(()=>{fitGameContents();if(rebuilt)animateHand(dock)})
@@ -1563,7 +1557,10 @@ function renderHandFan(dock,fan){
     return false;
   }
   dock.innerHTML=`<button class="hand-toggle" onclick="toggleHand()" aria-controls="handCards"></button><div id="handCards" class="hand-cards">${fan||'<p class="empty">Nessuna carta in mano.</p>'}</div>`;
-  if(canReorderHand())dock.insertAdjacentHTML('beforeend',`<button class="hand-order" onclick="toggleHandOrder()" aria-pressed="${!!G.handReordering}" aria-label="${G.handReordering?'Termina il riordino delle carte':'Riordina le carte'}">${G.handReordering?'Fine':'Ordina'}</button>${G.handReordering?'<div class="hand-order-hint" role="status">Trascina le carte a destra o a sinistra.<br>Con la tastiera usa le frecce ← →.</div>':''}`);
+  if(canReorderHand())dock.querySelectorAll('.card').forEach(card=>{
+    card.setAttribute('data-hand-reorder','');card.setAttribute('aria-keyshortcuts','Alt+ArrowLeft Alt+ArrowRight');
+    card.title+=' Tieni premuto e trascina per riordinare. Tastiera: Alt + frecce sinistra/destra.';
+  });
   dock._tutorialFan=structure;
   return true;
 }
@@ -1642,54 +1639,72 @@ function setupHandSwipe(host){
   host.addEventListener('touchcancel',()=>{gesture=null});
   host.addEventListener('click',e=>{if(suppressClick&&e.detail!==0){e.preventDefault();e.stopImmediatePropagation()}},true);
 }
-// A separate ordering mode keeps dragging distinct from playing a card.
+// A long press arms dragging; quick taps and upward swipes keep playing cards.
 function setupHandReorder(host){
-  let drag=null,suppressClick=false;
+  let drag=null,timer=null,suppressClick=false;
   const nodes=()=>[...host.querySelectorAll('.hand-cards .card')];
-  function clear(){
-    if(!drag)return;
-    drag.card.classList.remove('order-dragging');drag.card.style.translate='';
+  function clear(redraw=false){
+    clearTimeout(timer);timer=null;if(!drag)return;
+    const d=drag;drag=null;
+    d.card.classList.remove('order-dragging');d.card.style.translate='';
     nodes().forEach(c=>c.classList.remove('order-target'));
-    const pointer=drag.pointer;drag=null;
-    if(host.hasPointerCapture(pointer))host.releasePointerCapture(pointer);
+    host.classList.remove('reordering');host.querySelector('.hand-order-hint')?.remove();
+    if(G===d.state)G.handReordering=false;
+    if(host.hasPointerCapture(d.pointer))host.releasePointerCapture(d.pointer);
+    if(redraw&&d.armed&&G===d.state)renderBoard();
   }
   host.addEventListener('pointerdown',e=>{
     suppressClick=false;
-    if(!G?.handReordering||!canReorderHand()||host.classList.contains('folded'))return;
-    if(drag){clear();return}
-    const card=e.target.closest('.hand-cards .card');
+    if(drag){suppressClick=drag.armed;clear(true);return}
+    if(!canReorderHand()||host.classList.contains('folded'))return;
+    const card=e.target.closest('[data-hand-reorder]');
     if(!card||e.button!==0||!e.isPrimary)return;
-    e.preventDefault();e.stopImmediatePropagation();
-    const hand=host.querySelector('.hand-cards').getBoundingClientRect();
-    drag={card,state:G,pid:activePlayer().id,pointer:e.pointerId,x:e.clientX,target:Number(card.dataset.cardId),slots:nodes().map(c=>({id:Number(c.dataset.cardId),x:hand.left+hand.width/2+parseFloat(c.style.getPropertyValue('--x'))}))};
-    card.classList.add('order-dragging');host.setPointerCapture(e.pointerId);
+    drag={card,state:G,pid:activePlayer().id,pointer:e.pointerId,x:e.clientX,y:e.clientY,target:Number(card.dataset.cardId),armed:false};
+    timer=setTimeout(()=>{
+      timer=null;
+      if(!drag||G!==drag.state||!canReorderHand()||activePlayer().id!==drag.pid||!card.isConnected||host.classList.contains('folded')){clear();return}
+      const hand=host.querySelector('.hand-cards').getBoundingClientRect();
+      drag.slots=nodes().map(c=>({id:Number(c.dataset.cardId),x:hand.left+hand.width/2+parseFloat(c.style.getPropertyValue('--x'))}));
+      drag.armed=true;suppressClick=true;G.handReordering=true;
+      if(window.gsap)gsap.killTweensOf(nodes());
+      host.classList.add('reordering');card.classList.add('order-dragging');host.setPointerCapture(drag.pointer);
+      host.insertAdjacentHTML('beforeend','<div class="hand-order-hint" role="status">Sposta la carta e rilasciala dove vuoi.</div>');
+    },350);
   },true);
   host.addEventListener('pointermove',e=>{
     if(!drag||e.pointerId!==drag.pointer)return;
+    if(!drag.armed){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>10)clear();return}
+    if(G!==drag.state||!canReorderHand()||!drag.card.isConnected){clear(true);return}
     e.preventDefault();e.stopImmediatePropagation();
-    const dx=e.clientX-drag.x;drag.card.style.translate=`${dx}px 0`;
+    const dx=e.clientX-drag.x;drag.card.style.translate=`${dx}px -20px`;
     const own=drag.slots.find(s=>s.id===Number(drag.card.dataset.cardId));
     const target=drag.slots.reduce((a,b)=>Math.abs(b.x-own.x-dx)<Math.abs(a.x-own.x-dx)?b:a);
     drag.target=target.id;nodes().forEach(c=>c.classList.toggle('order-target',Number(c.dataset.cardId)===target.id));
   },true);
   host.addEventListener('pointerup',e=>{
     if(!drag||e.pointerId!==drag.pointer)return;
+    const d=drag;
+    if(!d.armed){clear();return}
     e.preventDefault();e.stopImmediatePropagation();
-    const d=drag;clear();suppressClick=true;
-    if(G===d.state&&activePlayer().id===d.pid&&reorderHandCard(Number(d.card.dataset.cardId),d.target))renderBoard();
+    if(G===d.state&&activePlayer().id===d.pid&&d.card.isConnected)reorderHandCard(Number(d.card.dataset.cardId),d.target);
+    clear(true);
   },true);
-  host.addEventListener('pointercancel',clear);
-  host.addEventListener('lostpointercapture',()=>{if(drag)clear()});
-  host.addEventListener('contextmenu',e=>{if(G?.handReordering)e.preventDefault()});
+  // Non-passive touch handling prevents browser scrolling and the existing swipe
+  // selector from claiming a gesture that has already become a drag.
+  host.addEventListener('touchmove',e=>{if(drag?.armed){e.preventDefault();e.stopImmediatePropagation();if(e.touches.length!==1)clear(true)}},{capture:true,passive:false});
+  host.addEventListener('touchend',e=>{if(suppressClick){e.preventDefault();e.stopImmediatePropagation()}},{capture:true,passive:false});
+  host.addEventListener('pointercancel',()=>clear(true));
+  host.addEventListener('lostpointercapture',()=>clear(true));
+  host.addEventListener('pointerleave',()=>{if(drag&&!drag.armed)clear()});
+  window.addEventListener('blur',()=>clear(true));
+  host.addEventListener('contextmenu',e=>{if(drag||e.target.closest('[data-hand-reorder]'))e.preventDefault()});
   host.addEventListener('click',e=>{
-    if((G?.handReordering||(suppressClick&&e.detail!==0))&&e.target.closest('.card')){e.preventDefault();e.stopImmediatePropagation()}
+    if(suppressClick&&e.detail!==0){e.preventDefault();e.stopImmediatePropagation()}
   },true);
   host.addEventListener('keydown',e=>{
-    if(!G?.handReordering||!e.target.closest('.card'))return;
-    if(!['ArrowLeft','ArrowRight','Enter',' '].includes(e.key))return;
+    if(!e.altKey||!canReorderHand()||host.classList.contains('folded')||!e.target.closest('[data-hand-reorder]')||!['ArrowLeft','ArrowRight'].includes(e.key))return;
     e.preventDefault();e.stopImmediatePropagation();
-    if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
-    const cards=nodes(),id=Number(e.target.closest('.card').dataset.cardId),i=cards.findIndex(c=>Number(c.dataset.cardId)===id),target=cards[i+(e.key==='ArrowLeft'?-1:1)];
+    const cards=nodes(),id=Number(e.target.closest('[data-hand-reorder]').dataset.cardId),i=cards.findIndex(c=>Number(c.dataset.cardId)===id),target=cards[i+(e.key==='ArrowLeft'?-1:1)];
     if(target&&reorderHandCard(id,Number(target.dataset.cardId))){renderBoard();host.querySelector(`[data-card-id="${id}"]`)?.focus()}
   },true);
 }
