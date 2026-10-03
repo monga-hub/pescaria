@@ -66,7 +66,7 @@ assert.equal(decodeGame(encodeGame(G)).bilanciaPiles['Maestro della Pescaria'].l
 pickBilancia('Maestro della Pescaria');
 pickBilancia('Maestro della Pescaria');
 assert.equal(G.players[0].installed.filter(c=>c.cat==='B').length,2);
-assert.equal(G.players[0].coins,16,'Two new Mercanti pay 2 Ducati each today');
+assert.equal(G.players[0].coins,19,'Two new Mercanti pay 2 Ducati each today');
 assert.equal(G.players[0].orders,1,'Granted Mercanti do not complete contracts');
 assert.equal(G.bilanciaAwards.length,2);
 assert.equal(G.overlay,'summary');

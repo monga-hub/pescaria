@@ -192,7 +192,7 @@ assert.equal((offerPanel.match(/<button /g)||[]).length,3);
 assert(!offerPanel.includes('<table'));
 const bankBid=playerMatHtml(activePlayer()),covered=humanArea(activePlayer(),playerColor(activePlayer()));
 assert(bankBid.includes('id="bidCoinSource"'));
-assert(bankBid.includes('10 Ducati disponibili'));
+assert(bankBid.includes('13 Ducati disponibili'));
 assert(covered.includes('class="offer-bid-value">'+CARDS[0].bid+'</strong>'));
 assert(covered.includes('+2 Ducati'));
 assert(covered.includes('removeBidCoin(event)'));

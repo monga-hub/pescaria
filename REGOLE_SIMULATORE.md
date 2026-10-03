@@ -7,7 +7,7 @@ Verifica automatica: `node tests/regole-v5.cjs` (va eseguito dopo ogni modifica 
 
 ## Numeri fissi
 - Sacchetto: 100 pesci — Polpi 10, Gamberi 18, Molluschi 17, Branzini 27, Sardine 28.
-- 12 Ducati iniziali · Banco 6 pesci · Barile 3 pesci · 6 carte distribuite direttamente al giorno, senza draft · si conservano al massimo 2 carte.
+- 15 Ducati iniziali · Banco 6 pesci · Barile 3 pesci · 6 carte distribuite direttamente al giorno, senza draft · si conservano al massimo 2 carte.
 - Mazzo 100 carte, 25 per categoria (Ancora, Asta, Mercato, Bilancia).
 - Guadagno di ogni carta = somma dei valori dei pesci (Polpo 5, Gambero 4, Mollusco 4, Branzino 3, Sardina 2), +2 se i tipi sono due, +4 se sono tre.
 
@@ -40,7 +40,7 @@ Carte Fortuna con valore d'asta alzato di 2: #6, #9, #10 → 4 · #20, #32, #65 
 ## Variante Solitario e Automa (Congrega dei Mercanti)
 Con 1 giocatore la Congrega è obbligatoria (Apprendista / Mercante / Maestro / Doge; Apprendista predefinito). Con 2–4 giocatori resta facoltativa, con anche l’opzione No.
 - Ogni giocatore riceve direttamente 6 carte al giorno, oltre a quelle conservate. La Congrega non riceve una mano.
-- La Congrega è un giocatore in più (conta per i 7 pesci del mattino), 12 Ducati, nessuna miglioria, nessun contratto, niente draft.
+- La Congrega è un giocatore in più (conta per i 7 pesci del mattino), 15 Ducati, nessuna miglioria, nessun contratto, niente draft.
 - Mazzo ridotto di 8 carte, rimescolato ogni giornata: 3 Passa · 3 Offerta +0 (2 pesci) · 2 +2 (3 pesci).
 - A ogni asta gira una carta: Passa, oppure prima carta del mazzo Clienti coperta + N Ducati sopra. Se vince compra a 3 Ducati per pesce i pesci indicati; se perde non compra.
 - Mercato: vende tutto il pesce del Banco alla banca. Prezzi (Polpo/Gambero/Mollusco/Branzino/Sardina): Apprendista 5/4/4/3/2 · Mercante 6/5/5/3/2 · Maestro 6/5/5/4/3 · Doge 7/6/6/5/4.

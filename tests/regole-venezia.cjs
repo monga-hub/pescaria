@@ -10,7 +10,7 @@ function supply(){
  assert.equal(cards.length,100);assert.equal(new Set(cards.map(c=>c.id)).size,100);
 }
 startGame({n:4,name:'Test',seed:20261003,difficulty:'normal',humanBot:false});
-assert.equal(count(G.market),28);assert(veneziaRules());assert.equal(handSize(),6);
+assert(G.players.every(p=>p.coins===15));assert.equal(count(G.market),28);assert(veneziaRules());assert.equal(handSize(),6);
 for(let rank=1;rank<=5;rank++)assert.equal(auctionPrice(rank),rank===1?3:rank===2?2:1);
 assert.equal(auctionPurchaseDescription({installed:[]},1),'Compra per primo a 3 Ducati per pesce');
 assert.equal(auctionPurchaseDescription({installed:[]},3),'Compra a 1 Ducato per pesce');
@@ -49,7 +49,7 @@ while(!tutorialStep().done){
  assert.equal(G.tutorial.step,index+1,'Tutorial step '+index+' '+step.title);const after=encodeGame(G);
  tutorialBack();assert.deepEqual(G,decodeGame(before));act(step);assert.deepEqual(G,decodeGame(after));
 }
-supply();assert.equal(G.day,2);assert.equal(G.players[0].coins,14);assert.equal(G.players[0].orders,3);assert.equal(G.players[0].bilanciaTot,0);assert.deepEqual(G.players[0].kept.map(c=>c.id),[18]);assert.equal(G.players[0].cesta.Polpi,1);
+supply();assert.equal(G.day,2);assert.equal(G.players[0].coins,17);assert.equal(G.players[0].orders,3);assert.equal(G.players[0].bilanciaTot,0);assert.deepEqual(G.players[0].kept.map(c=>c.id),[18]);assert.equal(G.players[0].cesta.Polpi,1);
 console.log('Venezia: prezzi, distribuzione, alternanza, bonus finali, vecchi salvataggi, 80 partite e tutorial completo verificati.');
 `;
 require('node:vm').runInNewContext(source.replace(/\}\)\(\);\s*$/,checks+'\n})();'),ctx);

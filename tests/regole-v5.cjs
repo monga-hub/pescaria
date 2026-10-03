@@ -14,7 +14,7 @@ context.window = context;
 assert(!/\bfrozen\b/.test(source), 'nessun Ducato bloccato sulle migliorie (niente migliorie a consumo)');
 const checks = `
 const ok=[];const t=(nome,f)=>{f();ok.push(nome)};
-t('costanti', ()=>{assert.equal(BANCO_BASE,6);assert.equal(CESTA_CAP,3);assert.equal(START_COINS,12);assert.equal(HAND,5);assert.equal(KEEP_MAX,2);
+t('costanti', ()=>{assert.equal(BANCO_BASE,6);assert.equal(CESTA_CAP,3);assert.equal(START_COINS,15);assert.equal(HAND,5);assert.equal(KEEP_MAX,2);
   assert.deepEqual({...BAG},{Polpi:10,Gamberi:18,Molluschi:17,Branzini:27,Sardine:28});});
 t('nomi migliorie', ()=>{const v=Object.values(DISPLAY);for(const n of ['Banco più grande','Amici','Senza tassa','Fortuna','Sottobanco','La Congrega','Mercante ⚓','Mercante 🔨','Mercante 💰'])assert(v.includes(n),n);
   assert(!('Maestro della Bilancia' in UPG),'Maestro della Bilancia rimosso');});
