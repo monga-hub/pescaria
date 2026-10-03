@@ -41,7 +41,7 @@ function settleSummaries(reload){
 }
 function playGuide(reload,version=4){
   const legacy=version===2;
-  startTutorial();G.tutorial.version=version;
+  startTutorial(version);
   if(legacy){
     G.tutorial.version=2;
     const oldCard=G.deck.findIndex(c=>c.id===18),newCard=G.deck.findIndex(c=>c.id===27);
@@ -106,6 +106,6 @@ for(const version of [4,3,2]){
   assert.equal(playGuide(false,version),playGuide(true,version),'Saving and restoring at every step preserves the exact scenario');
   window.__SHOW_SUMMARIES=true;assert.equal(playGuide(false,version),playGuide(true,version),'Auction summaries resume in order, including after saving');window.__SHOW_SUMMARIES=false;
 }
-startGame({n:2,name:'Libera',seed:1,difficulty:'normal',humanBot:false});beginDraft();const card=G.draftPacks[0][1];pickDraft(card.id);assert(G.drafted[0].some(c=>c.id===card.id),'Free play choices remain unrestricted');
+startGame({rulesVersion:5,n:2,name:'Libera',seed:1,difficulty:'normal',humanBot:false});beginDraft();const card=G.draftPacks[0][1];pickDraft(card.id);assert(G.drafted[0].some(c=>c.id===card.id),'Free play choices remain unrestricted');
 console.log('Tutorial: percorso completo, scelte obbligate, conti, conservazione e ripresa a ogni passo OK');
 })();`),context);

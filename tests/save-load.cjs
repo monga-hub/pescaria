@@ -29,7 +29,7 @@ function playWithReloads(reload,humans,congrega){
     else if(G.phase==='bilancia'){if(G.overlay==='favorite')pickFavorite(FISH.find(f=>G.bag.includes(f))||FISH[0]);else finishDayBtn()}
     else assert.fail(G.phase);
   }
-  assert(G.finished);assert(phases.has('draft')&&phases.has('asta')&&phases.has('pubblico')&&phases.has('bilancia'));
+  assert(G.finished);assert(!phases.has('draft')&&phases.has('asta')&&phases.has('pubblico')&&phases.has('bilancia'));
   return encodeGame(G);
 }
 for(const humans of [1,2])for(const congrega of [false,true])assert.equal(playWithReloads(true,humans,congrega),playWithReloads(false,humans,congrega),'stesso esito dopo un caricamento a ogni azione');

@@ -30,7 +30,7 @@ card.isConnected=false;gesture(0,-80);assert.equal(selections,stable);card.isCon
 host.classList.contains=()=>true;gesture(0,-80);assert.equal(selections,stable);host.classList.contains=()=>false;
 eligible=false;gesture(0,-80);assert.equal(selections,stable,'Locked or disabled cards cannot be swiped');eligible=true;
 events.touchstart(event([point(100,200)],[],{closest:()=>null}));events.touchend(event([],[point(100,200)]));assert(!click().stopped,'Arrow remains tappable');
-startGame({n:3,name:'Test',seed:13,difficulty:'normal',humanBot:false});beginDraft();
+startGame({rulesVersion:5,n:3,name:'Test',seed:13,difficulty:'normal',humanBot:false});beginDraft();
 const chosen=G.draftPacks[0][0];action=()=>pickDraft(chosen.id);gesture(0,-28);
 assert.equal(G.drafted[0].length,1);assert.equal(G.drafted[0][0].id,chosen.id);
 assert(cardHtml(chosen,'draft',false).includes('draft-lock'));assert(!cardHtml(chosen,'draft',false).includes('data-swipe-select'));

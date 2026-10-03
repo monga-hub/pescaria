@@ -28,7 +28,7 @@ window.__checkVenezia=()=>{
   }
   for(const day of game.lab.days.slice(0,3))for(const p of day.players){assert.equal(p.passiveIncome,0);assert.equal(p.bilancia,0)}
   assert(game.lab.passive.every(p=>p.day===4));
-  for(const p of game.players){const expected=p.installed.filter(c=>c.cat==='B').reduce((s,c)=>s+2*p.installed.filter(x=>x.cat===MAESTRO[c.up]).length,0);assert.equal(p.bilanciaTot,expected)}
+  for(const p of game.players){const expected=p.installed.filter(c=>c.cat==='B').reduce((s,c)=>s+2*p.installed.filter(x=>x.cat===MAESTRO[c.up]).length,0);assert.equal(p.bilanciaTot,expected);assert.equal(game.lab.passive.filter(x=>x.pid===p.id).reduce((s,x)=>s+x.gain,0),expected,'Il report deve registrare una sola volta la rendita finale')}
   for(const day of [1,2,3,4]){G.day=day;assert.equal(contractMultiplier(),1)}
  }
 };`;

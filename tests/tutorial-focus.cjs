@@ -3,7 +3,7 @@ const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),
 const source=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
 const context={assert,console,__PESCARIA_HEADLESS:true,addEventListener(){},document:{getElementById:()=>({}),addEventListener(){}},matchMedia:()=>({matches:true})};context.window=context;
 vm.runInNewContext(source.replace(/\}\)\(\);\s*$/,String.raw`
-startTutorial();G.tutorial.step=5;tutorialDo();
+startTutorial(4);G.tutorial.step=5;tutorialDo();
 let card=null,rebuilds=0;
 const dock={querySelector:()=>card,set innerHTML(html){
   rebuilds++;card=html.includes('tutorial-explained')?{highlight:'',transform:'raised',querySelector(){return{remove:()=>this.highlight=''}},insertAdjacentHTML(_,value){this.highlight=value}}:null;

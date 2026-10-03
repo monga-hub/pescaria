@@ -22,11 +22,11 @@ setSetupCount(2);setSetupCongrega('no');assert.equal(setupCongrega,'no');
 assert(setupNodes.setupOptions.innerHTML.includes("setSetupCongrega('no')"));
 document.getElementById=originalGetElement;
 
-// Cinque carte assegnate direttamente, più quelle conservate, anche dopo un salvataggio.
+// Sei carte assegnate direttamente, più quelle conservate, anche dopo un salvataggio.
 startGame({n:2,name:'Solo',seed:77,difficulty:'normal',humanBot:false,congrega:'apprendista'});
 G.players[0].kept=[drawCard(),drawCard()];
 G=decodeGame(encodeGame(G));
-const keptIds=G.players[0].kept.map(c=>c.id),dealtIds=G.deck.slice(-HAND).reverse().map(c=>c.id);
+const keptIds=G.players[0].kept.map(c=>c.id),dealtIds=G.deck.slice(-handSize()).reverse().map(c=>c.id);
 assert(overlayHtml().includes('Ricevi le carte e inizia le aste'));
 assert(!overlayHtml().includes('>Al draft<'));
 beginDraft();
@@ -50,7 +50,7 @@ for(const lv of Object.keys(CONGREGA_LEVELS))for(const n of [2,3]){let win=0,g=0
  res[lv+' '+(n===2?'solitario':'2 giocatori')]=Math.round(100*win/g)+'% vince la Congrega (bot semplici)'}
 console.log('Congrega OK');console.table(res);
 // Partite con giocatori umani e Congrega (solitario e 2 giocatori), passando dall'interfaccia di gioco.
-for(const humans of [1,2]){
+for(const humans of [1,2,3]){
   const roster=Array.from({length:humans},(_,id)=>({name:'Umano '+id,human:true,character:id}));roster.push({name:'Congrega',human:false,character:4,congrega:true});
   startGame({n:roster.length,roster,seed:777+humans,difficulty:'normal',humanBot:false,congrega:'mercante'});
   let actions=0;
@@ -64,8 +64,8 @@ for(const humans of [1,2]){
     const me=activePlayer();
     if(G.phase==='rete'){
       const kept=me.kept.length;beginDraft();
-      assert.equal(G.phase,humans===1?'asta':'draft');
-      if(humans===1)assert.equal(me.hand.length,HAND+kept);
+      assert.equal(G.phase,'asta');
+      assert.equal(me.hand.length,handSize()+kept);
     }
     else if(G.phase==='draft')pickDraft(G.draftPacks[me.id][0].id);
     else if(G.phase==='asta'){
