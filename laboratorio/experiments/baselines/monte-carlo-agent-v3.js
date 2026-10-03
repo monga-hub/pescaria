@@ -34,10 +34,9 @@ function runCandidate(pid,apply,seedBase,cycle=false){
     // Ogni candidato affronta gli stessi scenari casuali: cambia solo la sua scelta.
     G.rng=new RNG(((seedBase??original.rng.s)^(sample*104729+original.day*31))>>>0);
     G.rng.shuffle(G.deck);G.rng.shuffle(G.bag);
-    // Sperimentale: il confronto con v3 non ha mostrato un vantaggio.
-    if(cycle){sampleHiddenHands(pid);G.mcCycleTargetDay=G.simConfig?.lookaheadFinalDay&&G.day===3?4:G.day}
+    if(cycle){sampleHiddenHands(pid);G.mcCycleTargetDay=G.day}
     try{apply()}catch(e){if(e!==STOP){G=original;throw e}}
-    if(cycle&&!G.mcCycleDone){G=original;throw Error('La previsione delle giornate non è terminata')}
+    if(cycle&&!G.mcCycleDone){G=original;throw Error('Il ciclo della giornata non è terminato')}
     if(cycle&&G.day===4)finishGame();
     total+=evaluate(pid);MC.rollouts++;if(cycle)MC.cycleRollouts++;G=original;
   }
@@ -133,19 +132,6 @@ botBid=function(p,f,seen){
 };
 botBuy=function(p,f,price,rank){
   checkpoint();
-  if(G.mcRollout&&G.day===4&&G.buyPos===G.buyQueue?.length-1&&!G.simConfig?.lastTakesWinningBid&&!G.clientsQueue?.some(q=>q.pid===p.id)
-    &&!p.congrega&&!G.tutorial&&G.simConfig?.contractChoice===false&&!G.simConfig?.contractOnlyCoins&&!auctionChoiceOn()&&p.hand.length<=14
-    &&!(G.aOrder||FISH).slice(G.auctionIndex+1).some(fish=>G.market[fish])){
-    // Ultimo acquirente dell'ultimo lotto nell'ultima giornata, senza altre carte:
-    // confronto esatto dei ricavi propri, senza rinunciare a blocchi o preparativi futuri.
-    const stock=mix(p.banco,p.cesta),limit=maxBuy(p,f,price);let best=0,value=-Infinity;
-    for(let n=0;n<=limit;n++){
-      const plan=contractMarketPlan(p,{...stock,[f]:stock[f]+n});
-      const score=plan.value-costOf(p,n,price)+plan.cards.length*.001;
-      if(score>value){value=score;best=n}
-    }
-    buy(p,f,best,price);return;
-  }
   if(G.mcRollout||p.congrega||G.tutorial)return originalBuy(p,f,price,rank);
   const limit=maxBuy(p,f,price);
   if(!limit){if(canUpgradeAuctionCard())installAuctionUpgrade(G.buyQueue[G.buyPos]);return}
@@ -187,8 +173,10 @@ const originalMarket=botMarket;botMarket=function(p){
 // Ducati e miglioria insieme: confronta il ricavo dei contratti e il valore delle
 // migliorie ottenute, comprese le rendite generate dalla combinazione scelta.
 const choiceMarket=botMarket;
-// Piano senza effetti sulla partita: riusato anche per valutare gli acquisti.
-function contractMarketPlan(p,stock=mix(p.banco,p.cesta)){
+botMarket=function(p){
+  if(p.congrega||G.tutorial||G.simConfig?.contractOnlyCoins||G.simConfig?.contractChoice!==false)return choiceMarket(p);
+  // ponytail: mantiene il limite esistente di 14 carte; oltre usa la strategia precedente.
+  if(p.hand.length>14)return choiceMarket(p);
   const cards=[...p.hand],full=(1<<cards.length)-1,memo=new Map(),incomeMemo=new Map();
   const gain=cards.map(c=>payout(p,c)+(G.day<4&&c.cat!=='B'?botUpgradeValue(p,c):0));
   function merchantValue(mask){
@@ -209,19 +197,12 @@ function contractMarketPlan(p,stock=mix(p.banco,p.cesta)){
     }
     memo.set(key,result);return result;
   }
-  let mask=full;const value=best(mask,stock).value,chosen=[];stock={...stock};
+  let mask=full,stock=mix(p.banco,p.cesta);
   while(mask){
     const card=best(mask,stock).card;if(!card)break;
     const plan=planContract(p,card,stock);for(const [f,n] of Object.entries(plan.use))stock[f]-=n;
-    chosen.push(card);mask^=1<<cards.indexOf(card);
+    completeContract(p,card,'coins');mask^=1<<cards.indexOf(card);
   }
-  return{value,cards:chosen};
-}
-botMarket=function(p){
-  if(p.congrega||G.tutorial||G.simConfig?.contractOnlyCoins||G.simConfig?.contractChoice!==false)return choiceMarket(p);
-  // ponytail: mantiene il limite esistente di 14 carte; oltre usa la strategia precedente.
-  if(p.hand.length>14)return choiceMarket(p);
-  for(const card of contractMarketPlan(p).cards)completeContract(p,card,'coins');
 };
 const originalKeep=botKeep;botKeep=function(p){checkpoint();return originalKeep(p)};
 window.__pescaria={simulate(opts){startGame({humanBot:true,name:'Bot0',...opts});return{G,ranking:ranking()}},MC};
