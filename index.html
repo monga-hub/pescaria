@@ -387,8 +387,8 @@
     .tutorial-guide.collapsed .tutorial-controls{display:block}.tutorial-guide.collapsed .tutorial-toggle{padding:7px 10px;font-size:12px}
     @media(min-width:701px){.tutorial-guide:not(.collapsed){grid-template-columns:minmax(0,1fr) 340px}.tutorial-guide:not(.collapsed) .tutorial-controls{grid-template-columns:1fr 1fr;align-items:center}}
 
-    #auctionSummary{width:min(480px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:auto;padding:20px;border:2px solid #b89547;border-radius:18px;background:#fff4dd;color:var(--ink);overflow:clip;box-shadow:0 16px 60px #0008}
-    #auctionSummary::backdrop{background:#071e1bd9;backdrop-filter:blur(4px)}
+    #auctionSummary,#finishMarketConfirm{width:min(480px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:auto;padding:20px;border:2px solid #b89547;border-radius:18px;background:#fff4dd;color:var(--ink);overflow:clip;box-shadow:0 16px 60px #0008}
+    #auctionSummary::backdrop,#finishMarketConfirm::backdrop{background:#071e1bd9;backdrop-filter:blur(4px)}
     .auction-summary-heading{display:flex;align-items:center;gap:12px;margin-bottom:14px}.auction-summary-heading img{width:58px;height:58px;object-fit:contain}.auction-summary-heading h2{margin:0;font:700 24px Georgia,serif}.auction-summary-heading p{margin:3px 0 0;font-size:13px}
     .auction-summary-row{display:grid;grid-template-columns:26px 44px minmax(0,1fr) auto;gap:9px;align-items:center;padding:8px;border-bottom:1px solid #cdbb98}.auction-summary-row.is-winner{background:#f4df9b;border-radius:10px;border:2px solid #b89547}.auction-summary-row>img{width:44px;height:48px;object-fit:contain}.auction-summary-row strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.auction-summary-row small{display:block;font-size:11px}.auction-summary-count{font-weight:900;white-space:nowrap}.auction-summary-foot{margin:14px 0 8px;font-size:12px;text-align:center}.auction-summary-next{width:100%}
     @media(max-width:500px){#auctionSummary{padding:14px}.auction-summary-heading h2{font-size:21px}.auction-summary-row{grid-template-columns:22px 36px minmax(0,1fr) auto;gap:6px;padding:6px;font-size:13px}.auction-summary-row>img{width:36px;height:40px}}
@@ -535,6 +535,11 @@
   </main>
   <aside id="mobileAuctionActions" class="hidden" aria-label="Azioni dell’asta"></aside>
   <aside id="tutorialGuide" class="tutorial-guide hidden" aria-label="Tutorial guidato"></aside>
+  <dialog id="finishMarketConfirm" aria-labelledby="finishMarketTitle" aria-describedby="finishMarketDescription" oncancel="cancelMarketFinish()">
+    <h2 id="finishMarketTitle">Terminare il tuo mercato?</h2>
+    <p id="finishMarketDescription">Dopo la conferma non potrai completare altri contratti in questa giornata.</p>
+    <div class="auction-panel-buttons"><button class="btn secondary" onclick="cancelMarketFinish()" autofocus>Continua a giocare</button><button class="btn primary" onclick="confirmMarketFinish()">Sì, termina</button></div>
+  </dialog>
   <dialog id="gameMenu" aria-labelledby="gameMenuTitle"></dialog>
   <dialog id="automaPreview" aria-label="Carta della Congrega dei Mercanti">
     <img id="automaPreviewImage" alt="" draggable="false">
@@ -980,7 +985,7 @@ function installTutorialGuards(){
     };
   }
   if(!HEADLESS)document.addEventListener('click',e=>{
-    const step=tutorialStep();if(!step||e.target.closest('#tutorialGuide')||e.target.closest('#phaseIntro')||e.target.closest('#auctionSummary')||e.target.closest('.hand-toggle'))return;
+    const step=tutorialStep();if(!step||e.target.closest('#tutorialGuide')||e.target.closest('#phaseIntro')||e.target.closest('#auctionSummary')||e.target.closest('#finishMarketConfirm')||e.target.closest('.hand-toggle'))return;
     if(step.action&&!step.button&&step.selector&&e.target.closest(step.selector))return;
     e.preventDefault();e.stopImmediatePropagation();
   },true);
@@ -1212,6 +1217,17 @@ function nextMarketPlayer(){
   G.phase='pubblico';G.overlay=null;setActivePlayer(G.marketQueue.shift());
 }
 window.serveContract=function(id){if(G.phase!=='pubblico'||G.handoff)return;const p=activePlayer(),c=p.hand.find(x=>x.id===id);if(c&&completeContract(p,c))render()};
+let marketFinishPending=null;
+window.requestMarketFinish=function(){
+  if(!G||G.phase!=='pubblico'||G.handoff)return;
+  const dialog=$('finishMarketConfirm');if(dialog.open)return;
+  marketFinishPending={state:G,pid:activePlayer().id};dialog.showModal();
+};
+window.cancelMarketFinish=function(){marketFinishPending=null;$('finishMarketConfirm').close()};
+window.confirmMarketFinish=function(){
+  const pending=marketFinishPending;cancelMarketFinish();
+  if(pending&&pending.state===G&&G.phase==='pubblico'&&!G.handoff&&activePlayer().id===pending.pid)window.finishMarket();
+};
 window.finishMarket=function(){if(G.phase!=='pubblico'||G.handoff)return;finishMarket();render()};
 function congregaSell(p){
   const price=CONGREGA_LEVELS[G.congregaLevel][1];let tot=0;
@@ -1488,7 +1504,7 @@ function mobileAuctionLayout(){return !HEADLESS&&matchMedia('(max-width:700px) a
 function marketPanelHtml(me){
   const contracts=me.today.contracts;
   const rows=contracts.map(c=>`<tr><th scope="row">${esc(c.name)}</th><td class="market-income">+${me.today.contractIncome?.[c.id]??payout(me,c)} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"></td><td>${esc(upName(c))}<small>${esc(CATS[c.cat].name)}</small></td></tr>`).join('');
-  return`<section class="auction-panel market-panel" aria-label="Il tuo mercato"><div class="market-heading"><h3>Il tuo mercato</h3><strong>+${me.today.income} Ducati</strong></div>${rows?`<div class="market-receipts"><table aria-label="Contratti completati oggi"><thead><tr><th>Contratto</th><th>Ducati</th><th>Miglioria</th></tr></thead><tbody>${rows}</tbody></table></div><p>Le migliorie si installano a fine giornata.</p>`:'<p>Tocca una carta di cui puoi completare il contratto con il pesce che hai. Qui vedrai gli incassi e le migliorie.</p>'}<button class="btn primary market-finish" onclick="finishMarket()">Termina il mercato</button></section>`;
+  return`<section class="auction-panel market-panel" aria-label="Il tuo mercato"><div class="market-heading"><h3>Il tuo mercato</h3><strong>+${me.today.income} Ducati</strong></div>${rows?`<div class="market-receipts"><table aria-label="Contratti completati oggi"><thead><tr><th>Contratto</th><th>Ducati</th><th>Miglioria</th></tr></thead><tbody>${rows}</tbody></table></div><p>Le migliorie si installano a fine giornata.</p>`:'<p>Tocca una carta di cui puoi completare il contratto con il pesce che hai. Qui vedrai gli incassi e le migliorie.</p>'}<button class="btn primary market-finish" onclick="requestMarketFinish()">Termina il mercato</button></section>`;
 }
 function actionPanelHtml(me){
   if(G.phase==='pubblico'&&!G.handoff)return marketPanelHtml(me);
@@ -1545,7 +1561,7 @@ function renderBoard(){
   const extra=[copies(viewed,'Esperienza')?`Senza tassa ×${copies(viewed,'Esperienza')}`:'',copies(viewed,'Nuovi Clienti')?`Fortuna ×${copies(viewed,'Nuovi Clienti')}`:'',viewed.subsLeft?`Sottobanco ×${viewed.subsLeft}`:''].filter(Boolean).join(' · ');
   host.innerHTML=`<div class="sidebar-content">${humanPlayers().length>1?`<div class="active-operator">Turno di ${esc(me.name)}</div>`:''}<div class="hand-meta">${winner?`<div class="auction-winner">Vincitore dell’asta: ${esc(G.players[winner.pid].name)} · ${bidScore(winner)}</div>`:''}${playerMatHtml(viewed)}<div class="player-mat-buttons" role="group" aria-label="Scegli la plancia del giocatore">${G.players.map(p=>`<button class="player-mat-button" style="--player-color:${playerColor(p)}" aria-pressed="${p.id===viewed.id}" onclick="viewPlayerMat(${p.id})"><span>${esc(p.name)}</span><span class="player-ducats">${p.coins}<img src="assets/tokens/moneta.png" alt="Ducati"></span></button>`).join('')}</div>${extra?`<div class="mat-uses">${extra}</div>`:''}</div>${mobileAuctionLayout()?'':actionPanelHtml(me)}</div>`;
   const mobile=$('mobileAuctionActions');mobile.innerHTML=mobileAuctionLayout()?actionPanelHtml(me):'';mobile.setAttribute('aria-label',G.phase==='pubblico'?'Azioni del mercato':'Azioni dell’asta');mobile.classList.toggle('hidden',!mobile.innerHTML);document.body.classList.toggle('mobile-auction',!!mobile.innerHTML);
-  const inlineAuction=mobileAuctionLayout()&&G.phase==='asta'&&!!mobile.innerHTML;
+  const inlineAuction=mobileAuctionLayout()&&['asta','pubblico'].includes(G.phase)&&!!mobile.innerHTML;
   document.body.classList.toggle('mobile-auction-top',inlineAuction);
   if(inlineAuction)host.before(mobile);else if(mobile.parentElement!==document.body)document.body.appendChild(mobile);
   const dock=$('floatingHand'),handKey=`${G.day}:${G.phase}:${me.id}:${G.auctionIndex}:${G.auctionStage}:${G.draftRound}:${G.selectedBid}:${G.tutorial?.step??''}`;
