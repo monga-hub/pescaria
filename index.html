@@ -424,6 +424,12 @@
       .tutorial-guide.collapsed{height:auto;min-height:46px;grid-template-columns:1fr}.tutorial-guide.collapsed .tutorial-controls{display:flex}.tutorial-guide.collapsed .tutorial-controls>.primary{display:block}
       .playing.mobile-auction #floatingHand:not(.folded){z-index:800}
       .playing.mobile-auction .physical-board{grid-template-rows:40px minmax(0,1fr) minmax(0,1fr)}
+      .playing.mobile-auction-top main{padding-bottom:56px}
+      .playing.mobile-auction-top .physical-board{grid-template-rows:40px min(calc((100vw - 28px)*.7071745),38dvh) auto minmax(0,1fr);row-gap:4px}
+      .mobile-auction-top #mobileAuctionActions{position:relative;inset:auto;grid-column:1;justify-self:center;width:94%;padding:6px 8px;box-shadow:0 2px 8px #0004}
+      .mobile-auction-top #mobileAuctionActions .btn{min-height:44px;padding:6px;font-size:13px}
+      .mobile-auction-top .mobile-bid-coins{gap:6px;margin-bottom:5px}
+      .mobile-auction-top .auction-panel-buttons{gap:5px}
     }
 
     #startup{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:28px;background:#c7afa0 url('assets/board/fondo-colonna-destra.png') center/cover no-repeat;color:#fff4cf;text-align:center}
@@ -1449,6 +1455,8 @@ function announcementHtml(){
   return`<div class="board-ticker" role="status" aria-label="${message}" tabindex="0" title="${message}" style="--ticker-duration:${Math.max(16,text.length/5)}s"><div class="board-ticker-track" aria-hidden="true"><span>${message}</span><span>${message}</span></div></div>`;
 }
 function renderPhysicalBoard(){
+  // Keep the mobile controls alive while rebuilding the board around them.
+  const mobile=$('mobileAuctionActions');if(mobile?.parentElement!==document.body)document.body.appendChild(mobile);
   const phase=physicalPhase(),activeFish=activeAuctionFish(),roman=['I','II','III','IV'],me=activePlayer();
   const days=roman.map((n,i)=>`<div class="board-day ${G.day===i+1?'active':''}" role="img" aria-label="Giorno ${i+1}${G.day===i+1?', in corso':''}" title="Giorno ${n}"></div>`).join('');
   const phases=PHASES.map(([key],i)=>`<div class="board-phase ${phase===i?'active':''}" role="img" aria-label="${PHASE_SHORT[i]}${phase===i?', in corso':''}" title="${PHASE_SHORT[i]}"></div>`).join('');
@@ -1537,6 +1545,9 @@ function renderBoard(){
   const extra=[copies(viewed,'Esperienza')?`Senza tassa ×${copies(viewed,'Esperienza')}`:'',copies(viewed,'Nuovi Clienti')?`Fortuna ×${copies(viewed,'Nuovi Clienti')}`:'',viewed.subsLeft?`Sottobanco ×${viewed.subsLeft}`:''].filter(Boolean).join(' · ');
   host.innerHTML=`<div class="sidebar-content">${humanPlayers().length>1?`<div class="active-operator">Turno di ${esc(me.name)}</div>`:''}<div class="hand-meta">${winner?`<div class="auction-winner">Vincitore dell’asta: ${esc(G.players[winner.pid].name)} · ${bidScore(winner)}</div>`:''}${playerMatHtml(viewed)}<div class="player-mat-buttons" role="group" aria-label="Scegli la plancia del giocatore">${G.players.map(p=>`<button class="player-mat-button" style="--player-color:${playerColor(p)}" aria-pressed="${p.id===viewed.id}" onclick="viewPlayerMat(${p.id})"><span>${esc(p.name)}</span><span class="player-ducats">${p.coins}<img src="assets/tokens/moneta.png" alt="Ducati"></span></button>`).join('')}</div>${extra?`<div class="mat-uses">${extra}</div>`:''}</div>${mobileAuctionLayout()?'':actionPanelHtml(me)}</div>`;
   const mobile=$('mobileAuctionActions');mobile.innerHTML=mobileAuctionLayout()?actionPanelHtml(me):'';mobile.setAttribute('aria-label',G.phase==='pubblico'?'Azioni del mercato':'Azioni dell’asta');mobile.classList.toggle('hidden',!mobile.innerHTML);document.body.classList.toggle('mobile-auction',!!mobile.innerHTML);
+  const inlineAuction=mobileAuctionLayout()&&G.phase==='asta'&&!!mobile.innerHTML;
+  document.body.classList.toggle('mobile-auction-top',inlineAuction);
+  if(inlineAuction)host.before(mobile);else if(mobile.parentElement!==document.body)document.body.appendChild(mobile);
   const dock=$('floatingHand'),handKey=`${G.day}:${G.phase}:${me.id}:${G.auctionIndex}:${G.auctionStage}:${G.draftRound}:${G.selectedBid}:${G.tutorial?.step??''}`;
   if(G.handViewKey!==handKey){G.handViewKey=handKey;G.handFolded=!raised;G.handReordering=false}
   if(G.tutorial&&!tutorialStep()?.showHand)G.handFolded=tutorialStep()?.handFolded??!tutorialStep()?.preview;
