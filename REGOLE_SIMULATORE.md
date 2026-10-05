@@ -7,12 +7,12 @@ Verifica automatica: `node tests/regole-v5.cjs` (va eseguito dopo ogni modifica 
 
 ## Numeri fissi
 - Sacchetto: 100 pesci — Polpi 10, Gamberi 18, Molluschi 17, Branzini 27, Sardine 28.
-- 15 Ducati iniziali · Banco 7 pesci · Barile 3 pesci · 6 carte distribuite direttamente al giorno, senza draft · si conservano al massimo 2 carte.
+- 15 Ducati iniziali · Banco 7 pesci · Barile 3 pesci · mano iniziale di 7 carte, senza draft; ogni mattina si pesca fino a tornare a 7 · si conservano al massimo 2 carte.
 - Mazzo 100 carte, 25 per categoria (Ancora, Asta, Mercato, Bilancia).
 - Guadagno di ogni carta = somma dei valori dei pesci (Polpo 5, Gambero 4, Mollusco 4, Branzino 3, Sardina 2), +2 se i tipi sono due, +4 se sono tre.
 
 ## Giornata (4 giornate)
-1. **Pesca**: il Capitano pesca 7 pesci per giocatore nei lotti · carte Amici · distribuzione di 6 carte ciascuno, più quelle conservate. Se mazzo e scarti non bastano, si distribuisce lo stesso numero di carte a tutti.
+1. **Pesca**: il Capitano pesca 7 pesci per giocatore nei lotti · carte Amici · ogni giocatore riprende le carte conservate e pesca fino ad avere 7 carte in mano (7 nuove se non ne ha conservate, 6 se ne ha una, 5 se ne ha due). Se mazzo e scarti non bastano, le carte disponibili vengono distribuite a turno, senza superare il limite della mano.
 2. **Aste** (giornate 1 e 3: Polpi › Gamberi › Molluschi › Branzini › Sardine; giornate 2 e 4: ordine inverso): offerte dal Capitano in senso orario; carta coperta + Ducati **sopra la carta, visibili**. Vince il valore più alto, parità a chi viene prima nel turno. Il vincitore paga i Ducati, diventa Capitano e compra a 3 Ducati per pesce; il secondo compra a 2, dal terzo in poi a 1, sempre in ordine di classifica. Chi passa non compra. Le carte puntate vanno agli scarti. Il pesce rimasto torna nel sacchetto.
 3. **Mercato**: contratti con Banco + Barile; incasso = guadagno + 1 per ogni miglioria **già installata** della stessa categoria (+2 La Congrega). Barile max 3, mano max 2 carte.
 4. **Fine giornata**: installazione dei contratti. Nessuna rendita dei Mercanti e nessun moltiplicatore dei contratti, nemmeno nella quarta giornata.
@@ -39,7 +39,7 @@ Carte Fortuna con valore d'asta alzato di 2: #6, #9, #10 → 4 · #20, #32, #65 
 
 ## Variante Solitario e Automa (Congrega dei Mercanti)
 Con 1 giocatore la Congrega è obbligatoria (Apprendista / Mercante / Maestro / Doge; Apprendista predefinito). Con 2–4 giocatori resta facoltativa, con anche l’opzione No.
-- Ogni giocatore riceve direttamente 6 carte al giorno, oltre a quelle conservate. La Congrega non riceve una mano.
+- Ogni giocatore inizia con 7 carte; dalla seconda giornata pesca solo le carte necessarie per tornare a 7, contando quelle conservate. La Congrega non riceve una mano.
 - La Congrega è un giocatore in più (conta per i 7 pesci del mattino), 15 Ducati, nessuna miglioria, nessun contratto, niente draft.
 - Mazzo ridotto di 8 carte, rimescolato ogni giornata: 3 Passa · 3 Offerta +0 (2 pesci) · 2 +2 (3 pesci).
 - A ogni asta gira una carta: Passa, oppure prima carta del mazzo Clienti coperta + N Ducati sopra. Se vince compra a 3 Ducati per pesce i pesci indicati; se perde non compra.

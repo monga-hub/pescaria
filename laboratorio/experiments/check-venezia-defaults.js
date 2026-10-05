@@ -7,21 +7,21 @@ const probe=`
 window.__defaults=LAB_DEFAULT_RULES;
 let starts=[],orders=[];
 const checkStartDraft=startDraft;startDraft=function(){if(!G.mcRollout)starts.push({day:G.day,fish:count(G.market)});return checkStartDraft()};
-const checkNextAuction=nextAuction;nextAuction=function(){if(!G.mcRollout&&G.auctionIndex===-1)orders.push({day:G.day,fish:[...G.aOrder],cards:G.drafted.map(h=>h.length)});return checkNextAuction()};
+const checkNextAuction=nextAuction;nextAuction=function(){if(!G.mcRollout&&G.auctionIndex===-1)orders.push({day:G.day,fish:[...G.aOrder],cards:G.players.map(p=>p.hand.length)});return checkNextAuction()};
 window.__checkVenezia=()=>{
  assert.deepEqual(selectedLabRules(),LAB_DEFAULT_RULES);
  G={simConfig:LAB_DEFAULT_RULES};
  for(let total=1;total<=5;total++)for(let rank=1;rank<=total;rank++)for(const score of [1,3,7,10,20])assert.equal(auctionPrice(score,rank,total),rank===1?3:rank===2?2:1);
- const old={...LAB_DEFAULT_RULES,winnerPrice:1,otherPrice:2,fishPerPlayer:6,handSize:5,deferMerchantIncome:false};delete old.secondPrice;delete old.alternateAuctionOrder;
+ const old={...LAB_DEFAULT_RULES,winnerPrice:1,otherPrice:2,fishPerPlayer:6,handSize:5,deferMerchantIncome:false};delete old.refillHand;delete old.secondPrice;delete old.alternateAuctionOrder;
  location.search='?rules='+encodeURIComponent(JSON.stringify(old));const restored=selectedLabRules();
- assert.equal(restored.secondPrice,2);assert.equal(restored.alternateAuctionOrder,false);assert.equal(restored.handSize,5);assert.equal(restored.deferMerchantIncome,false);
+ assert.equal(restored.refillHand,false);assert.equal(restored.secondPrice,2);assert.equal(restored.alternateAuctionOrder,false);assert.equal(restored.handSize,5);assert.equal(restored.deferMerchantIncome,false);
  G={simConfig:restored};assert.equal(auctionPrice(10,2,4),2);assert.equal(auctionPrice(10,3,4),2);
  for(const alternate of [false,true])for(const simultaneous of [false,true]){
   starts=[];orders=[];
   const {G:game}=window.__pescaria.simulate({n:4,seed:20261003,difficulty:'normal',simConfig:{...LAB_DEFAULT_RULES,alternateAuctionOrder:alternate,simultaneousBids:simultaneous,depth:6,samples:6}});
   assert(game.finished);assert.equal(game.lab.days.length,4);assert.equal(starts.length,4);assert.equal(orders.length,4);
   for(const d of starts)assert.equal(d.fish,28);
-  for(const d of orders){assert.deepEqual(d.fish,alternate&&d.day%2===0?[...FISH].reverse():FISH);assert.deepEqual(d.cards,[6,6,6,6])}
+  for(const d of orders){assert.deepEqual(d.fish,alternate&&d.day%2===0?[...FISH].reverse():FISH);assert.deepEqual(d.cards,[7,7,7,7])}
   for(const a of game.lab.auctions){
    for(const b of a.bids)assert.equal(b.price,b.rank===1?3:b.rank===2?2:1);
    const ranks=a.buys.map(b=>a.bids.find(x=>x.pid===b.pid).rank);assert.deepEqual(ranks,[...ranks].sort((a,b)=>a-b));
@@ -39,4 +39,4 @@ const defaults={};for(const tag of html.matchAll(/<input\b[^>]*>/g)){const name=
 const preset=new Function('return '+js.match(/const original=(\{[^\n]+\});/)[1])();
 for(const [key,value] of Object.entries(ctx.__defaults)){assert.equal(defaults[key]??false,value,'HTML default '+key);if(key in preset)assert.equal(preset[key],value,'Reset default '+key)}
 ctx.__checkVenezia();
-console.log('Venezia: default coerenti, prezzi 3/2/1, ordine alternato, 7 pesci/6 carte, rendite solo finali, vecchi collegamenti e quattro partite MC verificate.');
+console.log('Venezia: default coerenti, prezzi 3/2/1, ordine alternato, 7 pesci/refill a 7 carte, rendite solo finali, vecchi collegamenti e quattro partite MC verificate.');

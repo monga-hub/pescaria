@@ -16,7 +16,7 @@ for(const seed of [1,2,3]){
   const result=window.__pescaria.simulate({n:4,seed,simConfig:LAB_DEFAULT_RULES});
   assert(result.G.finished);
   assert.equal(result.G.players.length,4);
-  assert.equal(decodeGame(encodeGame(result.G)).simConfig.handSize,6);
+  assert.equal(decodeGame(encodeGame(result.G)).simConfig.handSize,7);
 }
 for(const byCard of [true,false]){
   startGame({n:2,roster:[{name:'Primo',human:true,character:0},{name:'Secondo',human:true,character:1}],seed:11,simConfig:{...LAB_DEFAULT_RULES,winnerPricing:false,tieredPricing:true,priceByCard:byCard}});

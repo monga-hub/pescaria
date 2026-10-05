@@ -22,11 +22,11 @@ setSetupCount(2);setSetupCongrega('no');assert.equal(setupCongrega,'no');
 assert(setupNodes.setupOptions.innerHTML.includes("setSetupCongrega('no')"));
 document.getElementById=originalGetElement;
 
-// Sei carte assegnate direttamente, più quelle conservate, anche dopo un salvataggio.
+// Mano riportata a sette carte, incluse quelle conservate, anche dopo un salvataggio.
 startGame({n:2,name:'Solo',seed:77,difficulty:'normal',humanBot:false,congrega:'apprendista'});
 G.players[0].kept=[drawCard(),drawCard()];
 G=decodeGame(encodeGame(G));
-const keptIds=G.players[0].kept.map(c=>c.id),dealtIds=G.deck.slice(-handSize()).reverse().map(c=>c.id);
+const keptIds=G.players[0].kept.map(c=>c.id),dealtIds=G.deck.slice(-(handSize()-G.players[0].kept.length)).reverse().map(c=>c.id);
 assert(overlayHtml().includes('Ricevi le carte e inizia le aste'));
 assert(!overlayHtml().includes('>Al draft<'));
 beginDraft();
@@ -65,7 +65,7 @@ for(const humans of [1,2,3]){
     if(G.phase==='rete'){
       const kept=me.kept.length;beginDraft();
       assert.equal(G.phase,'asta');
-      assert.equal(me.hand.length,handSize()+kept);
+      assert.equal(me.hand.length,handSize());
     }
     else if(G.phase==='draft')pickDraft(G.draftPacks[me.id][0].id);
     else if(G.phase==='asta'){

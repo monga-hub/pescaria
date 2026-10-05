@@ -4,7 +4,7 @@ const ctx={assert,console,__PESCARIA_HEADLESS:true,addEventListener(){},setTimeo
 vm.runInNewContext(source.replace(/\}\)\(\);\s*$/,String.raw`
 startGame({n:2,name:'Test',seed:84,humanBot:false});beginDraft();G.handReordering=true;
 const initial=activePlayer().hand.map(c=>c.id),other=G.players[1].hand.map(c=>c.id),cash=activePlayer().coins;
-assert(reorderHandCard(initial[0],initial[5]));assert.deepEqual(activePlayer().hand.map(c=>c.id),initial.slice(1).concat(initial[0]));
+assert(reorderHandCard(initial[0],initial.at(-1)));assert.deepEqual(activePlayer().hand.map(c=>c.id),initial.slice(1).concat(initial[0]));
 G=decodeGame(encodeGame(G));assert.deepEqual(activePlayer().hand.map(c=>c.id),initial.slice(1).concat(initial[0]));
 assert.equal(activePlayer().coins,cash);assert.deepEqual(G.players[1].hand.map(c=>c.id),other);
 assert(!reorderHandCard(-1,initial[0]));
@@ -25,13 +25,13 @@ function event(type,x=200){return{pointerType:type,pointerId:7,isPrimary:true,bu
 for(const type of ['mouse','touch','pen']){
  nodes=activePlayer().hand.map((c,i)=>cardNode(c.id,i));const moved=Number(nodes[0].dataset.cardId);
  handlers.pointerdown(event(type));assert.equal(captured,null);hold();assert.equal(captured,7);
- handlers.pointermove(event(type,450));handlers.pointerup(event(type,450));
+ handlers.pointermove(event(type,550));handlers.pointerup(event(type,550));
  assert.equal(captured,null);assert.equal(activePlayer().hand.at(-1).id,moved);
  const click=event(type);handlers.click(click);assert(click.prevented&&click.stopped);
 }
 assert.equal(rendered,3);
 nodes=activePlayer().hand.map((c,i)=>cardNode(c.id,i));const before=encodeGame(G);
-handlers.pointerdown(event('touch'));hold();handlers.pointermove(event('touch',450));handlers.pointercancel();handlers.pointerup(event('touch',450));assert.equal(encodeGame(G),before,'Cancelled drags leave the hand unchanged');
+handlers.pointerdown(event('touch'));hold();handlers.pointermove(event('touch',550));handlers.pointercancel();handlers.pointerup(event('touch',550));assert.equal(encodeGame(G),before,'Cancelled drags leave the hand unchanged');
 const first=Number(nodes[0].dataset.cardId),key={...event('keyboard'),altKey:true,key:'ArrowRight'};handlers.keydown(key);assert(key.prevented);assert.equal(activePlayer().hand[1].id,first);assert.equal(focused,first);
 const enter={...event('keyboard'),key:'Enter'};handlers.keydown(enter);assert(!enter.stopped,'Enter keeps its usual card action');
 G.handReordering=false;const normal=event('mouse');handlers.pointerdown(normal);handlers.click(normal);assert(!normal.prevented,'Normal clicks still play after leaving ordering mode');

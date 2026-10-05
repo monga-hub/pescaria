@@ -687,12 +687,13 @@ const CARDS=RAW.trim().split('\n').map(line=>{const [id,name,bid,value,fish,cat,
 class RNG{constructor(seed){this.s=(seed>>>0)||1}next(){this.s=(this.s+0x6D2B79F5)|0;let t=this.s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}int(n){return Math.floor(this.next()*n)}shuffle(a){for(let i=a.length-1;i>0;i--){const j=this.int(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}}
 let G=null;
 const HEADLESS=typeof window.__PESCARIA_HEADLESS!=='undefined';
-const LAB_DEFAULT_RULES={tieredPricing:false,priceByCard:true,winnerPricing:true,reverseRankPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:3,secondPrice:2,otherPrice:1,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:15,fishPerPlayer:7,handSize:6,mandatoryBid:false,classicDraft:false,alternateAuctionOrder:true,contractOnlyCoins:false,contractChoice:false,doubleFinalContracts:false,installRemainingCards:false,categoryBonusPerUpgrade:1,bilanciaCatchup:false,deferMerchantIncome:true,merchantCardValue:2,limitMerchantIncome:false,marketSetBonus:false,marketSetThreshold:3,marketSetBase:10,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeCap:5,auctionUpgradeOnNoFish:false,lastTakesWinningBid:false};
+const LAB_DEFAULT_RULES={tieredPricing:false,priceByCard:true,winnerPricing:true,reverseRankPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:3,secondPrice:2,otherPrice:1,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:15,fishPerPlayer:7,handSize:7,refillHand:true,mandatoryBid:false,classicDraft:false,alternateAuctionOrder:true,contractOnlyCoins:false,contractChoice:false,doubleFinalContracts:false,installRemainingCards:false,categoryBonusPerUpgrade:1,bilanciaCatchup:false,deferMerchantIncome:true,merchantCardValue:2,limitMerchantIncome:false,marketSetBonus:false,marketSetThreshold:3,marketSetBase:10,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeCap:5,auctionUpgradeOnNoFish:false,lastTakesWinningBid:false};
 function selectedLabRules(){
   const raw=new URLSearchParams(location.search).get('rules');if(!raw)return LAB_DEFAULT_RULES;
   try{
     if(raw.length>3000)throw Error('Regole troppo lunghe');
     const selected=JSON.parse(raw);
+    if(selected.refillHand===undefined)selected.refillHand=false;
     if(selected.priceByCard===undefined)selected.priceByCard=false;
     if(selected.secondPrice===undefined)selected.secondPrice=selected.otherPrice;
     if(selected.alternateAuctionOrder===undefined)selected.alternateAuctionOrder=false;
@@ -1080,6 +1081,19 @@ const soloCongrega=()=>!!G.congregaLevel&&G.players.filter(p=>!p.congrega).lengt
 const directCardsToday=()=>soloCongrega()||(!G.simConfig?.classicDraft&&(!G.tutorial||G.day===1&&G.tutorial.version>=5));
 function startDraft(){
   const active=turnOrder().filter(id=>!G.players[id].congrega),available=G.deck.length+G.discard.length,handSize=G.simConfig?.handSize??HAND;
+  if(G.simConfig?.refillHand&&!G.simConfig?.classicDraft&&!G.tutorial){
+    const needed=G.players.map(p=>p.congrega?0:Math.max(0,handSize-p.hand.length-p.kept.length)),total=needed.reduce((s,n)=>s+n,0);
+    G.phase='draft';G.draftRound=0;G.drafted=G.players.map(()=>[]);G.draftPacks=G.players.map(()=>[]);G.draftChoices={};
+    if(available>=total){
+      for(const id of active)for(let n=0;n<needed[id];n++)G.drafted[id].push(drawCard());
+    }else{
+      let left=available;
+      for(let round=0;round<Math.max(...needed)&&left;round++)for(const id of active)if(left&&G.drafted[id].length<needed[id]){G.drafted[id].push(drawCard());left--}
+      (G.deckShortages??=[]).push({day:G.day,available,dealt:available,perPlayer:available/active.length});
+      log('Mazzo','Carte insufficienti: distribuite le carte disponibili a turno, fino a completare le mani.');
+    }
+    finishDraft();return;
+  }
   if(available<handSize*active.length){
     const perPlayer=Math.floor(available/active.length);
     G.phase='draft';G.draftRound=0;G.drafted=G.players.map(()=>[]);G.draftPacks=G.players.map(()=>[]);G.draftChoices={};
@@ -1118,7 +1132,7 @@ window.pickDraft=function(id){
 };
 function finishDraft(){
   for(const p of G.players){p.hand.push(...G.drafted[p.id],...p.kept);p.keptIds=new Set(p.kept.map(c=>c.id));p.kept=[];p.plan=null}
-  if(G.deckShortages?.at(-1)?.day!==G.day)log(G.draftRound===0?'Carte':'Draft',G.draftRound===0?`Ricevi ${G.simConfig?.handSize??HAND} nuove carte e riprendi in mano quelle conservate.`:'Draft completato: ognuno riprende in mano anche le carte conservate.');
+  if(G.deckShortages?.at(-1)?.day!==G.day)log(G.draftRound===0?'Carte':'Draft',G.simConfig?.refillHand&&!G.simConfig?.classicDraft&&!G.tutorial?`Riprendi le carte conservate e pesca fino ad avere ${G.simConfig.handSize} carte in mano.`:G.draftRound===0?`Ricevi ${G.simConfig?.handSize??HAND} nuove carte e riprendi in mano quelle conservate.`:'Draft completato: ognuno riprende in mano anche le carte conservate.');
   G.phase='asta';G.auctionIndex=-1;G.aOrder=G.simConfig?.alternateAuctionOrder&&G.day%2===0?[...FISH].reverse():[...FISH];
   if(G.simConfig?.simultaneousBids)planSimultaneousBids();
   nextAuction();
@@ -1659,7 +1673,7 @@ function overlayHtml(){
   if(G.overlay==='morning'){
     const lots=FISH.map(f=>`<div class="net-pick" style="cursor:default"><img src="${ASSET.fish[f]}" alt=""><span>${G.market[f]} ${f}</span></div>`).join(''),mine=G.fiutoLog.filter(x=>x.pid===0).map(x=>`${ICON[x.f]} ${x.f}`).join(', ');
     return box(`Giorno ${G.day} · Pesca del mattino`,'Il pescato di oggi',`<div class="net-picks">${lots}</div>${mine?`<p style="margin-top:12px">Fiuto per il Pescato: ricevi ${mine}.</p>`:''}<button class="btn primary" onclick="beginDraft()">${directCardsToday()?'Ricevi le carte e inizia le aste':'Al draft'}</button>`)}
-  if(G.overlay==='keep')return box('Fine del mercato','Conserva fino a 2 carte',`<p>${soloCongrega()||(!G.tutorial&&!G.simConfig?.classicDraft)?`Domani riprenderai queste carte insieme alle ${G.simConfig?.handSize??HAND} nuove carte.`:'Le carte conservate restano da parte durante il draft di domani e poi tornano nella tua mano.'} Le altre vengono scartate.</p><div class="cards" style="text-align:left">${me.hand.map(c=>cardHtml(c,'keep',true)).join('')}</div><button class="btn primary" onclick="confirmKeep()">Conferma (${G.keepSel.size}/2)</button>`);
+  if(G.overlay==='keep')return box('Fine del mercato','Conserva fino a 2 carte',`<p>${G.simConfig?.refillHand&&!G.simConfig?.classicDraft&&!G.tutorial?`Domani riprenderai queste carte e pescherai fino ad averne ${G.simConfig.handSize} in mano.`:soloCongrega()||(!G.tutorial&&!G.simConfig?.classicDraft)?`Domani riprenderai queste carte insieme alle ${G.simConfig?.handSize??HAND} nuove carte.`:'Le carte conservate restano da parte durante il draft di domani e poi tornano nella tua mano.'} Le altre vengono scartate.</p><div class="cards" style="text-align:left">${me.hand.map(c=>cardHtml(c,'keep',true)).join('')}</div><button class="btn primary" onclick="confirmKeep()">Conferma (${G.keepSel.size}/2)</button>`);
   if(G.overlay==='favorite')return box('La Congrega','Scegli il pesce preferito',`<p>Stai completando “${esc(G.favQueue[0].card.name)}”. ${G.favQueue.length} ${G.favQueue.length===1?'carta da completare':'carte da completare'}.</p><p>Il pesce scelto viene preso dal sacchetto e messo sulla carta. Ogni contratto che richiede quel tipo di pesce renderà 2 Ducati in più.</p><div class="net-picks">${FISH.map(f=>`<button class="net-pick" onclick="pickFavorite('${f}')"><img src="${ASSET.fish[f]}" alt=""><span>${f}</span></button>`).join('')}</div>`);
   if(G.overlay==='bilanciaChoice'){
     const options=Object.keys(G.bilanciaPiles).filter(up=>G.bilanciaPiles[up].length);

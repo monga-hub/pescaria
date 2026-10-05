@@ -10,24 +10,24 @@ function supply(){
  assert.equal(cards.length,100);assert.equal(new Set(cards.map(c=>c.id)).size,100);
 }
 startGame({n:4,name:'Test',seed:20261003,difficulty:'normal',humanBot:false});
-assert(G.players.every(p=>p.coins===15));assert.equal(count(G.market),28);assert(veneziaRules());assert.equal(handSize(),6);
+assert(G.players.every(p=>p.coins===15));assert.equal(count(G.market),28);assert(veneziaRules());assert.equal(handSize(),7);
 for(let rank=1;rank<=5;rank++)assert.equal(auctionPrice(rank),rank===1?3:rank===2?2:1);
 assert.equal(auctionPurchaseDescription({installed:[]},1),'Compra per primo a 3 Ducati per pesce');
 assert.equal(auctionPurchaseDescription({installed:[]},3),'Compra a 1 Ducato per pesce');
-beginDraft();assert.equal(G.phase,'asta');assert.equal(G.players[0].hand.length,6);supply();
+beginDraft();assert.equal(G.phase,'asta');assert.equal(G.players[0].hand.length,7);supply();
 // Old saves have no rule version and retain their original economy.
 startGame({n:2,name:'Test',seed:1,difficulty:'normal',humanBot:false,rulesVersion:5});
 const old=JSON.parse(encodeGame(G));delete old.rulesVersion;G=decodeGame(JSON.stringify(old));
 assert(!veneziaRules());assert.equal(handSize(),5);assert.equal(auctionPrice(1),1);assert.equal(count(G.market),12);beginDraft();assert.equal(G.phase,'draft');
 let mornings=[],auctions=[];
 const beforeDraft=startDraft;startDraft=function(){if(veneziaRules())mornings.push({day:G.day,fish:count(G.market)});return beforeDraft()};
-const beforeAuction=nextAuction;nextAuction=function(){if(veneziaRules()&&G.auctionIndex===-1)auctions.push({day:G.day,order:[...G.aOrder],cards:G.drafted.map(p=>p.length)});return beforeAuction()};
+const beforeAuction=nextAuction;nextAuction=function(){if(veneziaRules()&&G.auctionIndex===-1)auctions.push({day:G.day,order:[...G.aOrder],cards:G.players.map(p=>p.hand.length)});return beforeAuction()};
 const beforeFinish=finishDay;finishDay=function(){if(veneziaRules())for(const p of G.players){assert.equal(p.bilanciaTot,0);assert.equal(p.today.bilancia.length,0)}return beforeFinish()};
 for(const n of [2,3,4,5])for(let seed=1;seed<=20;seed++){
  mornings=[];auctions=[];const {G:game}=window.__pescaria.simulate({n,seed:seed*193+n,difficulty:'normal'});
  assert(game.finished);assert(game.players.every(p=>p.coins>=0));supply();assert.equal(mornings.length,4);assert.equal(auctions.length,4);
  for(const d of mornings)assert.equal(d.fish,7*n);
- for(const d of auctions){assert.deepEqual(d.order,d.day%2?FISH:[...FISH].reverse());assert(d.cards.every(c=>c===d.cards[0]&&c<=6));if(d.day===1)assert(d.cards.every(c=>c===6))}
+ for(const d of auctions){assert.deepEqual(d.order,d.day%2?FISH:[...FISH].reverse());assert(d.cards.every(c=>c<=7));if(d.day===1)assert(d.cards.every(c=>c===7))}
  for(const p of G.players)assert.equal(p.bilanciaTot,bilanciaIncome(p).reduce((s,x)=>s+x.v,0));
  const scores=G.players.map(p=>p.coins);G=decodeGame(encodeGame(G));finishGame();assert.deepEqual(G.players.map(p=>p.coins),scores,'Final income cannot be paid twice after loading');
 }
