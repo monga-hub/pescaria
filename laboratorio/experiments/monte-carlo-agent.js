@@ -111,7 +111,7 @@ botBid=function(p,f,seen){
   if(!p.hand.length||(!roomBanco(p)&&!auctionChoiceOn()))return originalBid(p,f,seen);
   const baseline=originalBid(p,f,seen);
   const opts=G.simConfig?.mandatoryBid?[]:[null],keys=new Set();
-  const add=b=>{if(!b)return;const key=b.card.id+'/'+b.cash+'/'+b.infl;if(!keys.has(key)&&b.cash<=p.coins){keys.add(key);opts.push({id:b.card.id,cash:b.cash,infl:b.infl})}};
+  const add=b=>{if(!b)return;const key=b.card.id+'/'+b.cash+'/'+b.infl;if(!keys.has(key)&&b.cash<=p.coins&&canPlaceBid(p,b.card,b.cash,b.infl)){keys.add(key);opts.push({id:b.card.id,cash:b.cash,infl:b.infl})}};
   add(baseline);
   if(baseline)add({...baseline,cash:Math.min(p.coins,baseline.cash+2)});
   const cards=[...p.hand].sort((a,b)=>a.bid-b.bid);
@@ -139,7 +139,7 @@ botBuy=function(p,f,price,rank){
     // Ultimo acquirente dell'ultimo lotto nell'ultima giornata, senza altre carte:
     // confronto esatto dei ricavi propri, senza rinunciare a blocchi o preparativi futuri.
     const stock=mix(p.banco,p.cesta),limit=maxBuy(p,f,price);let best=0,value=-Infinity;
-    for(let n=0;n<=limit;n++){
+    for(let n=minimumBuy(p,f,price);n<=limit;n++){
       const plan=contractMarketPlan(p,{...stock,[f]:stock[f]+n});
       const score=plan.value-costOf(p,n,price)+plan.cards.length*.001;
       if(score>value){value=score;best=n}
@@ -153,7 +153,7 @@ botBuy=function(p,f,price,rank){
   const q=G.buyQueue[G.buyPos];
   const upgrade=canUpgradeAuctionCard()&&(!wanted||botUpgradeValue(p,q.card)>wanted*3-costOf(p,wanted,price));
   const planned=upgrade?0:Math.min(limit,G.buyPos===0&&p.coins>6?Math.max(wanted+1,1):wanted);
-  const options=[...new Set([0,1,wanted,limit,planned].filter(n=>n<=limit))];
+  const options=[...new Set([0,1,wanted,limit,planned].filter(n=>n>=minimumBuy(p,f,price)&&n<=limit))];
   let best=0,value=-Infinity;MC.choices++;
   for(const n of options){
     const v=runCandidate(p.id,()=>{

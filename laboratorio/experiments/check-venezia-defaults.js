@@ -12,9 +12,9 @@ window.__checkVenezia=()=>{
  assert.deepEqual(selectedLabRules(),LAB_DEFAULT_RULES);
  G={simConfig:LAB_DEFAULT_RULES};
  for(let total=1;total<=5;total++)for(let rank=1;rank<=total;rank++)for(const score of [1,3,7,10,20])assert.equal(auctionPrice(score,rank,total),rank===1?3:rank===2?2:1);
- const old={...LAB_DEFAULT_RULES,winnerPrice:1,otherPrice:2,fishPerPlayer:6,handSize:5,deferMerchantIncome:false};delete old.refillHand;delete old.secondPrice;delete old.alternateAuctionOrder;
+ const old={...LAB_DEFAULT_RULES,winnerPrice:1,otherPrice:2,fishPerPlayer:6,handSize:5,deferMerchantIncome:false};delete old.mandatoryPurchase;delete old.refillHand;delete old.secondPrice;delete old.alternateAuctionOrder;
  location.search='?rules='+encodeURIComponent(JSON.stringify(old));const restored=selectedLabRules();
- assert.equal(restored.refillHand,false);assert.equal(restored.secondPrice,2);assert.equal(restored.alternateAuctionOrder,false);assert.equal(restored.handSize,5);assert.equal(restored.deferMerchantIncome,false);
+ assert.equal(restored.mandatoryPurchase,false);assert.equal(restored.refillHand,false);assert.equal(restored.secondPrice,2);assert.equal(restored.alternateAuctionOrder,false);assert.equal(restored.handSize,5);assert.equal(restored.deferMerchantIncome,false);
  G={simConfig:restored};assert.equal(auctionPrice(10,2,4),2);assert.equal(auctionPrice(10,3,4),2);
  for(const alternate of [false,true])for(const simultaneous of [false,true]){
   starts=[];orders=[];

@@ -21,7 +21,7 @@ function playWithReloads(reload,humans,congrega){
     if(G.phase==='rete')beginDraft();
     else if(G.phase==='draft')pickDraft(G.draftPacks[me.id][0].id);
     else if(G.phase==='asta'){
-      if(G.auctionStage==='bid'){chooseBid(me.hand[0].id);G.bidCash=Math.min(1,me.coins);submitBid()}
+      if(G.auctionStage==='bid'){chooseBid(me.hand[0].id);G.bidCash=canPlaceBid(me,me.hand[0],1)?1:0;submitBid(canPlaceBid(me,me.hand[0],G.bidCash)?'bid':'pass')}
       else if(G.auctionStage==='buy'){G.buyQty=Math.min(1,maxBuy(me,currentFish(),G.buyQueue[G.buyPos].price));confirmBuy()}
       else assert.fail('asta bloccata');
     }else if(G.phase==='pubblico'){const card=me.hand.find(c=>canContract(me,c));if(card)serveContract(card.id);else window.finishMarket()}

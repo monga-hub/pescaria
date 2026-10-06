@@ -156,7 +156,7 @@ for(const controls of [[true],[false],[false,true],[true,true],[true,false,true]
     else if(G.phase==='draft')pickDraft(G.draftPacks[me.id][0].id);
     else if(G.phase==='asta'){
       if(G.auctionStage==='bid'){
-        assert(me.human);chooseBid(me.hand[0].id);submitBid();
+        assert(me.human);chooseBid(me.hand[0].id);submitBid(canPlaceBid(me,me.hand[0])?'bid':'pass');
       }else if(G.auctionStage==='buy'){
         assert.equal(G.buyQueue[G.buyPos].pid,me.id);assert.equal(G.viewedPlayer,me.id,'Show the buying human’s own mat, even after a bot wins');G.buyQty=Math.min(1,maxBuy(me,currentFish(),G.buyQueue[G.buyPos].price));confirmBuy();
       }else assert.fail('Auction stalled');

@@ -46,5 +46,8 @@ Con 1 giocatore la Congrega è obbligatoria (Apprendista / Mercante / Maestro / 
 - Mercato: vende tutto il pesce del Banco alla banca. Prezzi (Polpo/Gambero/Mollusco/Branzino/Sardina): Apprendista 5/4/4/3/2 · Mercante 6/5/5/3/2 · Maestro 6/5/5/4/3 · Doge 7/6/6/5/4.
 - Test: `node tests/congrega.cjs`.
 
+## Acquisto obbligatorio
+Chi punta una carta deve comprare almeno un pesce, se il lotto non è esaurito al proprio turno. Per offrire deve avere spazio nel Banco e Ducati sufficienti per un pesce anche in caso di vittoria (inclusi i Ducati aggiunti all’offerta e gli sconti di Senza tassa). La Congrega mantiene le sue regole di acquisto.
+
 ## Salvataggi precedenti
 Le nuove partite usano `rulesVersion: 6`. I salvataggi senza questa versione mantengono le regole precedenti (draft di 5 carte, 6 pesci, prezzi 1/2, rendite giornaliere).

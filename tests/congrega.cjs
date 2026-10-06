@@ -69,7 +69,7 @@ for(const humans of [1,2,3]){
     }
     else if(G.phase==='draft')pickDraft(G.draftPacks[me.id][0].id);
     else if(G.phase==='asta'){
-      if(G.auctionStage==='bid'){chooseBid(me.hand[0].id);submitBid();}
+      if(G.auctionStage==='bid'){chooseBid(me.hand[0].id);submitBid(canPlaceBid(me,me.hand[0])?'bid':'pass');}
       else if(G.auctionStage==='buy'){G.buyQty=Math.min(1,maxBuy(me,currentFish(),G.buyQueue[G.buyPos].price));confirmBuy();}
       else assert.fail('asta bloccata');
     }else if(G.phase==='pubblico'){const c=me.hand.find(c=>canContract(me,c));if(c)serveContract(c.id);else window.finishMarket();}

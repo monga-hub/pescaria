@@ -687,12 +687,13 @@ const CARDS=RAW.trim().split('\n').map(line=>{const [id,name,bid,value,fish,cat,
 class RNG{constructor(seed){this.s=(seed>>>0)||1}next(){this.s=(this.s+0x6D2B79F5)|0;let t=this.s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}int(n){return Math.floor(this.next()*n)}shuffle(a){for(let i=a.length-1;i>0;i--){const j=this.int(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}}
 let G=null;
 const HEADLESS=typeof window.__PESCARIA_HEADLESS!=='undefined';
-const LAB_DEFAULT_RULES={tieredPricing:false,priceByCard:true,winnerPricing:true,reverseRankPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:3,secondPrice:2,otherPrice:1,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:15,fishPerPlayer:7,handSize:7,refillHand:true,mandatoryBid:false,classicDraft:false,alternateAuctionOrder:true,contractOnlyCoins:false,contractChoice:false,doubleFinalContracts:false,installRemainingCards:false,categoryBonusPerUpgrade:1,bilanciaCatchup:false,deferMerchantIncome:true,merchantCardValue:2,limitMerchantIncome:false,marketSetBonus:false,marketSetThreshold:3,marketSetBase:10,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeCap:5,auctionUpgradeOnNoFish:false,lastTakesWinningBid:false};
+const LAB_DEFAULT_RULES={tieredPricing:false,priceByCard:true,winnerPricing:true,reverseRankPricing:false,threshold1:3,threshold2:7,price1:1,price2:2,price3:3,winnerPrice:3,secondPrice:2,otherPrice:1,rankFirstPrice:1,rankMiddlePrice:2,rankLastPrice:3,startCoins:15,fishPerPlayer:7,handSize:7,refillHand:true,mandatoryPurchase:true,mandatoryBid:false,classicDraft:false,alternateAuctionOrder:true,contractOnlyCoins:false,contractChoice:false,doubleFinalContracts:false,installRemainingCards:false,categoryBonusPerUpgrade:1,bilanciaCatchup:false,deferMerchantIncome:true,merchantCardValue:2,limitMerchantIncome:false,marketSetBonus:false,marketSetThreshold:3,marketSetBase:10,auctionLoserChoice:false,auctionCardChoice:false,auctionContractsVariant:false,auctionUpgradeCap:5,auctionUpgradeOnNoFish:false,lastTakesWinningBid:false};
 function selectedLabRules(){
   const raw=new URLSearchParams(location.search).get('rules');if(!raw)return LAB_DEFAULT_RULES;
   try{
     if(raw.length>3000)throw Error('Regole troppo lunghe');
     const selected=JSON.parse(raw);
+    if(selected.mandatoryPurchase===undefined)selected.mandatoryPurchase=false;
     if(selected.refillHand===undefined)selected.refillHand=false;
     if(selected.priceByCard===undefined)selected.priceByCard=false;
     if(selected.secondPrice===undefined)selected.secondPrice=selected.otherPrice;
@@ -1195,11 +1196,23 @@ function advanceBidders(){
   while(G.bidPos<G.bidOrder.length){
     const p=G.players[G.bidOrder[G.bidPos]];
     if(p.human&&!p.passedAll&&p.hand.length){setActivePlayer(p.id);return}
-    if(!p.human){const b=botBid(p,currentFish(),G.bids)??(G.simConfig?.mandatoryBid&&!p.congrega&&p.hand.length?{pid:p.id,card:[...p.hand].sort((a,b)=>botCardValue(p,a)-botCardValue(p,b))[0],cash:0,infl:0}:null);if(b)G.bids.push(b)}
+    if(!p.human){const b=botBid(p,currentFish(),G.bids)??(G.simConfig?.mandatoryBid&&!p.congrega&&p.hand.length?{pid:p.id,card:[...p.hand].sort((a,b)=>botCardValue(p,a)-botCardValue(p,b))[0],cash:0,infl:0}:null);if(b&&canPlaceBid(p,b.card,b.cash,b.infl))G.bids.push(b)}
     G.bidDone.push(p.id);G.bidPos++;
   }
   resolveBids(G.bids);
 }
+function requiresFishPurchase(p){return !!G?.simConfig?.mandatoryPurchase&&!G.tutorial&&!p.congrega}
+function canPlaceBid(p,card,cash=0,infl=0){
+  if(!card)return false;
+  if(!requiresFishPurchase(p))return true;
+  if(!roomBanco(p))return false;
+  const available=p.coins-(G.bidReservations?.[p.id]||0);
+  // L'offerta deve lasciare abbastanza Ducati per un pesce in ogni posizione possibile.
+  for(let rank=1;rank<=G.players.length;rank++)if(available<(rank===1?cash:0)+costOf(p,1,auctionPrice(G.simConfig?.priceByCard?card.bid:card.bid+cash+infl*ESP_X,rank,G.players.length)))return false;
+  return true;
+}
+function canAddBidCoin(){const p=activePlayer();return G.bidCash<p.coins&&canPlaceBid(p,p.hand.find(c=>c.id===G.selectedBid),G.bidCash+1,G.bidInfl)}
+function minimumBuy(p,f,price){return requiresFishPurchase(p)&&maxBuy(p,f,price)>0?1:0}
 function bidScore(b){return b.card.bid+b.cash+b.infl*ESP_X}
 function auctionPrice(score,rank=1,total=1){const c=G?.simConfig;if(c?.reverseRankPricing)return rank===1?(c.rankFirstPrice??1):rank===total?(c.rankLastPrice??3):(c.rankMiddlePrice??2);if(c?.winnerPricing)return rank===1?(c.winnerPrice??3):rank===2?(c.secondPrice??c.otherPrice??1):(c.otherPrice??1);return score<=(c?.threshold1??4)?(c?.price1??1):score<=(c?.threshold2??7)?(c?.price2??2):(c?.price3??3)}
 window.chooseBid=function(id){if(G.phase!=='asta'||G.auctionStage!=='bid'||!activePlayer().hand.some(c=>c.id===id))return;G.selectedBid=id;G.viewedPlayer=activePlayer().id;G.bidCash=0;G.bidInfl=0;render()};
@@ -1207,14 +1220,15 @@ window.returnBidCard=function(){if(G.phase!=='asta'||G.auctionStage!=='bid')retu
 window.addInfluence=function(){const me=activePlayer();if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid)return;G.bidInfl=G.bidInfl>=me.influence?0:G.bidInfl+1;render()};
 window.submitBid=function(mode='bid'){
   if(G.phase!=='asta'||G.auctionStage!=='bid'||G.handoff)return;const me=activePlayer();
-  if(G.simConfig?.mandatoryBid&&me.hand.length&&mode!=='bid')return;
+  if(G.simConfig?.mandatoryBid&&me.hand.some(c=>canPlaceBid(me,c))&&mode!=='bid')return;
   if(mode==='all'){me.passedAll=true;log('Asta',`${me.name} non partecipa alle aste rimaste oggi.`)}
-  if(mode==='bid'){const card=me.hand.find(c=>c.id===G.selectedBid);if(!card)return;G.bids.push({pid:me.id,card,cash:Math.min(G.bidCash,me.coins),infl:Math.min(G.bidInfl,me.influence)})}
+  if(mode==='bid'){const card=me.hand.find(c=>c.id===G.selectedBid);if(!canPlaceBid(me,card,G.bidCash,G.bidInfl))return;G.bids.push({pid:me.id,card,cash:Math.min(G.bidCash,me.coins),infl:Math.min(G.bidInfl,me.influence)})}
   G.bidDone.push(me.id);G.bidPos++;advanceBidders();render();
 };
 function resolveBids(bids){
   const f=currentFish(),order=G.simConfig?.simultaneousBids?Array.from({length:G.players.length},(_,i)=>(G.simCaptain+i)%G.players.length):turnOrder();G.auctionLot=G.market[f];G.clientsQueue=[];G.favQueue=[];
   if(G.bidReservations)for(const b of bids)G.bidReservations[b.pid]-=b.cash;
+  bids=bids.filter(b=>canPlaceBid(G.players[b.pid],b.card,b.cash,b.infl));G.bids=bids;
   bids.sort((a,b)=>bidScore(b)-bidScore(a)||order.indexOf(a.pid)-order.indexOf(b.pid));
   const transferred=bids.length>1&&G.simConfig?.lastTakesWinningBid?bids[0].card:null;
   for(const b of bids){const p=G.players[b.pid];p.hand.splice(p.hand.indexOf(b.card),1);if(b.card!==transferred&&(G.tutorial||(!auctionChoiceOn()&&G.simConfig?.auctionUpgradeOnNoFish===false)))discard(b.card)}
@@ -1235,11 +1249,11 @@ function resolveBids(bids){
 const cheapN=(p,price)=>price>1?copies(p,'Esperienza'):0;
 function costOf(p,n,price){const c=Math.min(n,cheapN(p,price));return c+(n-c)*price}
 function maxBuy(p,f,price){let n=Math.min(G.market[f],roomBanco(p));while(n>0&&costOf(p,n,price)>p.coins-(G.bidReservations?.[p.id]||0))n--;return n}
-function buy(p,f,n,price){n=Math.max(0,Math.min(n,maxBuy(p,f,price)));if(n){const cost=costOf(p,n,price);p.coins-=cost;p.banco[f]+=n;G.market[f]-=n;(G.auctionPurchases??={})[p.id]=(G.auctionPurchases[p.id]||0)+n;log('Acquisto',`${p.name} compra ${n} ${f} per ${cost} Ducat${cost===1?'o':'i'}.`)}return n}
+function buy(p,f,n,price){n=Math.max(minimumBuy(p,f,price),Math.min(n,maxBuy(p,f,price)));if(n){const cost=costOf(p,n,price);p.coins-=cost;p.banco[f]+=n;G.market[f]-=n;(G.auctionPurchases??={})[p.id]=(G.auctionPurchases[p.id]||0)+n;log('Acquisto',`${p.name} compra ${n} ${f} per ${cost} Ducat${cost===1?'o':'i'}.`)}return n}
 function auctionChoiceOn(){return !!(G.simConfig?.auctionCardChoice||G.simConfig?.auctionLoserChoice)}
 function auctionContractVariantOn(){return !!(G.simConfig?.auctionContractsVariant&&G.simConfig?.auctionCardChoice&&!G.simConfig?.auctionLoserChoice)}
 function loserGetsUpgrade(q){return !!(G.simConfig?.auctionLoserChoice&&q.rank>0)}
-function canUpgradeAuctionCard(){const q=G.buyQueue?.[G.buyPos];return !!(G.auctionStage==='buy'&&q&&G.simConfig?.auctionCardChoice&&!G.simConfig?.auctionLoserChoice&&(!auctionContractVariantOn()||G.players[q.pid].today.auctionUpgrades<(G.simConfig?.auctionUpgradeCap??2)))}
+function canUpgradeAuctionCard(){const q=G.buyQueue?.[G.buyPos];return !!(G.auctionStage==='buy'&&q&&!minimumBuy(G.players[q.pid],currentFish(),q.price)&&G.simConfig?.auctionCardChoice&&!G.simConfig?.auctionLoserChoice&&(!auctionContractVariantOn()||G.players[q.pid].today.auctionUpgrades<(G.simConfig?.auctionUpgradeCap??2)))}
 function installAuctionUpgrade(q,reason='choice'){
   const p=G.players[q.pid];p.today.auctionUpgrades++;p.installed.push(q.card);(G.auctionZeroUpgrades??=[]).push({pid:p.id,card:q.card,reason});
   if(q.card.up==='Nuovi Clienti'&&q.rank>0)G.clientsQueue.push({pid:p.id,k:1});
@@ -1252,7 +1266,7 @@ function advanceBuys(){
   while(G.buyPos<G.buyQueue.length&&(G.market[f]||auctionChoiceOn())){const q=G.buyQueue[G.buyPos],p=G.players[q.pid];
     const available=maxBuy(p,f,q.price);
     if(auctionChoiceOn()&&!available){if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');else if(canUpgradeAuctionCard())installAuctionUpgrade(q,G.market[f]?'unavailable':'empty');else discard(q.card);G.buyPos++;continue}
-    if(p.human){if(available>0){setActivePlayer(p.id);G.buyQty=Math.min(available,Math.max(G.buyPos===0?1:0,needOf(p,f)));return}G.buyPos++;continue}
+    if(p.human){if(available>0){setActivePlayer(p.id);G.buyQty=Math.min(available,Math.max(requiresFishPurchase(p)||q.rank===0?1:0,needOf(p,f)));return}G.buyPos++;continue}
     botBuy(p,f,q.price,q.rank);
     if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');
     else if(auctionChoiceOn()&&!G.auctionZeroUpgrades.some(x=>x.pid===q.pid))settleAuctionCard(q);
@@ -1261,8 +1275,8 @@ function advanceBuys(){
   if(G.market[f]){returnFish(f,G.market[f]);log('Asta',`Lotto ${f}: i ${G.market[f]} pesci invenduti tornano nel sacchetto.`);G.market[f]=0}
   afterAuction();
 }
-window.toggleBuyToken=function(n){G.buyQty=G.buyQty===n?n-1:n;render()};
-window.confirmBuy=function(){const q=G.buyQueue[G.buyPos];if(canUpgradeAuctionCard()&&!G.buyQty)installAuctionUpgrade(q);else{buy(G.players[q.pid],currentFish(),G.buyQty||0,q.price);if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');else if(auctionChoiceOn())settleAuctionCard(q)}G.buyPos++;advanceBuys();render()};
+window.toggleBuyToken=function(n){if(G.phase!=='asta'||G.auctionStage!=='buy')return;const q=G.buyQueue[G.buyPos],p=G.players[q.pid];G.buyQty=Math.min(maxBuy(p,currentFish(),q.price),Math.max(minimumBuy(p,currentFish(),q.price),G.buyQty===n?n-1:n));render()};
+window.confirmBuy=function(){if(G.phase!=='asta'||G.auctionStage!=='buy'||G.handoff)return;const q=G.buyQueue[G.buyPos];if(canUpgradeAuctionCard()&&!G.buyQty)installAuctionUpgrade(q);else{buy(G.players[q.pid],currentFish(),G.buyQty||0,q.price);if(loserGetsUpgrade(q))installAuctionUpgrade(q,'loser');else if(auctionChoiceOn())settleAuctionCard(q)}G.buyPos++;advanceBuys();render()};
 function afterAuction(){
   if(!auctionChoiceOn())G.favQueue=[];
   for(const b of G.auctionResult||[]){const p=G.players[b.pid];
@@ -1735,7 +1749,7 @@ function playerMatHtml(p){
   const lanes=Object.entries(CATS).map(([key,cat])=>{const cards=p.installed.filter(c=>c.cat===key);return`<section class="mat-upgrade-lane" aria-label="Migliorie ${cat.name}"><h4>${cat.name} <span>${cards.length}</span></h4>${cards.map(c=>`<details class="mat-upgrade"><summary>${esc(upName(c))}</summary><p>${esc(c.name)}<br>${esc(upgradeDescription(c.up))}${c.favFish?`<br>Pesce preferito: ${esc(c.favFish)}`:''}</p></details>`).join('')||'<span class="mat-empty">—</span>'}</section>`}).join('');
   const bidding=G.phase==='asta'&&G.auctionStage==='bid'&&!G.handoff&&p.id===activePlayer().id;
   const available=bidding?Math.max(0,p.coins-G.bidCash):p.coins;
-  const coins=bidding?`<button id="bidCoinSource" class="mat-coins mat-bid-coins" onclick="addBidCoin(event)" title="Aggiungi i Ducati alla tua offerta" aria-label="Aggiungi un Ducato all'offerta. ${available} Ducati disponibili" ${G.selectedBid&&available?'':'disabled'}>${available}</button>`:`<span class="mat-coins" aria-label="${p.coins} Ducati">${p.coins}</span>`;
+  const coins=bidding?`<button id="bidCoinSource" class="mat-coins mat-bid-coins" onclick="addBidCoin(event)" title="Aggiungi i Ducati alla tua offerta" aria-label="Aggiungi un Ducato all'offerta. ${available} Ducati disponibili" ${canAddBidCoin()?'':'disabled'}>${available}</button>`:`<span class="mat-coins" aria-label="${p.coins} Ducati">${p.coins}</span>`;
   const pending=p.pending.length?`<div class="mat-pending"><b>Da installare a fine giornata</b>${p.pending.map(c=>`<span>${CATS[c.cat].icon} ${esc(upName(c))}</span>`).join('')}</div>`:'';
   return`<div class="player-mat" role="group" aria-label="Plancia ${character} di ${esc(p.name)}"><img class="player-mat-art" src="assets/players/plancia-${color}.png" alt="Plancia ${color}: ${character}" draggable="false"><span class="mat-label mat-bank-label">Banco ${count(p.banco)}/${capBanco(p)}</span><div class="mat-bank" role="group" aria-label="Banco: ${count(p.banco)} pesci su ${capBanco(p)}">${trays}</div><span class="mat-label mat-cesta-label">Barile ${count(p.cesta)}/${CESTA_CAP}</span><div class="mat-cesta" role="group" aria-label="Barile: ${count(p.cesta)} pesci su ${CESTA_CAP}">${count(p.cesta)?inventoryHtml(p.cesta):''}</div>${coins}</div><div class="mat-upgrade-lanes">${lanes}</div>${pending}`;
 }
@@ -1755,13 +1769,13 @@ function actionPanelHtml(me){
   const f=currentFish();
   if(G.auctionStage==='bid'){
     const card=me.hand.find(c=>c.id===G.selectedBid);
-    return`<section class="auction-panel auction-bid-actions" aria-label="La tua offerta">${mobileAuctionLayout()?`<div class="mobile-bid-coins"><button id="mobileBidCoin" class="btn secondary" onclick="addBidCoin(event)" ${card&&me.coins>G.bidCash?'':'disabled'}>Aggiungi 1 Ducato</button><button id="mobileBidCash" class="btn secondary" onclick="removeBidCoin(event)" ${G.bidCash?'':'disabled'} aria-label="Riprendi un Ducato">− <span>${G.bidCash}</span> <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"></button></div>`:''}<div class="auction-panel-buttons"><button class="btn primary offer-submit" ${card?'':'disabled'} onclick="submitBid()">OFFRI</button>${G.simConfig?.mandatoryBid?'':`<button class="btn secondary" title="Non partecipi a quest’asta" onclick="submitBid('pass')">PASSA</button><button class="btn secondary" title="Non partecipi alle aste rimaste oggi" onclick="submitBid('all')">TUTTE</button>`}</div></section>`;
+    return`<section class="auction-panel auction-bid-actions" aria-label="La tua offerta">${card&&!canPlaceBid(me,card,G.bidCash,G.bidInfl)?'<p>Per puntare devi avere spazio nel Banco e Ducati per comprare almeno un pesce, anche se vinci.</p>':''}${mobileAuctionLayout()?`<div class="mobile-bid-coins"><button id="mobileBidCoin" class="btn secondary" onclick="addBidCoin(event)" ${canAddBidCoin()?'':'disabled'}>Aggiungi 1 Ducato</button><button id="mobileBidCash" class="btn secondary" onclick="removeBidCoin(event)" ${G.bidCash?'':'disabled'} aria-label="Riprendi un Ducato">− <span>${G.bidCash}</span> <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false"></button></div>`:''}<div class="auction-panel-buttons"><button class="btn primary offer-submit" ${canPlaceBid(me,card,G.bidCash,G.bidInfl)?'':'disabled'} onclick="submitBid()">OFFRI</button>${G.simConfig?.mandatoryBid&&me.hand.some(c=>canPlaceBid(me,c))?'':`<button class="btn secondary" title="Non partecipi a quest’asta" onclick="submitBid('pass')">PASSA</button><button class="btn secondary" title="Non partecipi alle aste rimaste oggi" onclick="submitBid('all')">TUTTE</button>`}</div></section>`;
   }
   const q=G.buyQueue?.[G.buyPos];
   if(G.auctionStage!=='buy'||q?.pid!==me.id)return'';
-  const max=maxBuy(me,f,q.price),qty=G.buyQty||0;
+  const max=maxBuy(me,f,q.price),qty=Math.max(minimumBuy(me,f,q.price),G.buyQty||0);
   const tokens=Array.from({length:max},(_,i)=>`<button class="purchase-fish ${i<qty?'selected':''}" aria-pressed="${i<qty}" aria-label="${i<qty?'Rimuovi':'Seleziona'} ${f} numero ${i+1}" onclick="toggleBuyToken(${i+1})"><img src="${ASSET.fish[f]}" alt=""><span>${i+1}</span></button>`).join('');
-  return`<section class="auction-panel" aria-label="Acquisto del pesce"><h3>Compra ${f}</h3><p>${G.market[f]} nel lotto · puoi comprarne fino a ${max}</p><div class="purchase-fish-list" role="group" aria-label="Scegli la quantità di ${f.toLowerCase()} da comprare">${tokens}</div><table class="auction-table"><tbody><tr><th>Prezzo</th><td>${q.price} Ducat${q.price===1?'o':'i'} per pesce${cheapN(me,q.price)?` · primi ${cheapN(me,q.price)} a 1 (Senza tassa)`:''}</td></tr><tr><th>Selezionati</th><td>${qty} · <strong>${costOf(me,qty,q.price)} Ducati totali</strong></td></tr></tbody></table><button class="btn primary purchase-confirm" onclick="confirmBuy()">${qty?`COMPRA ${qty} · ${costOf(me,qty,q.price)} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false">`:loserGetsUpgrade(q)?`NON COMPRARE · INSTALLA ${esc(upName(q.card))}`:canUpgradeAuctionCard()?`INSTALLA ${esc(upName(q.card))}`:'NON COMPRARE'}</button></section>`;
+  return`<section class="auction-panel" aria-label="Acquisto del pesce"><h3>Compra ${f}</h3><p>${G.market[f]} nel lotto · ${requiresFishPurchase(me)?`devi comprarne almeno 1, fino a ${max}`:`puoi comprarne fino a ${max}`}</p><div class="purchase-fish-list" role="group" aria-label="Scegli la quantità di ${f.toLowerCase()} da comprare">${tokens}</div><table class="auction-table"><tbody><tr><th>Prezzo</th><td>${q.price} Ducat${q.price===1?'o':'i'} per pesce${cheapN(me,q.price)?` · primi ${cheapN(me,q.price)} a 1 (Senza tassa)`:''}</td></tr><tr><th>Selezionati</th><td>${qty} · <strong>${costOf(me,qty,q.price)} Ducati totali</strong></td></tr></tbody></table><button class="btn primary purchase-confirm" onclick="confirmBuy()">${qty?`COMPRA ${qty} · ${costOf(me,qty,q.price)} <img class="ducat-icon ducat-inline" src="assets/tokens/moneta.png" alt="Ducati" draggable="false">`:loserGetsUpgrade(q)?`NON COMPRARE · INSTALLA ${esc(upName(q.card))}`:canUpgradeAuctionCard()?`INSTALLA ${esc(upName(q.card))}`:'NON COMPRARE'}</button></section>`;
 }
 function syncHandToggle(dock){
   const folded=dock.classList.contains('folded');
@@ -1859,13 +1873,14 @@ function fitGameContents(){
   });
 }
 function syncBidCash(){
+  if(!HEADLESS){const p=activePlayer(),allowed=canPlaceBid(p,p.hand.find(c=>c.id===G.selectedBid),G.bidCash,G.bidInfl);document.querySelectorAll('.offer-submit').forEach(button=>button.disabled=!allowed)}
   const available=Math.max(0,activePlayer().coins-G.bidCash),source=$('bidCoinSource'),cash=$('offerCash');
-  if(source){source.textContent=available;source.disabled=!G.selectedBid||!available;source.setAttribute('aria-label',`Aggiungi un Ducato all'offerta. ${available} Ducati disponibili`)}
-  const mobile=$('mobileBidCoin'),mobileCash=$('mobileBidCash');if(mobile)mobile.disabled=!G.selectedBid||!available;if(mobileCash){mobileCash.disabled=!G.bidCash;mobileCash.querySelector('span').textContent=G.bidCash}
+  if(source){source.textContent=available;source.disabled=!canAddBidCoin();source.setAttribute('aria-label',`Aggiungi un Ducato all'offerta. ${available} Ducati disponibili`)}
+  const mobile=$('mobileBidCoin'),mobileCash=$('mobileBidCash');if(mobile)mobile.disabled=!canAddBidCoin();if(mobileCash){mobileCash.disabled=!G.bidCash;mobileCash.querySelector('span').textContent=G.bidCash}
   if(cash){cash.textContent=`+${G.bidCash} ${G.bidCash===1?'Ducato':'Ducati'}`;cash.disabled=!G.bidCash;cash.setAttribute('aria-label',`Riprendi un Ducato. Ducati aggiunti: ${G.bidCash}`)}
 }
 function flyBidCoin(from){const target=$('humanOfferCard');if(!target||reducedMotion)return;const to=target.getBoundingClientRect(),coin=document.createElement('span');coin.className='flying-ducat';coin.style.left=from.left+from.width/2-23+'px';coin.style.top=from.top+from.height/2-23+'px';document.body.appendChild(coin);if(window.gsap)gsap.to(coin,{left:to.left+to.width/2-23,top:to.top+to.height/2-23,rotation:720,scale:.72,duration:.52,ease:'power2.inOut',onComplete:()=>coin.remove()});else coin.animate([{transform:'translate(0) rotate(0)'},{transform:`translate(${to.left-from.left}px,${to.top-from.top}px) rotate(720deg) scale(.72)`}],{duration:520,easing:'ease-in-out'}).finished.then(()=>coin.remove())}
-window.addBidCoin=function(e){if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid||G.bidCash>=activePlayer().coins)return;const from=e.currentTarget.getBoundingClientRect();G.bidCash++;syncBidCash();flyBidCoin(from);playSound('coin')};
+window.addBidCoin=function(e){if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.selectedBid||!canAddBidCoin())return;const from=e.currentTarget.getBoundingClientRect();G.bidCash++;syncBidCash();flyBidCoin(from);playSound('coin')};
 window.removeBidCoin=function(e){e.stopPropagation();if(G.phase!=='asta'||G.auctionStage!=='bid'||!G.bidCash)return;G.bidCash--;syncBidCash()};
 // Swipes only act on a card already opened by the original fan interaction.
 function setupHandSwipe(host){
